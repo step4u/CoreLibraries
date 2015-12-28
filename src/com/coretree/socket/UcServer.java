@@ -6,12 +6,22 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.nio.ByteOrder;
+
+import com.coretree.event.EndOfCallEventArgs;
+import com.coretree.event.Event;
+import com.coretree.event.HaveGotUcMessageEventArgs;
+import com.coretree.event.IEventHandler;
 import com.coretree.models.GroupWareData;
+import com.coretree.models.RTPRecordInfo;
 import com.coretree.util.Const4pbx;
 // import com.coretree.models.Options;
+import com.coretree.util.Finalvars;
+import com.coretree.util.Util;
 
 public class UcServer implements Runnable
 {
+	public Event<HaveGotUcMessageEventArgs> HaveGotUcMessageEventHandler = new Event<HaveGotUcMessageEventArgs>();
+	
 	private ByteOrder byteorder = ByteOrder.BIG_ENDIAN;
 	
 	private DatagramSocket serverSocket;
@@ -107,7 +117,8 @@ public class UcServer implements Runnable
 		//GroupWareData rcvData = new GroupWareData(bytes, byteorder);
 		GroupWareData rcvData = new GroupWareData(bytes, byteorder);
 		
-
+		if (HaveGotUcMessageEventHandler != null)
+			HaveGotUcMessageEventHandler.raiseEvent(this, new HaveGotUcMessageEventArgs(rcvData));
 		
 		// DB
 		System.err.println(String.format("cmd : %d, status=%d", rcvData.cmd, rcvData.status));
