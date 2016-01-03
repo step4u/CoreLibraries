@@ -113,4 +113,17 @@ public class CDRData extends SetGetBytes<Object>
 		this.callee_human_name = new String((byte[])bytes2Object(new byte[20], rcv, tlength, 20)).trim();
 		tlength += 20;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return "CDRData [seq=" + seq + ", office_name=" + office_name + ", start_yyyy=" + start_yyyy + ", start_month=" + start_month
+				+ ", start_day=" + start_day + ", start_hour=" + start_hour + ", start_min=" + start_min + ", start_sec=" + start_sec
+				+ ", end_yyyy=" + end_yyyy + ", end_month=" + end_month + ", end_day=" + end_day + ", end_hour=" + end_hour
+				+ ", end_min=" + end_min + ", end_sec=" + end_sec + ", caller_type=" + caller_type + ", callee_type=" + callee_type
+				+ ", caller=" + caller + ", callee=" + callee + ", caller_ipn_number=" + caller_ipn_number + ", caller_group_code=" + caller_group_code
+				+ ", caller_group_name=" + caller_group_name + ", caller_human_name=" + caller_human_name + ", callee_ipn_number=" + callee_ipn_number
+				+ ", callee_group_code=" + callee_group_code + ", callee_group_name=" + callee_group_name + ", callee_human_name=" + callee_human_name
+				+ ", result=" + result + ", next=" + next + "]";
+	}
 }

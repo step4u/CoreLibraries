@@ -3,24 +3,21 @@ package com.coretree.socket;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Timer;
+import java.util.TimerTask;
 
-import com.coretree.event.EndOfCallEventArgs;
 import com.coretree.event.Event;
 import com.coretree.event.HaveGotUcMessageEventArgs;
-import com.coretree.event.IEventHandler;
 import com.coretree.models.GroupWareData;
-import com.coretree.models.RTPRecordInfo;
 import com.coretree.models.UcMessage;
 import com.coretree.util.Const4pbx;
-// import com.coretree.models.Options;
-import com.coretree.util.Finalvars;
-import com.coretree.util.Util;
 
 public class UcServer implements Runnable
 {
@@ -31,6 +28,8 @@ public class UcServer implements Runnable
 	private DatagramSocket serverSocket;
 	private InetSocketAddress remoteep;
 	private Thread[] threads;
+	private Timer timer;
+	private int timerInterval = 30000;
 	// private Options _option;
 	
 	public UcServer()
@@ -60,6 +59,10 @@ public class UcServer implements Runnable
 	        	threads[i] = new Thread(this);
 	        	threads[i].start();
 	        }
+	        
+	        Timer_Elapsed timer_elapsed = new Timer_Elapsed();
+			timer = new Timer();
+			timer.schedule(timer_elapsed, timerInterval, timerInterval);
 		}
 		catch (SocketException e)
 		{
@@ -93,23 +96,21 @@ public class UcServer implements Runnable
 				DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 				serverSocket.receive(receivePacket);
 				
-				System.err.println("UC Data has been received.");
-				
 				// byte[] rcvbytes = receivePacket.getData();
-				this.TreatDataHasRecieved(serverSocket, receivePacket.getData());
+				this.DataHasRecievedHandle(serverSocket, receivePacket.getData());
 			}
 		}
 		catch (SocketException e)
 		{
 			e.printStackTrace();
 		}
-		catch (IOException ie)
+		catch (IOException e)
 		{
-			ie.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 	
-	public void Send(UcMessage msg)
+	public void Send(UcMessage msg) throws UnknownHostException
 	{
 		GroupWareData data = this.GetData(msg);
 		byte[] sendData = data.toBytes();
@@ -119,7 +120,7 @@ public class UcServer implements Runnable
 		try {
 			serverSocket.send(sendPacket);
 			System.out.println("");
-			System.err.println(String.format("data has sent. cmd=%d", msg.cmd));
+			System.err.println(String.format("Has sent %s", data.toString()));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			System.err.println("an error has broken out.");
@@ -135,27 +136,27 @@ public class UcServer implements Runnable
 		System.err.println("has sent.");
 	}
 	
-	private void TreatDataHasRecieved(DatagramSocket sock, byte[] bytes)
+	private void DataHasRecievedHandle(DatagramSocket sock, byte[] bytes)
 	{
-		GroupWareData rcvData = new GroupWareData(bytes, byteorder);
+		GroupWareData data = new GroupWareData(bytes, byteorder);
 		
 		if (HaveGotUcMessageEventHandler != null)
-			HaveGotUcMessageEventHandler.raiseEvent(this, new HaveGotUcMessageEventArgs(rcvData));
-		
-		// DB
-		System.err.println(String.format("Recieved cmd :%d, status=%d", rcvData.cmd, rcvData.status));
-		System.out.println("");
-		//
+			HaveGotUcMessageEventHandler.raiseEvent(this, new HaveGotUcMessageEventArgs(data));
 	}
 	
 	public void regist()
 	{
 		UcMessage msg = new UcMessage();
 		msg.cmd = Const4pbx.UC_REGISTER_REQ;
-		this.Send(msg);
+		try {
+			this.Send(msg);
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
-	private GroupWareData GetData(UcMessage msg)
+	private GroupWareData GetData(UcMessage msg) throws UnknownHostException
 	{
 		GroupWareData data = new GroupWareData(byteorder);
 		data.cmd = msg.cmd;
@@ -163,17 +164,20 @@ public class UcServer implements Runnable
 		switch (msg.cmd)
 		{
 			case Const4pbx.UC_REGISTER_REQ:
-				InetSocketAddress inetaddr = new InetSocketAddress("192.168.1.23", 31001);
 				InetAddress bar = null;
 				try {
-					bar = InetAddress.getByName("192.168.1.23");
+					bar = InetAddress.getByName(InetAddress.getLocalHost().getHostAddress());
 				} catch (UnknownHostException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				
+				//System.err.println(String.format("InetAddress.getLocalHost() : %s, %s", InetAddress.getLocalHost(), InetAddress.getLocalHost().getHostAddress()));
+				//System.err.println(String.format("bar.getHostAddress() : %s", bar.getHostAddress()));
+				
 			    int value = ByteBuffer.wrap(bar.getAddress()).getInt();
-				System.err.println(String.format("UC_REGISTER_REQ inetaddr.hashCode=%d", inetaddr.hashCode()));
-				System.err.println(String.format("UC_REGISTER_REQ inetaddr to int=%d", value));
+				//System.err.println(String.format("UC_REGISTER_REQ inetaddr.hashCode=%d", inetaddr.hashCode()));
+				//System.err.println(String.format("UC_REGISTER_REQ inetaddr to int=%d", value));
 				
 				data.type = Const4pbx.UC_TYPE_GROUPWARE;
 				data.ip = value;
@@ -219,5 +223,14 @@ public class UcServer implements Runnable
 		}
 		
 		return data;
+	}
+	
+	class Timer_Elapsed extends TimerTask {
+
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			regist();
+		}
 	}
 }

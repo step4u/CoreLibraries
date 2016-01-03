@@ -10,23 +10,35 @@ import com.coretree.models.CDRRequest;
 import com.coretree.models.CDRResponse;
 // import com.coretree.models.Options;
 
-public class CdrServer
+public class CdrServer implements Runnable
 {
 	private DatagramSocket serverSocket;
+	private Thread[] threads;
+	private int threadcount = 1;
 	// private Options _option;
 	
 	public CdrServer()
 	{
-		InitiateSocket();
+		try {
+			// InetSocketAddress address = new InetSocketAddress("localhost", 21003);
+			serverSocket = new DatagramSocket(21003);
+		} catch (SocketException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		threads = new Thread[threadcount];
+		
+        for (int i = 0; i < threads.length; i++) {
+        	threads[i] = new Thread(this);
+        	threads[i].start();
+        }
 	}
 	
 	public void InitiateSocket()
 	{
 		try
 		{
-			// InetSocketAddress address = new InetSocketAddress("localhost", 21003);
-			serverSocket = new DatagramSocket(21003);
-			
 			byte[] receiveData = new byte[1024];
 			byte[] sendData = null;
 
@@ -41,7 +53,7 @@ public class CdrServer
 				CDRData rcvData = new CDRData(rcvObj.data, ByteOrder.BIG_ENDIAN);
 				
 				// DB
-				System.err.println(rcvData.office_name);
+				System.err.println(rcvData.toString());
 				//
 				
 				// Response
@@ -53,7 +65,7 @@ public class CdrServer
 				
 				DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, receivePacket.getAddress(), receivePacket.getPort());
 				serverSocket.send(sendPacket);
-				System.err.println("has sent.");
+				System.err.println("Has answered.");
 			}
 		}
 		catch (SocketException e)
@@ -64,6 +76,12 @@ public class CdrServer
 		{
 			ie.printStackTrace();
 		}
+	}
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		this.InitiateSocket();
 	}
 	
 	

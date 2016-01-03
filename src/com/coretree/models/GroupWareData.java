@@ -157,4 +157,11 @@ public class GroupWareData extends SetGetBytes<Object>
 		// this.dummy = (char[])bytes2Object(this.dummy, rcv, tlength, 50);
 		tlength += 50;
 	}
+	
+	@Override
+	public String toString() {
+		return "GroupWareData [cmd=" + cmd + ", direct=" + direct + ", type=" + type + ", status=" + status + ", caller=" + caller
+				+ ", callee=" + callee + ", extension=" + extension + ", responseCode=" + responseCode + ", ip=" + ip + ", port=" + port
+				+ ", unconditional=" + unconditional + ", noanswer=" + noanswer + ", busy=" + busy + ", DnD=" + DnD + "]";
+	}
 }

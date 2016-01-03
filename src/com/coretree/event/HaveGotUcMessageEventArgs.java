@@ -15,7 +15,7 @@ public class HaveGotUcMessageEventArgs extends EventArgs
 		// TODO Auto-generated constructor stub
 	}
 
-	public GroupWareData getEnfOfCallInstance()
+	public GroupWareData getItem()
 	{
 		return this.item;
 	}
