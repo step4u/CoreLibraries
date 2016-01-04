@@ -159,66 +159,55 @@ public class UcServer implements Runnable
 	private GroupWareData GetData(UcMessage msg) throws UnknownHostException
 	{
 		GroupWareData data = new GroupWareData(byteorder);
-		data.cmd = msg.cmd;
+		data.setCmd(msg.cmd);
 		
 		switch (msg.cmd)
 		{
 			case Const4pbx.UC_REGISTER_REQ:
-				InetAddress bar = null;
-				try {
-					bar = InetAddress.getByName(InetAddress.getLocalHost().getHostAddress());
-				} catch (UnknownHostException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				//System.err.println(String.format("InetAddress.getLocalHost() : %s, %s", InetAddress.getLocalHost(), InetAddress.getLocalHost().getHostAddress()));
-				//System.err.println(String.format("bar.getHostAddress() : %s", bar.getHostAddress()));
-				
-			    int value = ByteBuffer.wrap(bar.getAddress()).getInt();
-				//System.err.println(String.format("UC_REGISTER_REQ inetaddr.hashCode=%d", inetaddr.hashCode()));
-				//System.err.println(String.format("UC_REGISTER_REQ inetaddr to int=%d", value));
-				
-				data.type = Const4pbx.UC_TYPE_GROUPWARE;
-				data.ip = value;
-				data.port = 31001;
+				data.setType(Const4pbx.UC_TYPE_GROUPWARE);
+				data.setIp();
+				data.setPort(31001);
 				break;
 			case Const4pbx.UC_UNREGISTER_REQ:
-				data.type = Const4pbx.UC_TYPE_GROUPWARE;
+				data.setType(Const4pbx.UC_TYPE_GROUPWARE);
 				break;
 			case Const4pbx.UC_BUSY_EXT_REQ:
 				break;
 			case Const4pbx.UC_INFO_SRV_REQ:
-				data.extension = msg.extension;
+				data.setExtension(msg.extension);
 				break;
 			case Const4pbx.UC_MAKE_CALL_REQ:
-				data.type = Const4pbx.UC_TYPE_GROUPWARE;
-				data.extension = msg.extension;
-				data.caller = msg.extension;
-				data.callee = msg.peer;
+				data.setType(Const4pbx.UC_TYPE_GROUPWARE);
+				// data.setDirect(Const4pbx.UC_DIRECT_OUTGOING);
+				data.setExtension(msg.extension);
+				data.setCaller(msg.caller);
+				data.setCallee(msg.callee);
 				break;
 			case Const4pbx.UC_DROP_CALL_REQ:
-				data.type = Const4pbx.UC_TYPE_GROUPWARE;
-				data.extension = msg.extension;
-				data.caller = msg.extension;
-				data.callee = msg.peer;
+				data.setType(Const4pbx.UC_TYPE_GROUPWARE);
+				data.setExtension(msg.extension);
+				data.setCaller(msg.caller);
+				data.setCallee(msg.callee);
 				break;
 			case Const4pbx.UC_HOLD_CALL_REQ:
-				data.type = Const4pbx.UC_TYPE_GROUPWARE;
-				data.extension = msg.extension;
-				data.caller = msg.extension;
-				data.callee = msg.peer;
+			case Const4pbx.UC_ACTIVE_CALL_REQ:
+				data.setType(Const4pbx.UC_TYPE_GROUPWARE);
+				data.setExtension(msg.extension);
+				data.setCaller(msg.caller);
+				data.setCallee(msg.callee);
 				break;
 			case Const4pbx.UC_TRANSFER_CALL_REQ:
-				data.type = Const4pbx.UC_TYPE_GROUPWARE;
-				data.extension = msg.extension;
-				data.caller = msg.extension;
-				data.callee = msg.peer;
+				data.setType(Const4pbx.UC_TYPE_GROUPWARE);
+				data.setExtension(msg.extension);
+				data.setCaller(msg.caller);
+				data.setCallee(msg.callee);
+				data.setUnconditional(msg.unconditional);
 				break;
 			case Const4pbx.UC_PICKUP_CALL_REQ:
-				data.type = Const4pbx.UC_TYPE_GROUPWARE;
-				data.extension = msg.extension;
-				data.callee = msg.peer;
+				data.setType(Const4pbx.UC_TYPE_GROUPWARE);
+				data.setExtension(msg.extension);
+				data.setCallee(msg.caller);
+				data.setCallee(msg.callee);
 				break;
 		}
 		
