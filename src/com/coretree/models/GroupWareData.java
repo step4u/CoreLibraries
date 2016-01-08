@@ -46,21 +46,21 @@ public class GroupWareData extends SetGetBytes<Object>
 			this.caller[i] = caller.charAt(i);
 		}
 	}
-	public String getCaller() { return new String(this.caller); }
+	public String getCaller() { return new String(this.caller).trim(); }
 
 	public void setCallee(String callee) {
 		for (int i = 0 ; i < callee.length() ; i++) {
 			this.callee[i] = callee.charAt(i);
 		}
 	}
-	public String getCallee() { return new String(this.callee); }
+	public String getCallee() { return new String(this.callee).trim(); }
 	
 	public void setExtension(String extension) {
 		for (int i = 0 ; i < extension.length() ; i++) {
 			this.extension[i] = extension.charAt(i);
 		}
 	}
-	public String getExtension() { return new String(this.extension); }
+	public String getExtension() { return new String(this.extension).trim(); }
 
 	public void setDummy0(byte[] dummy0) { this.dummy0 = dummy0; }
 	public char[] getDummy0() { return this.extension; }
@@ -97,21 +97,21 @@ public class GroupWareData extends SetGetBytes<Object>
 			this.unconditional[i] = unconditional.charAt(i);
 		}
 	}
-	public String getUnconditional() { return new String(this.unconditional); }
+	public String getUnconditional() { return new String(this.unconditional).trim(); }
 	
 	public void setNoanswer(String noanswer) {
 		for (int i = 0 ; i < noanswer.length() ; i++) {
 			this.noanswer[i] = noanswer.charAt(i);
 		}
 	}
-	public String getNoanswer() { return new String(this.noanswer); }
+	public String getNoanswer() { return new String(this.noanswer).trim(); }
 
 	public void setBusy(String busy) {
 		for (int i = 0 ; i < busy.length() ; i++) {
 			this.busy[i] = busy.charAt(i);
 		}
 	}
-	public String getBusy() { return new String(this.busy); }
+	public String getBusy() { return new String(this.busy).trim(); }
 
 	public void setDnD(byte DnD) { this.DnD = DnD; }
 	public byte getDnD() { return this.DnD; }
@@ -122,14 +122,14 @@ public class GroupWareData extends SetGetBytes<Object>
 			this.UserAgent[i] = UserAgent.charAt(i);
 		}
 	}
-	public String getUserAgent() { return new String(this.UserAgent); }
+	public String getUserAgent() { return new String(this.UserAgent).trim(); }
 	
 	public void setDummy(String dummy) {
 		for (int i = 0 ; i < dummy.length() ; i++) {
 			this.dummy[i] = dummy.charAt(i);
 		}
 	}
-	public String getDummy() { return new String(this.dummy); }
+	public String getDummy() { return new String(this.dummy).trim(); }
 	
 
 	public GroupWareData(){}
