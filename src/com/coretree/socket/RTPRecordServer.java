@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.nio.ByteOrder;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -21,6 +25,7 @@ import com.coretree.models.Options;
 import com.coretree.models.RTPInfo;
 import com.coretree.models.RTPRecordInfo;
 import com.coretree.models.ReceivedRTP;
+import com.coretree.sql.DBConnection;
 import com.coretree.util.Finalvars;
 import com.coretree.util.Util;
 
@@ -209,10 +214,25 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 		RTPRecordInfo item = (RTPRecordInfo)sender;
 		String ext = item.ext;
 		String peer = item.peer;
+		String filename = item.filename;
 		
 		try
 		{
 			recordIngList.removeIf(x -> x.ext.equals(item.ext));
+			
+			String query = "insert into recinfo "
+					+ " ( extension, peernum, filename )"
+					+ " values "
+					+ " ('" + ext + "', '" + peer + "', '" + filename + "')";
+			
+			try(Connection con = DBConnection.getConnection();
+					Statement stmt = con.createStatement()) {
+				stmt.executeUpdate(query);
+			} catch (SQLException ex) {
+				ex.printStackTrace();
+			} finally {
+				System.out.println(String.format("stream end event insert db : query: %s", query));
+			}
 		}
 		catch (NullPointerException | UnsupportedOperationException e1)
 		{
@@ -220,7 +240,7 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 		}
 		finally
 		{
-			System.out.println(String.format("stream end event : ext:%s, peer:%s", ext, peer));
+			System.out.println(String.format("stream end event : ext: %s, peer: %s, filename: %s", ext, peer, filename));
 		}
 	}
 }
