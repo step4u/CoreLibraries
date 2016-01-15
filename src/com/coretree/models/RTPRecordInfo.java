@@ -767,8 +767,10 @@ public class RTPRecordInfo implements Closeable
 			try
 			{
 				close();
-				endtimer.cancel();
-				endtimer.purge();
+				if (endtimer != null) {
+					endtimer.cancel();
+					endtimer.purge();					
+				}
 			}
 			catch (IOException e)
 			{
