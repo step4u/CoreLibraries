@@ -1,7 +1,7 @@
 package com.coretree.models;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
 import java.sql.Date;
 import java.sql.Timestamp;
 
@@ -10,7 +10,7 @@ import com.coretree.core.SetGetBytes;
 public class CDRData extends SetGetBytes<Object>
 {
 	private int seq;
-	private char[] office_name = new char[40];
+	private byte[] office_name = new byte[40];
 	private int start_yyyy;
 	private int start_month;
 	private int start_day;
@@ -25,15 +25,15 @@ public class CDRData extends SetGetBytes<Object>
 	private int end_sec;
 	private int caller_type;
 	private int callee_type;
-	private char[] caller = new char[20];
-	private char[] callee = new char[20];
-	private char[] caller_ipn_number = new char[20];
-	private char[] caller_group_code = new char[5];
-	private char[] caller_group_name = new char[31];
+	private byte[] caller = new byte[20];
+	private byte[] callee = new byte[20];
+	private byte[] caller_ipn_number = new byte[20];
+	private byte[] caller_group_code = new byte[5];
+	private byte[] caller_group_name = new byte[31];
 	private byte[] caller_human_name = new byte[20];
-	private char[] callee_ipn_number = new char[20];
-	private char[] callee_group_code = new char[5];
-	private char[] callee_group_name = new char[31];
+	private byte[] callee_ipn_number = new byte[20];
+	private byte[] callee_group_code = new byte[5];
+	private byte[] callee_group_name = new byte[31];
 	private byte[] callee_human_name = new byte[20];
 	private int result;
 	private int next;
@@ -41,8 +41,19 @@ public class CDRData extends SetGetBytes<Object>
     public int getSeq(){ return this.seq; }
     public void setSeq(int seq) { this.seq = seq; }
     
-    public String getOffice_name(){ return new String(this.office_name).trim(); }
-    public void setOffice_name(char[] office_name) { this.office_name = office_name; }
+    public String getOffice_name(){
+/*    	String o = "";
+    	try {
+			o = new String(this.office_name, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	return o;
+    	*/
+    	return new String(this.office_name).trim();
+    	}
+    public void setOffice_name(byte[] office_name) { this.office_name = office_name; }
     
     public int getStart_yyyy(){ return this.start_yyyy; }
     public void setStart_yyyy(int start_yyyy) { this.start_yyyy = start_yyyy; }
@@ -87,33 +98,33 @@ public class CDRData extends SetGetBytes<Object>
     public void setCallee_type(int callee_type) { this.callee_type = callee_type; }
     
     public String getCaller(){ return new String(this.caller).trim(); }
-    public void setCaller(char[] caller) { this.caller = caller; }
+    public void setCaller(byte[] caller) { this.caller = caller; }
     
     public String getCallee(){ return new String(this.callee).trim(); }
-    public void setCallee(char[] callee) { this.callee = callee; }
+    public void setCallee(byte[] callee) { this.callee = callee; }
     
     public String getCaller_ipn_number(){ return new String(this.caller_ipn_number).trim(); }
-    public void setCaller_ipn_number(char[] caller_ipn_number) { this.caller_ipn_number = caller_ipn_number; }
+    public void setCaller_ipn_number(byte[] caller_ipn_number) { this.caller_ipn_number = caller_ipn_number; }
     
     public String getCaller_group_code(){ return new String(this.caller_group_code).trim(); }
-    public void setCaller_group_code(char[] caller_group_code) { this.caller_group_code = caller_group_code; }
+    public void setCaller_group_code(byte[] caller_group_code) { this.caller_group_code = caller_group_code; }
     
     public String getCaller_group_name(){ return new String(this.caller_group_name).trim(); }
-    public void setCaller_group_name(char[] caller_group_name) { this.caller_group_name = caller_group_name; }
+    public void setCaller_group_name(byte[] caller_group_name) { this.caller_group_name = caller_group_name; }
     
-    public String getCaller_human_name(){ return new String(this.caller_human_name, Charset.forName("ASCII")).trim(); }
+    public String getCaller_human_name(){ return new String(this.caller_human_name).trim(); }
     public void setCaller_human_name(byte[] caller_human_name) { this.caller_human_name = caller_human_name; }
     
     public String getCallee_ipn_number(){ return new String(this.callee_ipn_number).trim(); }
-    public void setCallee_ipn_number(char[] callee_ipn_number) { this.callee_ipn_number = callee_ipn_number; }
+    public void setCallee_ipn_number(byte[] callee_ipn_number) { this.callee_ipn_number = callee_ipn_number; }
     
     public String getCallee_group_code(){ return new String(this.callee_group_code).trim(); }
-    public void setCallee_group_code(char[] callee_group_code) { this.callee_group_code = callee_group_code; }
+    public void setCallee_group_code(byte[] callee_group_code) { this.callee_group_code = callee_group_code; }
     
     public String getCallee_group_name(){ return new String(this.callee_group_name).trim(); }
-    public void setCallee_group_name(char[] callee_group_name) { this.callee_group_name = callee_group_name; }
+    public void setCallee_group_name(byte[] callee_group_name) { this.callee_group_name = callee_group_name; }
     
-    public String getCallee_human_name(){ return new String(this.callee_human_name, Charset.forName("ASCII")).trim(); }
+    public String getCallee_human_name(){ return new String(this.callee_human_name).trim(); }
     public void setCallee_human_name(byte[] callee_human_name) { this.callee_human_name = callee_human_name; }
     
     public int getResult(){ return this.result; }
@@ -157,7 +168,8 @@ public class CDRData extends SetGetBytes<Object>
 		int tlength = 0;
 		this.seq = (int)bytes2Object(this.seq, rcv, tlength, 4);
 		tlength += 4;
-		this.office_name = (char[])bytes2Object(this.office_name, rcv, tlength, this.office_name.length);
+		//this.office_name = (byte[])bytes2Object(this.office_name, rcv, tlength, this.office_name.length);
+		System.arraycopy(rcv, tlength, this.office_name, 0, this.office_name.length);
 		tlength += this.office_name.length;
 		this.start_yyyy = (int)bytes2Object(this.start_yyyy, rcv, tlength, 4);
 		tlength += 4;
@@ -187,25 +199,25 @@ public class CDRData extends SetGetBytes<Object>
 		tlength += 4;
 		this.callee_type = (int)bytes2Object(this.callee_type, rcv, tlength, 4);
 		tlength += 4;
-		this.caller = (char[])bytes2Object(this.caller, rcv, tlength, this.caller.length);
+		System.arraycopy(rcv, tlength, this.caller, 0, this.caller.length);
 		tlength += this.caller.length;
-		this.callee = (char[])bytes2Object(this.callee, rcv, tlength, this.callee.length);
+		System.arraycopy(rcv, tlength, this.callee, 0, this.callee.length);
 		tlength += this.callee.length;
-		this.caller_ipn_number = (char[])bytes2Object(this.caller_ipn_number, rcv, tlength, this.caller_ipn_number.length);
+		System.arraycopy(rcv, tlength, this.caller_ipn_number, 0, this.caller_ipn_number.length);
 		tlength += this.caller_ipn_number.length;
-		this.caller_group_code = (char[])bytes2Object(this.caller_group_code, rcv, tlength, this.caller_group_code.length);
+		System.arraycopy(rcv, tlength, this.caller_group_code, 0, this.caller_group_code.length);
 		tlength += this.caller_group_code.length;
-		this.caller_group_name = (char[])bytes2Object(this.caller_group_name, rcv, tlength, this.caller_group_name.length);
+		System.arraycopy(rcv, tlength, this.caller_group_name, 0, this.caller_group_name.length);
 		tlength += this.caller_group_name.length;
-		this.caller_human_name = (byte[])bytes2Object(this.caller_human_name, rcv, tlength, this.caller_human_name.length);
+		System.arraycopy(rcv, tlength, this.caller_human_name, 0, this.caller_human_name.length);
 		tlength += this.caller_human_name.length;
-		this.callee_ipn_number = (char[])bytes2Object(this.callee_ipn_number, rcv, tlength, this.callee_ipn_number.length);
+		System.arraycopy(rcv, tlength, this.callee_ipn_number, 0, this.callee_ipn_number.length);
 		tlength += this.callee_ipn_number.length;
-		this.callee_group_code = (char[])bytes2Object(this.callee_group_code, rcv, tlength, this.callee_group_code.length);
+		System.arraycopy(rcv, tlength, this.callee_group_code, 0, this.callee_group_code.length);
 		tlength += this.callee_group_code.length;
-		this.callee_group_name = (char[])bytes2Object(this.callee_group_name, rcv, tlength, this.callee_group_name.length);
+		System.arraycopy(rcv, tlength, this.callee_group_name, 0, this.callee_group_name.length);
 		tlength += this.callee_group_name.length;
-		this.callee_human_name = (byte[])bytes2Object(this.callee_human_name, rcv, tlength, this.callee_human_name.length);
+		System.arraycopy(rcv, tlength, this.callee_human_name, 0, this.callee_human_name.length);
 		tlength += this.callee_human_name.length;
 		this.result = (int)bytes2Object(this.result, rcv, tlength, 4);
 		tlength += 4;
