@@ -6,6 +6,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.nio.ByteOrder;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -91,8 +92,8 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 				rcvRtp.size = rtpObj.size;
 				rcvRtp.buff = rtpObj.voice;
 				
-				String logMsg = String.format("seq:%d, ext:%s, peer:%s, isExtension:%d, size:%d", rcvRtp.seq, rcvRtp.ext, rcvRtp.peer, rcvRtp.isExtension, rcvRtp.size);
-				Util.WriteLog(logMsg, 0);
+				// String logMsg = String.format("seq:%d, ext:%s, peer:%s, isExtension:%d, size:%d", rcvRtp.seq, rcvRtp.ext, rcvRtp.peer, rcvRtp.isExtension, rcvRtp.size);
+				// Util.WriteLog(logMsg, 0);
 
 				StackRtp2Instance(rcvRtp);
 			}
@@ -100,7 +101,7 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 		catch (IOException e)
 		{
 			// e.printStackTrace();
-			System.err.println("UDP Port 21010 is occupied.");
+			System.err.println("UDP Port 21010 was occupied.");
 			Util.WriteLog(String.format(Finalvars.ErrHeader, 1001, e.getMessage()), 1);
 		}
 		finally
@@ -220,18 +221,24 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 		{
 			recordIngList.removeIf(x -> x.ext.equals(item.ext));
 			
-			String query = "insert into recinfo "
+			String sql = "insert into recinfo "
 					+ " ( extension, peernum, filename )"
 					+ " values "
-					+ " ('" + ext + "', '" + peer + "', '" + filename + "')";
+					+ " ( ?, ?, ? )";
 			
 			try(Connection con = DBConnection.getConnection();
-					Statement stmt = con.createStatement()) {
-				stmt.executeUpdate(query);
+					PreparedStatement stmt = con.prepareStatement(sql)) {
+				con.setAutoCommit(true);
+				
+				stmt.setString(1, ext);
+				stmt.setString(2, peer);
+				stmt.setString(3, filename);
+				
+				stmt.executeUpdate();
 			} catch (SQLException ex) {
 				ex.printStackTrace();
 			} finally {
-				System.out.println(String.format("stream end event insert db : query: %s", query));
+				System.out.println(String.format("stream end event insert db : sql: %s", sql));
 			}
 		}
 		catch (NullPointerException | UnsupportedOperationException e1)

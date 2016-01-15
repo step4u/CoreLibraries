@@ -12,7 +12,7 @@ public class RTPRecordService {
 		
 		if (args.length == 0)
 		{
-			System.out.println("No parameters. RTP Recroder is starting by BIG_ENDIAN mode");
+			System.out.println("No parameters. RTP Recroder is starting in BIG_ENDIAN mode");
 			recordserver = new RTPRecordServer(ByteOrder.BIG_ENDIAN);
 		}
 		else
@@ -36,23 +36,22 @@ public class RTPRecordService {
 									recordserver = new RTPRecordServer(ByteOrder.LITTLE_ENDIAN);
 									break;
 								default:
-									System.out.println(String.format("[%s] [%s] is invalid parameter. RTP Recroder is starting by BIG_ENDIAN mode", args[i], args[i+1]));
+									System.out.println(String.format("[%s] [%s] is invalid parameter. RTP Recroder is starting in BIG_ENDIAN mode", args[i], args[i+1]));
 									break;
 								}
 							}
 							catch (IndexOutOfBoundsException e)
 							{
-								System.out.println("Invalid parameter. RTP Recroder is starting by BIG_ENDIAN mode");
+								System.out.println("Invalid parameter. RTP Recroder is starting in BIG_ENDIAN mode");
 								recordserver = new RTPRecordServer(ByteOrder.BIG_ENDIAN);
 							}
 							break;
 						default:
-							System.out.println(String.format("[%s] is invalid parameter. RTP Recroder is starting by BIG_ENDIAN mode", args[i]));
+							System.out.println(String.format("[%s] is invalid parameter. RTP Recroder is starting in BIG_ENDIAN mode", args[i]));
 							break;
 					}
 				}
 			}
 		}
 	}
-
 }

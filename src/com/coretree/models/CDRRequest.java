@@ -40,8 +40,8 @@ public class CDRRequest extends SetGetBytes<Object>
 		tlength += 4;
 		this.pCdr = (int)bytes2Object(this.pCdr, rcv, tlength, 4);
 		tlength += 4;
-		this.data = (byte[])bytes2Object(this.data, rcv, tlength, 512);
-		tlength += 512;
+		this.data = (byte[])bytes2Object(this.data, rcv, tlength, this.data.length);
+		tlength += this.data.length;
 		this.next = (int)bytes2Object(this.next, rcv, tlength, 4);
 		tlength += 4;
 	}

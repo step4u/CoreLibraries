@@ -10,7 +10,7 @@ public class CDRResponse extends SetGetBytes<Object>
     public int pCdr;
     public int status;
     
-    private int len = 4 + 4 + 4;
+    private int len = 12;
     
     public CDRResponse(){}
     
