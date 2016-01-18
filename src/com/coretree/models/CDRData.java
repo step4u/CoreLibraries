@@ -1,8 +1,6 @@
 package com.coretree.models;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteOrder;
-import java.sql.Date;
 import java.sql.Timestamp;
 
 import com.coretree.core.SetGetBytes;
