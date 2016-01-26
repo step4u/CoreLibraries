@@ -71,7 +71,8 @@ public class GroupWareData extends SetGetBytes<Object>
 	public void setIp() {
 		InetAddress bar = null;
 		try {
-			bar = InetAddress.getByName(InetAddress.getLocalHost().getHostAddress());
+			// bar = InetAddress.getByName(InetAddress.getLocalHost().getHostAddress());
+			bar = InetAddress.getByName("localhost");
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -84,6 +85,7 @@ public class GroupWareData extends SetGetBytes<Object>
 			b.order(ByteOrder.BIG_ENDIAN);
 		
 		this.ip = b.getInt();
+		System.out.println("GroupWare->setIp(): " + this.ip);
 	}
 	public String getIp() {
 		return intToIp(this.ip);
