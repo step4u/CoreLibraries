@@ -85,7 +85,7 @@ public class GroupWareData extends SetGetBytes<Object>
 			b.order(ByteOrder.BIG_ENDIAN);
 		
 		this.ip = b.getInt();
-		System.out.println("GroupWare->setIp(): " + this.ip);
+		// System.out.println("GroupWare->setIp(): " + this.ip);
 	}
 	public String getIp() {
 		return intToIp(this.ip);
