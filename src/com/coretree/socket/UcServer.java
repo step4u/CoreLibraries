@@ -209,6 +209,12 @@ public class UcServer implements Runnable
 				data.setCallee(msg.caller);
 				data.setCallee(msg.callee);
 				break;
+			case Const4pbx.UC_SET_SRV_REQ:
+			case Const4pbx.UC_CLEAR_SRV_REQ:
+				data.setExtension(msg.extension);
+				data.setResponseCode(msg.responseCode);
+				data.setUnconditional(msg.unconditional);
+				break;
 		}
 		
 		return data;
