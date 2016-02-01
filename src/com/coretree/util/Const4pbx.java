@@ -2,7 +2,7 @@ package com.coretree.util;
 
 public class Const4pbx
 {
-	// 명령어 정의 for UC //
+	// for UC //
 	public static final byte UC_REGISTER_REQ = 60;
 	public static final byte UC_REGISTER_RES = 61;
 	public static final byte UC_UNREGISTER_REQ = 62;
@@ -91,4 +91,8 @@ public class Const4pbx
 	// DND
 	public static final byte UC_DND_SET = 1;
 	public static final byte UC_DND_CLEAR = 0;
+	
+	// etc command
+	
 }
+
