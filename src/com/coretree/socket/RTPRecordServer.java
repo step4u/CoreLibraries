@@ -80,8 +80,10 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 
 				int nDataSize = rtpObj.size - 12;
 
-				if (nDataSize != 80 && nDataSize != 160 && nDataSize != 240 && nDataSize != -12)
-					return;
+				if (nDataSize != 80 && nDataSize != 160 && nDataSize != 240 && nDataSize != -12) {
+					// System.out.println("nDataSize: " + nDataSize);
+					continue;
+				}
 
 				ReceivedRTP rcvRtp = new ReceivedRTP();
 				rcvRtp.seq = rtpObj.seq;
@@ -113,6 +115,8 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 
 	private void StackRtp2Instance(ReceivedRTP rtp)
 	{
+		// System.out.println("entered into StackRtp2Instance");
+		
 		RTPRecordInfo ingInstance = null;
 
 		r.lock();

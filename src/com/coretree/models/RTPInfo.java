@@ -116,7 +116,7 @@ public class RTPInfo extends SetGetBytes<Object> {
 		
 		return out;
 	}
-
+	
 	@Override
 	public void toObject(byte[] rcv) {
 		int tlength = 0;
@@ -156,4 +156,46 @@ public class RTPInfo extends SetGetBytes<Object> {
 		this.next = (int)bytes2Object(this.next, rcv, tlength, 4);
 		tlength += 4;
 	}
+
+	/*
+	@Override
+	public void toObject(byte[] rcv) {
+		int tlength = 0;
+		this.extension = new String((byte[])bytes2Object(new byte[5], rcv, tlength, 5)).trim();
+		tlength += 5;
+		this.peer_number = new String((byte[])bytes2Object(new byte[20], rcv, tlength, 20)).trim();
+		tlength += 20;
+		tlength += 3;
+		this.isExtension = (int)bytes2Object(this.isExtension, rcv, tlength, 4);
+		tlength += 4;
+		this.codec = (int)bytes2Object(this.codec, rcv, tlength, 4);
+		tlength += 4;
+		this.seq = (int)bytes2Object(this.seq, rcv, tlength, 4);
+		tlength += 4;
+		this.rtp_seq = (int)bytes2Object(this.rtp_seq, rcv, tlength, 4);
+		tlength += 4;
+		this.yyyy = (int)bytes2Object(this.yyyy, rcv, tlength, 4);
+		tlength += 4;
+		this.month = (int)bytes2Object(this.month, rcv, tlength, 4);
+		tlength += 4;
+		this.day = (int)bytes2Object(this.day, rcv, tlength, 4);
+		tlength += 4;
+		this.hh = (int)bytes2Object(this.hh, rcv, tlength, 4);
+		tlength += 4;
+		this.mm = (int)bytes2Object(this.mm, rcv, tlength, 4);
+		tlength += 4;
+		this.sec = (int)bytes2Object(this.sec, rcv, tlength, 4);
+		tlength += 4;
+		this.msec = (int)bytes2Object(this.msec, rcv, tlength, 4);
+		tlength += 4;
+		this.offset = (int)bytes2Object(this.offset, rcv, tlength, 4);
+		tlength += 4;
+		this.size = (int)bytes2Object(this.size, rcv, tlength, 4);
+		tlength += 4;
+		System.arraycopy(rcv, tlength, this.voice, 0, 320 + 12);
+		tlength += (320 + 12);
+		this.next = (int)bytes2Object(this.next, rcv, tlength, 4);
+		tlength += 4;
+	}
+	*/
 }

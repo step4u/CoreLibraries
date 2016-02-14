@@ -98,27 +98,27 @@ public abstract class SetGetBytes<T> {
 		switch (classtype)
 		{
 			case "java.lang.Byte":
-				// b.order(byteorder);
+				b.order(byteorder);
 				o = b.get();
 				break;
 			case "java.lang.Short":
-				// b.order(byteorder);
+				b.order(byteorder);
 				o = b.getShort();
 				break;
 			case "java.lang.Integer":
-				// b.order(byteorder);
+				b.order(byteorder);
 				o = b.getInt();
 				break;
 			case "java.lang.Long":
-				// b.order(byteorder);
+				b.order(byteorder);
 				o = b.getLong();
 				break;
 			case "java.lang.Float":
-				// b.order(byteorder);
+				b.order(byteorder);
 				o = b.getFloat();
 				break;
 			case "java.lang.Double":
-				// b.order(byteorder);
+				b.order(byteorder);
 				o = b.getDouble();
 				break;
 			case "java.lang.Character":
