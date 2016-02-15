@@ -159,7 +159,7 @@ public class UcServer implements Runnable
 	private GroupWareData GetData(UcMessage msg) throws UnknownHostException
 	{
 		GroupWareData data = new GroupWareData(byteorder);
-		data.setCmd(msg.cmd);
+		data.setCmd((byte)msg.cmd);
 		
 		switch (msg.cmd)
 		{

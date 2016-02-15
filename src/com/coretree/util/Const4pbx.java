@@ -95,8 +95,16 @@ public class Const4pbx
 	public static final byte UC_DND_CLEAR = 0;
 	
 	// etc command
-	public static final int UC_SET_EXT_STATE = 10001;
+	public static final int  WS_REQ_EXTENSION_STATE = 10001;
+	public static final int  WS_RES_EXTENSION_STATE = 10002;
+	public static final int  WS_REQ_SET_EXTENSION_STATE = 10003;
+	public static final int  WS_RES_SET_EXTENSION_STATE = 10004;
+	public static final int  WS_REQ_RELOAD_USER = 10005;
+	public static final int  WS_RES_RELOAD_USER = 10006;
 	
-	// etc status
-	public static final int UC_RES_EXT_STATE = 20001;
+	// etc state
+	public static final int WS_VALUE_EXTENSION_STATE_ONLINE = 20001;				// 온라인
+	public static final int WS_VALUE_EXTENSION_STATE_LEFT = 20002;					// 자리비움
+	public static final int WS_VALUE_EXTENSION_STATE_REDIRECTED = 20003;			// 착신전환
+	public static final int WS_VALUE_EXTENSION_STATE_DND = 20004;					// 수신거부
 }

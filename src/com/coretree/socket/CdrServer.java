@@ -27,7 +27,7 @@ public class CdrServer implements Runnable
 	{
 		try {
 			// InetSocketAddress address = new InetSocketAddress("localhost", 21003);
-			serverSocket = new DatagramSocket(21004);
+			serverSocket = new DatagramSocket(21003);
 		} catch (SocketException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

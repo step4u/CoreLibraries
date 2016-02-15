@@ -1,7 +1,7 @@
 package com.coretree.models;
 
 public class UcMessage {
-	public byte cmd;
+	public int cmd;
 	public byte direct;
 	public long call_idx;
 	public String extension;
@@ -12,7 +12,7 @@ public class UcMessage {
 	public String calleename;
 	public int responseCode;
 	public String unconditional;
-	public byte status;
+	public int status;
 /*
 	public void setCmd(byte cmd) { this.cmd = cmd; }
 	public byte getCmd() { return this.cmd; }
