@@ -37,6 +37,8 @@ public class Const4pbx
 	public static final byte UC_CLEAR_EXT_STATE_REQ = 100;
 	public static final byte UC_CLEAR_EXT_STATE_RES = 101;
 	public static final byte UC_REPORT_EXT_STATE = 102;
+	public static final byte UC_REPORT_SRV_STATE = 103;
+	public static final byte UC_REPORT_WAITING_COUNT = 104;
 	
 	public static final byte UC_SMS_SEND_REQ = 120;
 	public static final byte UC_SMS_SEND_RES = 121;
@@ -93,6 +95,8 @@ public class Const4pbx
 	public static final byte UC_DND_CLEAR = 0;
 	
 	// etc command
+	public static final int UC_SET_EXT_STATE = 10001;
 	
+	// etc status
+	public static final int UC_RES_EXT_STATE = 20001;
 }
-
