@@ -50,7 +50,7 @@ public class UcServer implements Runnable
 			remoteep = new InetSocketAddress(addr, port);
 			
 			// InetSocketAddress address = new InetSocketAddress("localhost", 21003);
-			serverSocket = new DatagramSocket(31001);
+			serverSocket = new DatagramSocket(31002);
 			serverSocket.connect(remoteep);
 			
 			threads = new Thread[threadcount];
