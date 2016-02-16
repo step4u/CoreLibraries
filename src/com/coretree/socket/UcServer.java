@@ -30,6 +30,7 @@ public class UcServer implements Runnable
 	private Thread[] threads;
 	private Timer timer;
 	private int timerInterval = 30000;
+	private int localport = 31002;
 	// private Options _option;
 	
 	public UcServer()
@@ -50,7 +51,7 @@ public class UcServer implements Runnable
 			remoteep = new InetSocketAddress(addr, port);
 			
 			// InetSocketAddress address = new InetSocketAddress("localhost", 21003);
-			serverSocket = new DatagramSocket(31002);
+			serverSocket = new DatagramSocket(localport);
 			serverSocket.connect(remoteep);
 			
 			threads = new Thread[threadcount];
@@ -166,7 +167,7 @@ public class UcServer implements Runnable
 			case Const4pbx.UC_REGISTER_REQ:
 				data.setType(Const4pbx.UC_TYPE_GROUPWARE);
 				data.setIp();
-				data.setPort(31001);
+				data.setPort(localport);
 				break;
 			case Const4pbx.UC_UNREGISTER_REQ:
 				data.setType(Const4pbx.UC_TYPE_GROUPWARE);
