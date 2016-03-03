@@ -21,8 +21,8 @@ public class Const4pbx
 	public static final byte UC_MAKE_CALL_RES = 75;
 	public static final byte UC_DROP_CALL_REQ = 76;
 	public static final byte UC_DROP_CALL_RES = 77;
-	public static final byte UC_ANSER_CALL_REQ = 78;
-	public static final byte UC_ANSER_CALL_RES = 79;
+	public static final byte UC_ANSWER_CALL_REQ = 78;
+	public static final byte UC_ANSWER_CALL_RES = 79;
 	public static final byte UC_PICKUP_CALL_REQ = 80;
 	public static final byte UC_PICKUP_CALL_RES = 81;
 	public static final byte UC_HOLD_CALL_REQ = 82;

@@ -216,6 +216,10 @@ public class UcServer implements Runnable
 				data.setResponseCode(msg.responseCode);
 				data.setUnconditional(msg.unconditional);
 				break;
+			case Const4pbx.UC_ANSWER_CALL_REQ:
+				data.setExtension(msg.extension);
+				break;
+				
 		}
 		
 		return data;
