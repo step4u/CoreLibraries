@@ -25,8 +25,9 @@ public class GroupWareData extends SetGetBytes<Object>
     private byte DnD;
     private char[] UserAgent = new char[10];
     private char[] dummy = new char[50];
+    private byte[] dummy1 = new byte[3];
     
-	private int len = 165;
+	private int len = 168;
 	
 	
 	public void setCmd(byte cmd) { this.cmd = cmd; }
@@ -133,6 +134,9 @@ public class GroupWareData extends SetGetBytes<Object>
 	}
 	public String getDummy() { return new String(this.dummy).trim(); }
 	
+	public void setDummy1(byte[] dummy1) { this.dummy1 = dummy1; }
+	public char[] getDummy1() { return this.extension; }
+	
 
 	public GroupWareData(){}
     
@@ -220,6 +224,11 @@ public class GroupWareData extends SetGetBytes<Object>
 		tlength += bytes.length;
 		
 		bytes = object2Bytes(dummy);
+		System.arraycopy(bytes, 0, out, tlength, bytes.length);
+		tlength += bytes.length;
+		
+		// dummy space
+		bytes = new byte[3];
 		System.arraycopy(bytes, 0, out, tlength, bytes.length);
 		tlength += bytes.length;
 		
