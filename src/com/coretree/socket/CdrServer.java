@@ -3,13 +3,12 @@ package com.coretree.socket;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.nio.ByteOrder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
-
 import com.coretree.models.CDRData;
 import com.coretree.models.CDRRequest;
 import com.coretree.models.CDRResponse;
@@ -26,8 +25,9 @@ public class CdrServer implements Runnable
 	public CdrServer()
 	{
 		try {
-			// InetSocketAddress address = new InetSocketAddress("localhost", 21003);
-			serverSocket = new DatagramSocket(21003);
+			InetSocketAddress address = new InetSocketAddress("localhost", 21003);
+			serverSocket = new DatagramSocket(address);
+			// serverSocket = new DatagramSocket(21003);
 		} catch (SocketException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

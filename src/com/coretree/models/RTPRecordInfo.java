@@ -45,8 +45,8 @@ public class RTPRecordInfo implements Closeable
 	private WaveFileWriter writer = null;
 	// private WaveFormat pcmFormat = new WaveFormat(8000, 16, 1);
 
-	private final int timerInterval = 3000;
-	private final int endtimerInterval = 12000;
+	private final int timerInterval = 1000;
+	private final int endtimerInterval = 1500;
 	
 	private String OS = System.getProperty("os.name");
 

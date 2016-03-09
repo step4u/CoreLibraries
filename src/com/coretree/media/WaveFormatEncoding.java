@@ -9,8 +9,7 @@ public enum WaveFormatEncoding {
 	
 	private int val = 0x0006;
 	
-	WaveFormatEncoding(int input)
-	{
+	WaveFormatEncoding(int input) {
 		val = input;
 	}
 	

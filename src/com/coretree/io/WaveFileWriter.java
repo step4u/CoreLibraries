@@ -23,8 +23,7 @@ public class WaveFileWriter {
     private String filename;
     private long position = 0;
     
-    public WaveFileWriter(FileOutputStream outstream, WaveFormat format) throws IOException
-    {
+    public WaveFileWriter(FileOutputStream outstream, WaveFormat format) throws IOException {
         this.outStream = outstream;
         this.format = format;
         
@@ -51,40 +50,30 @@ public class WaveFileWriter {
     }
     
     
-    public WaveFileWriter(String filename, WaveFormat format) throws FileNotFoundException, IOException
-    {
+    public WaveFileWriter(String filename, WaveFormat format) throws FileNotFoundException, IOException {
     	this(new FileOutputStream(filename), format);
     	this.filename = filename;
     }
 
     
-	private void WriteDataChunkHeader()
-    {
-        try
-		{
+	private void WriteDataChunkHeader() {
+        try {
 			this.outStream.write("data".getBytes(), 0, 4);
-		}
-		catch (IOException e1)
-		{
+		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
         
-        try
-		{
+        try {
 			this.outStream.write(BitConverter.GetBytes((int)0), 0, 4);
-		}
-		catch (IOException e)
-		{
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     }
 
-	private void CreateFactChunk() throws IOException
-    {
-        if (HasFactChunk())
-        {
+	private void CreateFactChunk() throws IOException {
+        if (HasFactChunk()) {
             this.outStream.write("fact".getBytes(), 0, 4);
             this.outStream.write((int)4);
             //factSampleCountPos = this.outStream.Position;
@@ -92,27 +81,23 @@ public class WaveFileWriter {
         }
     }
 
-    private boolean HasFactChunk()
-    {
+    private boolean HasFactChunk() {
         return format.waveFormatTag != WaveFormatEncoding.Pcm && format.bitsPerSample != 0;
     }
     
-    public void flush() throws IOException
-    {
+    public void flush() throws IOException {
     	//this.outStream.flush();
     	UpdateHeader();
     }
     
-    protected void UpdateHeader() throws IOException
-    {
+    protected void UpdateHeader() throws IOException {
     	this.outStream.flush();
         UpdateRiffChunk();
         //UpdateFactChunk(writer);
         UpdateDataChunk();
     }
     
-    private void UpdateRiffChunk() throws IOException
-    {
+    private void UpdateRiffChunk() throws IOException {
     	FileChannel ch = this.outStream.getChannel();
     	position = ch.position();
     	ch.position(headSizePos);
@@ -122,8 +107,7 @@ public class WaveFileWriter {
     	// System.out.println(String.format("ch.size() : %d", ch.size()));
     }
     
-    private void UpdateDataChunk() throws IOException
-    {
+    private void UpdateDataChunk() throws IOException {
     	FileChannel ch = this.outStream.getChannel();
     	position = ch.position();
     	ch.position(dataChunkSizePos);
@@ -131,13 +115,10 @@ public class WaveFileWriter {
     	ch.position(position);
     }
 
-    private void UpdateFactChunk(DataOutputStream writer) throws IOException
-    {
-        if (HasFactChunk())
-        {
+    private void UpdateFactChunk(DataOutputStream writer) throws IOException {
+        if (HasFactChunk()) {
             int bitsPerSample = (format.bitsPerSample * format.channel);
-            if (bitsPerSample != 0)
-            {
+            if (bitsPerSample != 0) {
             	// �ش� ��ġ�� update
                 //writer.Seek((int)factSampleCountPos, SeekOrigin.Begin);
                 writer.write((int)((dataChunkSize * 8) / bitsPerSample));
@@ -145,14 +126,12 @@ public class WaveFileWriter {
         }
     }
     
-    public void Write(byte[] data, int offset, int count) throws IOException
-    {
+    public void Write(byte[] data, int offset, int count) throws IOException {
     	this.outStream.write(data, offset, count);
         dataChunkSize += count;
     }
 
-	public void close() throws IOException
-	{
+	public void close() throws IOException {
 		this.flush();
 		if (this.outStream != null)
 			this.outStream.close();
