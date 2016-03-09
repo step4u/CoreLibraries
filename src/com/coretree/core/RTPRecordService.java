@@ -10,13 +10,10 @@ public class RTPRecordService {
 		// TODO Auto-generated method stub
 		RTPRecordServer recordserver = null;
 		
-		if (args.length == 0)
-		{
+		if (args.length == 0) {
 			System.out.println("No parameters. RTP Recroder is starting in BIG_ENDIAN mode");
 			recordserver = new RTPRecordServer(ByteOrder.BIG_ENDIAN);
-		}
-		else
-		{
+		} else {
 			for (int i = 0 ; i < args.length ; i++) {
 				// System.out.println(args[i]);
 				if (args[i].contains("-")) {
