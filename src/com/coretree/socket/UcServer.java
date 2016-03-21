@@ -16,6 +16,7 @@ import java.util.TimerTask;
 import com.coretree.event.Event;
 import com.coretree.event.HaveGotUcMessageEventArgs;
 import com.coretree.models.GroupWareData;
+import com.coretree.models.SmsMsg;
 import com.coretree.models.UcMessage;
 import com.coretree.util.Const4pbx;
 
@@ -124,6 +125,22 @@ public class UcServer implements Runnable
 			System.err.println(String.format("Has sent %s", data.toString()));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			System.err.println("an error has broken out.");
+			e.printStackTrace();
+		}
+	}
+	
+	public void Send(SmsMsg msg) throws UnknownHostException
+	{
+		byte[] sendData = msg.toBytes();
+		
+		DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length);
+		
+		try {
+			serverSocket.send(sendPacket);
+			System.out.println("");
+			System.err.println(String.format("SMS Has sent %s", msg.toString()));
+		} catch (IOException e) {
 			System.err.println("an error has broken out.");
 			e.printStackTrace();
 		}
