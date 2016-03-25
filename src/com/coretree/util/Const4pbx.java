@@ -105,6 +105,6 @@ public class Const4pbx
 	// etc state
 	public static final int WS_VALUE_EXTENSION_STATE_ONLINE = 20001;				// 온라인
 	public static final int WS_VALUE_EXTENSION_STATE_LEFT = 20002;					// 자리비움
-	public static final int WS_VALUE_EXTENSION_STATE_REDIRECTED = 20003;			// 착신전환
-	public static final int WS_VALUE_EXTENSION_STATE_DND = 20004;					// 수신거부
+	public static final int WS_VALUE_EXTENSION_STATE_DND = 20003;					// 수신거부
+	public static final int WS_VALUE_EXTENSION_STATE_REDIRECTED = 20004;			// 착신전환
 }
