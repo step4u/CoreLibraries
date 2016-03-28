@@ -228,22 +228,43 @@ public class UcServer implements Runnable
 				data.setCallee(msg.callee);
 				break;
 			case Const4pbx.UC_SET_SRV_REQ:
+				data.setExtension(msg.extension);
+				data.setResponseCode(msg.responseCode);
+				if (data.getResponseCode() == Const4pbx.UC_SRV_UNCONDITIONAL) {
+					data.setUnconditional(msg.unconditional);
+				} else if (data.getResponseCode() == Const4pbx.UC_SRV_NOANSWER) {
+					data.setNoanswer(msg.unconditional);
+				} else if (data.getResponseCode() == Const4pbx.UC_SRV_BUSY) {
+					data.setBusy(msg.unconditional);
+				} else if (data.getResponseCode() == Const4pbx.UC_SRV_DND) {
+					data.setDnD(Const4pbx.UC_DND_SET);
+				}
+				break;
 			case Const4pbx.UC_CLEAR_SRV_REQ:
 				data.setExtension(msg.extension);
 				data.setResponseCode(msg.responseCode);
-				data.setUnconditional(msg.unconditional);
 				break;
 			case Const4pbx.UC_ANSWER_CALL_REQ:
 				data.setExtension(msg.extension);
 				break;
-				
+			case Const4pbx.WS_VALUE_EXTENSION_STATE_ONLINE:
+				data.setCmd(Const4pbx.UC_CLEAR_SRV_REQ);
+				data.setExtension(msg.extension);
+				data.setResponseCode(msg.responseCode);
+				break;
+			case Const4pbx.WS_VALUE_EXTENSION_STATE_LEFT:
+			case Const4pbx.WS_VALUE_EXTENSION_STATE_DND:
+			case Const4pbx.WS_VALUE_EXTENSION_STATE_REDIRECTED:
+				data.setCmd(Const4pbx.UC_SET_SRV_REQ);
+				data.setExtension(msg.extension);
+				data.setResponseCode(msg.responseCode);
+				break;
 		}
 		
 		return data;
 	}
 	
 	class Timer_Elapsed extends TimerTask {
-
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
