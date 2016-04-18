@@ -16,7 +16,7 @@ import java.util.TimerTask;
 import com.coretree.event.Event;
 import com.coretree.event.HaveGotUcMessageEventArgs;
 import com.coretree.models.GroupWareData;
-import com.coretree.models.SmsMsg;
+import com.coretree.models.SmsData;
 import com.coretree.models.UcMessage;
 import com.coretree.util.Const4pbx;
 
@@ -33,6 +33,8 @@ public class UcServer implements Runnable
 	private int timerInterval = 30000;
 	private int localport = 31002;
 	// private Options _option;
+	
+	public ByteOrder GetByteorder() { return this.byteorder; }
 	
 	public UcServer()
 	{
@@ -130,7 +132,7 @@ public class UcServer implements Runnable
 		}
 	}
 	
-	public void Send(SmsMsg msg) throws UnknownHostException
+	public void Send(SmsData msg) throws UnknownHostException
 	{
 		byte[] sendData = msg.toBytes();
 		
@@ -156,10 +158,10 @@ public class UcServer implements Runnable
 	
 	private void DataHasRecievedHandle(DatagramSocket sock, byte[] bytes)
 	{
-		GroupWareData data = new GroupWareData(bytes, byteorder);
+		// GroupWareData data = new GroupWareData(bytes, byteorder);
 		
 		if (HaveGotUcMessageEventHandler != null)
-			HaveGotUcMessageEventHandler.raiseEvent(this, new HaveGotUcMessageEventArgs(data));
+			HaveGotUcMessageEventHandler.raiseEvent(this, new HaveGotUcMessageEventArgs(bytes));
 	}
 	
 	public void regist()

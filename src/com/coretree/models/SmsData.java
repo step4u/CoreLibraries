@@ -3,7 +3,7 @@ package com.coretree.models;
 import java.nio.ByteOrder;
 import com.coretree.core.SetGetBytes;
 
-public class SmsMsg extends SetGetBytes<Object>
+public class SmsData extends SetGetBytes<Object>
 {
 	private byte cmd;
 	private byte direct;
@@ -80,14 +80,14 @@ public class SmsMsg extends SetGetBytes<Object>
 	}
 	public String getReservetime() { return new String(this.reservetime).trim(); }
 	
-	public SmsMsg(){}
+	public SmsData(){}
     
-    public SmsMsg(ByteOrder byteorder)
+    public SmsData(ByteOrder byteorder)
     {
     	this.SetByteOrder(byteorder);
     }
     
-	public SmsMsg(byte[] buff, ByteOrder byteorder)
+	public SmsData(byte[] buff, ByteOrder byteorder)
 	{
 		this.SetByteOrder(byteorder);
 		this.toObject(buff);

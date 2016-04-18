@@ -1,12 +1,10 @@
 package com.coretree.event;
 
-import com.coretree.models.GroupWareData;
-
 public class HaveGotUcMessageEventArgs extends EventArgs
 {
-	private GroupWareData item = null;
+	private byte[] item = null;
 	
-	public HaveGotUcMessageEventArgs(GroupWareData item) {
+	public HaveGotUcMessageEventArgs(byte[] item) {
 		this.item = item;
 	}
 	
@@ -15,7 +13,7 @@ public class HaveGotUcMessageEventArgs extends EventArgs
 		// TODO Auto-generated constructor stub
 	}
 
-	public GroupWareData getItem()
+	public byte[] getItem()
 	{
 		return this.item;
 	}
