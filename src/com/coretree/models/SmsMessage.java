@@ -73,4 +73,11 @@ public class SmsMessage {
 		}
 	}
 	public String getReservetime() { return new String(this.reservetime).trim(); }
+	
+	@Override
+	public String toString() {
+		return "SmsMsg [cmd=" + getCmd() + ", direct=" + getDirect() + ", type=" + getType() + ", status=" + getStatus()
+		+ ", from_ext=" + getFrom_ext() + ", to_ext=" + getTo_ext() + ", userid=" + getUserid() + ", senderphone=" + getSenderphone()
+		+ ", receiverphones=" + getReceiverphones() + ", message=" + getMessage() + ", reservetime=" + getReservetime() + "]";
+	}
 }
