@@ -17,8 +17,6 @@ public class SmsData extends SetGetBytes<Object>
 	private char[] message = new char[84];
 	private char[] reservetime = new char[32];
 	
-	private String[] rphones;
-
 	private int len = 444;
 	
 	public void setCmd(byte cmd) { this.cmd = cmd; }
@@ -85,16 +83,6 @@ public class SmsData extends SetGetBytes<Object>
 		}
 	}
 	public String getReservetime() { return new String(this.reservetime).trim(); }
-	
-	public void setRphones() {
-		this.rphones = new String(this.receiverphones).trim().split(",");
-	}
-	public String[] getRphones() {
-		if (this.rphones == null) {
-			this.rphones = new String(this.receiverphones).trim().split(",");
-		}
-		return this.rphones;
-	}
 	
 	public SmsData(){}
     
@@ -194,6 +182,6 @@ public class SmsData extends SetGetBytes<Object>
 	public String toString() {
 		return "SmsMsg [cmd=" + getCmd() + ", direct=" + getDirect() + ", type=" + getType() + ", status=" + getStatus()
 		+ ", from_ext=" + getFrom_ext() + ", to_ext=" + getTo_ext() + ", userid=" + getUserid() + ", senderphone=" + getSenderphone()
-		+ ", receiverphones=" + getReceiverphones() + ", message=" + getMessage() + ", reservetime=" + getReservetime() + ", rphones.length=" + getRphones().length + "]";
+		+ ", receiverphones=" + getReceiverphones() + ", message=" + getMessage() + ", reservetime=" + getReservetime() + "]";
 	}
 }
