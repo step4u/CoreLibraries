@@ -107,4 +107,9 @@ public class Const4pbx
 	public static final int WS_VALUE_EXTENSION_STATE_LEFT = 20002;					// 자리비움
 	public static final int WS_VALUE_EXTENSION_STATE_DND = 20003;					// 수신거부
 	public static final int WS_VALUE_EXTENSION_STATE_REDIRECTED = 20004;			// 착신전환
+	
+	// uc websocket message
+	public static final int WS_STATUS_ING_NOTFOUND = 210001;
+	public static final int WS_STATUS_ING_UNSUPPORTED = 210002;
+	// public static final int WS_STATUS_ING_NOTFOUND = 210002;
 }
