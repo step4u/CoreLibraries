@@ -171,7 +171,6 @@ public class UcServer implements Runnable
 		try {
 			this.Send(msg);
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

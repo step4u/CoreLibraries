@@ -1,5 +1,6 @@
 package com.coretree.models;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteOrder;
 import com.coretree.core.SetGetBytes;
 
@@ -9,13 +10,13 @@ public class SmsData extends SetGetBytes<Object>
 	private byte direct;
 	private byte type;
 	private byte status;
-	private char[] from_ext = new char[16]; 
-	private char[] to_ext = new char[16];
-	private char[] userid = new char[16];
-	private char[] senderphone = new char[20];
-	private char[] receiverphones = new char[256];
-	private char[] message = new char[84];
-	private char[] reservetime = new char[32];
+	private byte[] from_ext = new byte[16]; 
+	private byte[] to_ext = new byte[16];
+	private byte[] userid = new byte[16];
+	private byte[] senderphone = new byte[20];
+	private byte[] receiverphones = new byte[256];
+	private byte[] message = new byte[84];
+	private byte[] reservetime = new byte[32];
 	
 	private int len = 444;
 	
@@ -32,54 +33,151 @@ public class SmsData extends SetGetBytes<Object>
 	public byte getStatus() { return this.status; }
 
 	public void setFrom_ext(String from_ext) {
-		for (int i = 0 ; i < from_ext.length() ; i++) {
-			this.from_ext[i] = from_ext.charAt(i);
+		try {
+			byte[] strbuff = from_ext.getBytes("EUC-KR");
+			
+			int lcount = 0;
+			if (strbuff.length < this.from_ext.length) {
+				lcount = strbuff.length;
+			} else {
+				lcount = this.from_ext.length;
+			}
+			
+			for (int i = 0 ; i < lcount ; i++) {
+				this.from_ext[i] = strbuff[i];
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
 		}
 	}
 	public String getFrom_ext() { return new String(this.from_ext).trim(); }
 	
 	public void setTo_ext(String to_ext) {
-		for (int i = 0 ; i < to_ext.length() ; i++) {
-			this.to_ext[i] = to_ext.charAt(i);
+		try {
+			byte[] strbuff = to_ext.getBytes("EUC-KR");
+			
+			int lcount = 0;
+			if (strbuff.length < this.to_ext.length) {
+				lcount = strbuff.length;
+			} else {
+				lcount = this.to_ext.length;
+			}
+			
+			for (int i = 0 ; i < lcount ; i++) {
+				this.to_ext[i] = strbuff[i];
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
 		}
 	}
 	public String getTo_ext() { return new String(this.to_ext).trim(); }
 	
 	public void setUserid(String userid) {
-		for (int i = 0 ; i < userid.length() ; i++) {
-			this.userid[i] = userid.charAt(i);
+		try {
+			byte[] strbuff = userid.getBytes("EUC-KR");
+			
+			int lcount = 0;
+			if (strbuff.length < this.userid.length) {
+				lcount = strbuff.length;
+			} else {
+				lcount = this.userid.length;
+			}
+			
+			for (int i = 0 ; i < lcount ; i++) {
+				this.userid[i] = strbuff[i];
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
 		}
 	}
 	public String getUserid() { return new String(this.userid).trim(); }
 	
 	public void setSenderphone(String senderphone) {
-		for (int i = 0 ; i < senderphone.length() ; i++) {
-			this.senderphone[i] = senderphone.charAt(i);
+		try {
+			byte[] strbuff = senderphone.getBytes("EUC-KR");
+			
+			int lcount = 0;
+			if (strbuff.length < this.senderphone.length) {
+				lcount = strbuff.length;
+			} else {
+				lcount = this.senderphone.length;
+			}
+			
+			for (int i = 0 ; i < lcount ; i++) {
+				this.senderphone[i] = strbuff[i];
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
 		}
 	}
 	public String getSenderphone() { return new String(this.senderphone).trim(); }
 	
 	public void setReceiverphones(String receiverphones) {
-//		for (int j = 0 ; j < this.receiverphones.length ; j++) {
-//			this.receiverphones[j] = '\0';
-//		}
-		
-		for (int i = 0 ; i < receiverphones.length() ; i++) {
-			this.receiverphones[i] = receiverphones.charAt(i);
+		try {
+			byte[] strbuff = receiverphones.getBytes("EUC-KR");
+			
+			int lcount = 0;
+			if (strbuff.length < this.receiverphones.length) {
+				lcount = strbuff.length;
+			} else {
+				lcount = this.receiverphones.length;
+			}
+			
+			for (int i = 0 ; i < lcount ; i++) {
+				this.receiverphones[i] = strbuff[i];
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
 		}
 	}
 	public String getReceiverphones() { return new String(this.receiverphones).trim(); }
 	
 	public void setMessage(String message) {
-		for (int i = 0 ; i < message.length() ; i++) {
-			this.message[i] = message.charAt(i);
+		try {
+			byte[] strbuff = message.getBytes("EUC-KR");
+			
+			int lcount = 0;
+			if (strbuff.length < this.message.length) {
+				lcount = strbuff.length;
+			} else {
+				lcount = this.message.length;
+			}
+			
+			for (int i = 0 ; i < lcount ; i++) {
+				this.message[i] = strbuff[i];
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
 		}
 	}
-	public String getMessage() { return new String(this.message).trim(); }
+	public String getMessage() {
+		String out = null;
+		try {
+			out = new String(this.message, "EUC-KR").trim();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return out;
+	}
 	
 	public void setReservetime(String reservetime) {
-		for (int i = 0 ; i < reservetime.length() ; i++) {
-			this.reservetime[i] = reservetime.charAt(i);
+		try {
+			byte[] strbuff = reservetime.getBytes("EUC-KR");
+			
+			int lcount = 0;
+			if (strbuff.length < this.reservetime.length) {
+				lcount = strbuff.length;
+			} else {
+				lcount = this.reservetime.length;
+			}
+			
+			for (int i = 0 ; i < lcount ; i++) {
+				this.reservetime[i] = strbuff[i];
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
 		}
 	}
 	public String getReservetime() { return new String(this.reservetime).trim(); }
@@ -102,50 +200,40 @@ public class SmsData extends SetGetBytes<Object>
 	{
 		byte[] out = new byte[len];
 		int tlength = 0;
+		byte[] bytes = null;
 		
-		byte[] bytes = object2Bytes(cmd);
-		System.arraycopy(bytes, 0, out, tlength, bytes.length);
-		tlength += bytes.length;
+		out[tlength] = this.cmd;
+		tlength += 1;
 		
-		bytes = object2Bytes(direct);
-		System.arraycopy(bytes, 0, out, tlength, bytes.length);
-		tlength += bytes.length;
+		out[tlength] = this.direct;
+		tlength += 1;
 		
-		bytes = object2Bytes(type);
-		System.arraycopy(bytes, 0, out, tlength, bytes.length);
-		tlength += bytes.length;
+		out[tlength] = this.type;
+		tlength += 1;
 		
-		bytes = object2Bytes(status);
-		System.arraycopy(bytes, 0, out, tlength, bytes.length);
-		tlength += bytes.length;
+		out[tlength] = this.status;
+		tlength += 1;
 		
-		bytes = object2Bytes(from_ext);
-		System.arraycopy(bytes, 0, out, tlength, bytes.length);
-		tlength += bytes.length;
+		System.arraycopy(this.from_ext, 0, out, tlength, this.from_ext.length);
+		tlength += this.from_ext.length;
 		
-		bytes = object2Bytes(to_ext);
-		System.arraycopy(bytes, 0, out, tlength, bytes.length);
-		tlength += bytes.length;
+		System.arraycopy(this.to_ext, 0, out, tlength, this.to_ext.length);
+		tlength += this.to_ext.length;
 		
-		bytes = object2Bytes(userid);
-		System.arraycopy(bytes, 0, out, tlength, bytes.length);
-		tlength += bytes.length;
+		System.arraycopy(this.userid, 0, out, tlength, this.userid.length);
+		tlength += this.userid.length;
 		
-		bytes = object2Bytes(senderphone);
-		System.arraycopy(bytes, 0, out, tlength, bytes.length);
-		tlength += bytes.length;
+		System.arraycopy(this.senderphone, 0, out, tlength, this.senderphone.length);
+		tlength += this.senderphone.length;
 		
-		bytes = object2Bytes(receiverphones);
-		System.arraycopy(bytes, 0, out, tlength, bytes.length);
-		tlength += bytes.length;
+		System.arraycopy(this.receiverphones, 0, out, tlength, this.receiverphones.length);
+		tlength += this.receiverphones.length;
 		
-		bytes = object2Bytes(message);
-		System.arraycopy(bytes, 0, out, tlength, bytes.length);
-		tlength += bytes.length;
+		System.arraycopy(this.message, 0, out, tlength, this.message.length);
+		tlength += this.message.length;
 		
-		bytes = object2Bytes(reservetime);
-		System.arraycopy(bytes, 0, out, tlength, bytes.length);
-		tlength += bytes.length;
+		System.arraycopy(this.reservetime, 0, out, tlength, this.reservetime.length);
+		tlength += this.reservetime.length;
 		
 		return out;
 	}
@@ -154,27 +242,38 @@ public class SmsData extends SetGetBytes<Object>
 	public void toObject(byte[] rcv)
 	{
 		int tlength = 0;
-		this.cmd = (byte)bytes2Object(this.cmd, rcv, tlength, 1);
+		
+		this.cmd = rcv[tlength];
 		tlength += 1;
-		this.direct = (byte)bytes2Object(this.direct, rcv, tlength, 1);
+		
+		this.direct = rcv[tlength];
 		tlength += 1;
-		this.type = (byte)bytes2Object(this.type, rcv, tlength, 1);
+
+		this.type = rcv[tlength];
 		tlength += 1;
-		this.status = (byte)bytes2Object(this.status, rcv, tlength, 1);
+		
+		this.status = rcv[tlength];
 		tlength += 1;
-		this.from_ext = (char[])bytes2Object(this.from_ext, rcv, tlength, this.from_ext.length);
+		
+		System.arraycopy(rcv, tlength, this.from_ext, 0, this.from_ext.length);
 		tlength += from_ext.length;
-		this.to_ext = (char[])bytes2Object(this.to_ext, rcv, tlength, this.to_ext.length);
+
+		System.arraycopy(rcv, tlength, this.to_ext, 0, this.to_ext.length);
 		tlength += to_ext.length;
-		this.userid = (char[])bytes2Object(this.userid, rcv, tlength, this.userid.length);
+
+		System.arraycopy(rcv, tlength, this.userid, 0, this.userid.length);
 		tlength += userid.length;
-		this.senderphone = (char[])bytes2Object(this.senderphone, rcv, tlength, this.senderphone.length);
+
+		System.arraycopy(rcv, tlength, this.senderphone, 0, this.senderphone.length);
 		tlength += senderphone.length;
-		this.receiverphones = (char[])bytes2Object(this.receiverphones, rcv, tlength, this.receiverphones.length);
+
+		System.arraycopy(rcv, tlength, this.receiverphones, 0, this.receiverphones.length);
 		tlength += receiverphones.length;
-		this.message = (char[])bytes2Object(this.message, rcv, tlength, this.message.length);
-		tlength += message.length;		
-		this.reservetime = (char[])bytes2Object(this.reservetime, rcv, tlength, this.reservetime.length);
+
+		System.arraycopy(rcv, tlength, this.message, 0, this.message.length);
+		tlength += message.length;
+
+		System.arraycopy(rcv, tlength, this.reservetime, 0, this.reservetime.length);
 		tlength += reservetime.length;		
 	}
 	

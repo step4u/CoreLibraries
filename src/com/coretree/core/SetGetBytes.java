@@ -1,5 +1,6 @@
 package com.coretree.core;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -72,7 +73,12 @@ public abstract class SetGetBytes<T> {
 				break;
 			case "[C":
 				strtmp = new String((char[])obj);
-				outbytes = strtmp.getBytes();
+			try {
+				outbytes = strtmp.getBytes("EUC-KR");
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 				break;
 			default:
 				strtmp = "Wrong command!";
@@ -125,7 +131,8 @@ public abstract class SetGetBytes<T> {
 				o = b.getChar();
 				break;
 			case "java.lang.String":
-				o = new String(bytes2Chars(tempbytes));
+				// o = new String(bytes2Chars(tempbytes));
+				o = new String(tempbytes);
 				break;
 			case "[C":
 				o = bytes2Chars(tempbytes);
@@ -146,8 +153,7 @@ public abstract class SetGetBytes<T> {
 		char[] out = new char[len];
 		char[] src = str.toCharArray();
 		
-		for (int i = 0; i < src.length; i++)
-		{
+		for (int i = 0; i < src.length; i++) {
 			out[i] = src[i];
 		}
 		
@@ -158,8 +164,7 @@ public abstract class SetGetBytes<T> {
 	{
 		char[] out = new char[bytes.length];
 		
-		for (int i = 0; i < bytes.length; i++)
-		{
+		for (int i = 0; i < bytes.length; i++) {
 			out[i] = (char)bytes[i];
 		}
 		

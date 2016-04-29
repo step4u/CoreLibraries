@@ -1,5 +1,6 @@
 package com.coretree.models;
 
+import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -12,19 +13,19 @@ public class GroupWareData extends SetGetBytes<Object>
 	private byte direct;
 	private byte type;
 	private byte status;
-	private char[] caller = new char[16]; 
-	private char[] callee = new char[16];
-	private char[] extension = new char[5];
+	private byte[] caller = new byte[16];
+	private byte[] callee = new byte[16];
+	private byte[] extension = new byte[5];
 	private byte[] dummy0 = new byte[3];
     private int responseCode;
     private int ip;
     private int port;
-    private char[] unconditional = new char[16];
-    private char[] noanswer = new char[16];
-    private char[] busy = new char[16];
+    private byte[] unconditional = new byte[16];
+    private byte[] noanswer = new byte[16];
+    private byte[] busy = new byte[16];
     private byte DnD;
-    private char[] UserAgent = new char[10];
-    private char[] dummy = new char[50];
+    private byte[] UserAgent = new byte[10];
+    private byte[] dummy = new byte[50];
     private byte[] dummy1 = new byte[3];
     
 	private int len = 168;
@@ -43,28 +44,85 @@ public class GroupWareData extends SetGetBytes<Object>
 	public byte getStatus() { return this.status; }
 
 	public void setCaller(String caller) {
+		try {
+			byte[] strbuff = caller.getBytes("EUC-KR");
+			
+			int lcount = 0;
+			if (strbuff.length < this.caller.length) {
+				lcount = strbuff.length;
+			} else {
+				lcount = this.caller.length;
+			}
+			
+			for (int i = 0 ; i < lcount ; i++) {
+				this.caller[i] = strbuff[i];
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		
+/*		
 		for (int i = 0 ; i < caller.length() ; i++) {
 			this.caller[i] = caller.charAt(i);
 		}
+*/		
 	}
 	public String getCaller() { return new String(this.caller).trim(); }
 
 	public void setCallee(String callee) {
+		try {
+			byte[] strbuff = callee.getBytes("EUC-KR");
+			
+			int lcount = 0;
+			if (strbuff.length < this.callee.length) {
+				lcount = strbuff.length;
+			} else {
+				lcount = this.callee.length;
+			}
+			
+			for (int i = 0 ; i < lcount ; i++) {
+				this.callee[i] = strbuff[i];
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		
+/*		
 		for (int i = 0 ; i < callee.length() ; i++) {
 			this.callee[i] = callee.charAt(i);
 		}
+*/		
 	}
 	public String getCallee() { return new String(this.callee).trim(); }
 	
 	public void setExtension(String extension) {
+		try {
+			byte[] strbuff = extension.getBytes("EUC-KR");
+			
+			int lcount = 0;
+			if (strbuff.length < this.extension.length) {
+				lcount = strbuff.length;
+			} else {
+				lcount = this.extension.length;
+			}
+			
+			for (int i = 0 ; i < lcount ; i++) {
+				this.extension[i] = strbuff[i];
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		
+/*		
 		for (int i = 0 ; i < extension.length() ; i++) {
 			this.extension[i] = extension.charAt(i);
 		}
+*/		
 	}
 	public String getExtension() { return new String(this.extension).trim(); }
 
 	public void setDummy0(byte[] dummy0) { this.dummy0 = dummy0; }
-	public char[] getDummy0() { return this.extension; }
+	public byte[] getDummy0() { return this.dummy0; }
 	
 	public void setResponseCode(int responseCode) { this.responseCode = responseCode; }
 	public int getResponseCode() { return this.responseCode; }
@@ -96,23 +154,80 @@ public class GroupWareData extends SetGetBytes<Object>
 	public int getPort() { return this.port; }
 	
 	public void setUnconditional(String unconditional) {
+		try {
+			byte[] strbuff = unconditional.getBytes("EUC-KR");
+			
+			int lcount = 0;
+			if (strbuff.length < this.unconditional.length) {
+				lcount = strbuff.length;
+			} else {
+				lcount = this.unconditional.length;
+			}
+			
+			for (int i = 0 ; i < lcount ; i++) {
+				this.unconditional[i] = strbuff[i];
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+
+/*		
 		for (int i = 0 ; i < unconditional.length() ; i++) {
 			this.unconditional[i] = unconditional.charAt(i);
 		}
+*/		
 	}
 	public String getUnconditional() { return new String(this.unconditional).trim(); }
 	
 	public void setNoanswer(String noanswer) {
+		try {
+			byte[] strbuff = noanswer.getBytes("EUC-KR");
+			
+			int lcount = 0;
+			if (strbuff.length < this.noanswer.length) {
+				lcount = strbuff.length;
+			} else {
+				lcount = this.noanswer.length;
+			}
+			
+			for (int i = 0 ; i < lcount ; i++) {
+				this.noanswer[i] = strbuff[i];
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+
+/*
 		for (int i = 0 ; i < noanswer.length() ; i++) {
 			this.noanswer[i] = noanswer.charAt(i);
 		}
+*/
 	}
 	public String getNoanswer() { return new String(this.noanswer).trim(); }
 
 	public void setBusy(String busy) {
+		try {
+			byte[] strbuff = busy.getBytes("EUC-KR");
+			
+			int lcount = 0;
+			if (strbuff.length < this.busy.length) {
+				lcount = strbuff.length;
+			} else {
+				lcount = this.busy.length;
+			}
+			
+			for (int i = 0 ; i < lcount ; i++) {
+				this.busy[i] = strbuff[i];
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+
+/*
 		for (int i = 0 ; i < busy.length() ; i++) {
 			this.busy[i] = busy.charAt(i);
 		}
+*/
 	}
 	public String getBusy() { return new String(this.busy).trim(); }
 
@@ -121,21 +236,59 @@ public class GroupWareData extends SetGetBytes<Object>
 	
 	
 	public void setUserAgent(String UserAgent) {
+		try {
+			byte[] strbuff = UserAgent.getBytes("EUC-KR");
+			
+			int lcount = 0;
+			if (strbuff.length < this.UserAgent.length) {
+				lcount = strbuff.length;
+			} else {
+				lcount = this.UserAgent.length;
+			}
+			
+			for (int i = 0 ; i < lcount ; i++) {
+				this.UserAgent[i] = strbuff[i];
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		
+/*
 		for (int i = 0 ; i < UserAgent.length() ; i++) {
 			this.UserAgent[i] = UserAgent.charAt(i);
 		}
+*/
 	}
 	public String getUserAgent() { return new String(this.UserAgent).trim(); }
 	
 	public void setDummy(String dummy) {
+		try {
+			byte[] strbuff = dummy.getBytes("EUC-KR");
+			
+			int lcount = 0;
+			if (strbuff.length < this.dummy.length) {
+				lcount = strbuff.length;
+			} else {
+				lcount = this.dummy.length;
+			}
+			
+			for (int i = 0 ; i < lcount ; i++) {
+				this.dummy[i] = strbuff[i];
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		
+/*		
 		for (int i = 0 ; i < dummy.length() ; i++) {
 			this.dummy[i] = dummy.charAt(i);
 		}
+*/		
 	}
 	public String getDummy() { return new String(this.dummy).trim(); }
 	
 	public void setDummy1(byte[] dummy1) { this.dummy1 = dummy1; }
-	public char[] getDummy1() { return this.extension; }
+	public byte[] getDummy1() { return this.dummy1; }
 	
 
 	public GroupWareData(){}
@@ -157,34 +310,28 @@ public class GroupWareData extends SetGetBytes<Object>
 		byte[] out = new byte[len];
 
 		int tlength = 0;
+		byte[] bytes = null;
 		
-		byte[] bytes = object2Bytes(cmd);
-		System.arraycopy(bytes, 0, out, tlength, bytes.length);
-		tlength += bytes.length;
+		out[tlength] = this.cmd;
+		tlength += 1;
 		
-		bytes = object2Bytes(direct);
-		System.arraycopy(bytes, 0, out, tlength, bytes.length);
-		tlength += bytes.length;
+		out[tlength] = this.direct;
+		tlength += 1;
 		
-		bytes = object2Bytes(type);
-		System.arraycopy(bytes, 0, out, tlength, bytes.length);
-		tlength += bytes.length;
+		out[tlength] = this.type;
+		tlength += 1;
 		
-		bytes = object2Bytes(status);
-		System.arraycopy(bytes, 0, out, tlength, bytes.length);
-		tlength += bytes.length;
+		out[tlength] = this.status;
+		tlength += 1;
 		
-		bytes = object2Bytes(caller);
-		System.arraycopy(bytes, 0, out, tlength, bytes.length);
-		tlength += bytes.length;
+		System.arraycopy(caller, 0, out, tlength, caller.length);
+		tlength += caller.length;
 		
-		bytes = object2Bytes(callee);
-		System.arraycopy(bytes, 0, out, tlength, bytes.length);
-		tlength += bytes.length;
+		System.arraycopy(callee, 0, out, tlength, callee.length);
+		tlength += callee.length;
 		
-		bytes = object2Bytes(extension);
-		System.arraycopy(bytes, 0, out, tlength, bytes.length);
-		tlength += bytes.length;
+		System.arraycopy(extension, 0, out, tlength, extension.length);
+		tlength += extension.length;
 		
 		// dummy space
 		bytes = new byte[3];
@@ -203,29 +350,23 @@ public class GroupWareData extends SetGetBytes<Object>
 		System.arraycopy(bytes, 0, out, tlength, bytes.length);
 		tlength += bytes.length;
 		
-		bytes = object2Bytes(unconditional);
-		System.arraycopy(bytes, 0, out, tlength, bytes.length);
-		tlength += bytes.length;
+		System.arraycopy(this.unconditional, 0, out, tlength, this.unconditional.length);
+		tlength += this.unconditional.length;
 		
-		bytes = object2Bytes(noanswer);
-		System.arraycopy(bytes, 0, out, tlength, bytes.length);
-		tlength += bytes.length;
+		System.arraycopy(this.noanswer, 0, out, tlength, this.noanswer.length);
+		tlength += this.noanswer.length;
 		
-		bytes = object2Bytes(busy);
-		System.arraycopy(bytes, 0, out, tlength, bytes.length);
-		tlength += bytes.length;
+		System.arraycopy(this.busy, 0, out, tlength, this.busy.length);
+		tlength += this.busy.length;
 		
-		bytes = object2Bytes(DnD);
-		System.arraycopy(bytes, 0, out, tlength, bytes.length);
-		tlength += bytes.length;
+		out[tlength] = this.DnD;
+		tlength += 1;
 		
-		bytes = object2Bytes(UserAgent);
-		System.arraycopy(bytes, 0, out, tlength, bytes.length);
-		tlength += bytes.length;
+		System.arraycopy(this.UserAgent, 0, out, tlength, this.UserAgent.length);
+		tlength += this.UserAgent.length;
 		
-		bytes = object2Bytes(dummy);
-		System.arraycopy(bytes, 0, out, tlength, bytes.length);
-		tlength += bytes.length;
+		System.arraycopy(dummy, 0, out, tlength, dummy.length);
+		tlength += this.dummy.length;
 		
 		// dummy space
 		bytes = new byte[3];
@@ -239,40 +380,57 @@ public class GroupWareData extends SetGetBytes<Object>
 	public void toObject(byte[] rcv)
 	{
 		int tlength = 0;
-		this.cmd = (byte)bytes2Object(this.cmd, rcv, tlength, 1);
+
+		this.cmd = rcv[tlength];
 		tlength += 1;
-		this.direct = (byte)bytes2Object(this.direct, rcv, tlength, 1);
+		
+		this.direct = rcv[tlength];
 		tlength += 1;
-		this.type = (byte)bytes2Object(this.type, rcv, tlength, 1);
+
+		this.type = rcv[tlength];
 		tlength += 1;
-		this.status = (byte)bytes2Object(this.status, rcv, tlength, 1);
+		
+		this.status = rcv[tlength];
 		tlength += 1;
-		this.caller = (char[])bytes2Object(this.caller, rcv, tlength, this.caller.length);
-		tlength += caller.length;
-		this.callee = (char[])bytes2Object(this.callee, rcv, tlength, this.callee.length);
-		tlength += callee.length;
-		this.extension = (char[])bytes2Object(this.extension, rcv, tlength, this.extension.length);
-		tlength += extension.length;
-		this.dummy0 = (byte[])bytes2Object(this.dummy0, rcv, tlength, this.dummy0.length);
-		tlength += dummy0.length;
+		
+		System.arraycopy(rcv, tlength, this.caller, 0, this.caller.length);
+		tlength += this.caller.length;
+
+		System.arraycopy(rcv, tlength, this.callee, 0, this.callee.length);
+		tlength += this.callee.length;
+
+		System.arraycopy(rcv, tlength, this.extension, 0, this.extension.length);
+		tlength += this.extension.length;
+
+		System.arraycopy(rcv, tlength, this.dummy0, 0, this.dummy0.length);
+		tlength += this.dummy0.length;
+
 		this.responseCode = (int)bytes2Object(this.responseCode, rcv, tlength, 4);
 		tlength += 4;
+		
 		this.ip = (int)bytes2Object(this.ip, rcv, tlength, 4);
 		tlength += 4;
+		
 		this.port = (int)bytes2Object(this.port, rcv, tlength, 4);
 		tlength += 4;
-		this.unconditional = (char[])bytes2Object(this.unconditional, rcv, tlength, this.unconditional.length);
-		tlength += unconditional.length;
-		this.noanswer = (char[])bytes2Object(this.noanswer, rcv, tlength, this.noanswer.length);
-		tlength += noanswer.length;
-		this.busy = (char[])bytes2Object(this.busy, rcv, tlength, this.busy.length);
-		tlength += busy.length;
-		this.DnD = (byte)bytes2Object(this.DnD, rcv, tlength, 1);
+		
+		System.arraycopy(rcv, tlength, this.unconditional, 0, this.unconditional.length);
+		tlength += this.unconditional.length;
+
+		System.arraycopy(rcv, tlength, this.noanswer, 0, this.noanswer.length);
+		tlength += this.noanswer.length;
+
+		System.arraycopy(rcv, tlength, this.busy, 0, this.busy.length);
+		tlength += this.busy.length;
+		
+		this.DnD = rcv[tlength];
 		tlength += 1;
-		this.UserAgent = (char[])bytes2Object(this.UserAgent, rcv, tlength, this.UserAgent.length);
-		tlength += UserAgent.length;
-		this.dummy = (char[])bytes2Object(this.dummy, rcv, tlength, this.dummy.length);
-		tlength += dummy.length;
+		
+		System.arraycopy(rcv, tlength, this.UserAgent, 0, this.UserAgent.length);
+		tlength += this.UserAgent.length;
+
+		System.arraycopy(rcv, tlength, this.dummy, 0, this.dummy.length);
+		tlength += this.dummy.length;
 	}
 	
 	@Override
