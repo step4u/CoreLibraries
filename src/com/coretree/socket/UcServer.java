@@ -126,7 +126,6 @@ public class UcServer implements Runnable
 			System.out.println("");
 			System.err.println(String.format("Has sent %s", data.toString()));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			System.err.println("an error has broken out.");
 			e.printStackTrace();
 		}
