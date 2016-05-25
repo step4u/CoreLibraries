@@ -8,11 +8,11 @@
   
   <dependencies>
   
-	<dependency>
-		<groupId>org.firebirdsql.jdbc</groupId>
-		<artifactId>jaybird-jdk18</artifactId>
-		<version>2.2.9</version>
-	</dependency>
+		<dependency>
+			<groupId>org.firebirdsql.jdbc</groupId>
+			<artifactId>jaybird-jdk18</artifactId>
+			<version>2.2.10</version>
+		</dependency>
 	
 	<dependency>
 		<groupId>com.googlecode.soundlibs</groupId>
