@@ -9,7 +9,7 @@ public class DiskSpaceTest {
     	File file = new File(args[0]);
         long freespace = file.getFreeSpace(); 
 
-        System.out.println("Disk Free Space (GB):" + freespace / 1024 / 1024);
+        System.out.println("Disk Free Space :" + freespace);
+        System.out.println("Disk Free Space (GB):" + freespace / 1024 / 1024 / 1024);
 	}
-
 }
