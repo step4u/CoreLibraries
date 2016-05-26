@@ -25,6 +25,13 @@
 		<artifactId>java-getopt</artifactId>
 		<version>1.0.9</version>
 	</dependency>
+	
+	<!-- http://mvnrepository.com/artifact/javax.media/jmf -->
+	<dependency>
+	    <groupId>javax.media</groupId>
+	    <artifactId>jmf</artifactId>
+	    <version>2.1.1e</version>
+	</dependency>
 
 <dependency>
 	<groupId>org.apache.logging.log4j</groupId>

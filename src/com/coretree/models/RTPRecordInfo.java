@@ -319,6 +319,27 @@ public class RTPRecordInfo implements Closeable
 					}
 				}
 			}
+			else if (itemIn.size == itemOut.size)
+			{
+				delayedMsec = DelayedMsec.same;
+
+				if (check.equals("final"))
+				{
+					for (ReceivedRTP item : linout)
+					{
+						mixedbytes = this.Mixing(linin, linout, item, delayedMsec);
+						this.WaveFileWriting(mixedbytes);
+					}
+				}
+				else
+				{
+					for (int i = 0; i < linout.size() * 0.8; i++)
+					{
+						mixedbytes = this.Mixing(linin, linout, linout.get(i), delayedMsec);
+						this.WaveFileWriting(mixedbytes);
+					}
+				}
+			}
 			else
 			{
 				delayedMsec = DelayedMsec.same;
@@ -350,6 +371,7 @@ public class RTPRecordInfo implements Closeable
 		
 		ReceivedRTP _item0 = null;
 		ReceivedRTP _item1 = null;
+		ReceivedRTP _item2 = null;
 
 		if (delayedMsec == DelayedMsec.i80o160)
 		{
@@ -403,11 +425,11 @@ public class RTPRecordInfo implements Closeable
 			// item2 + tmpitem mix with item1 and write
 			byte[] tmpbuff = new byte[332];
 			System.arraycopy(__item0.buff, 0, tmpbuff, 0, __item0.size);
-			System.arraycopy(__item1.buff, headersize, tmpbuff, __item0.size, (__item1.size - headersize));
+			System.arraycopy(__item1.buff, headersize, tmpbuff, __item0.size, __item1.size - headersize);
 
 			ReceivedRTP _itm = new ReceivedRTP();
 			_itm.buff = tmpbuff;
-			_itm.size = (_item0.size + _item1.size - headersize);
+			_itm.size = _item0.size + _item1.size - headersize;
 
 			try
 			{
@@ -422,13 +444,14 @@ public class RTPRecordInfo implements Closeable
 			w.lock();
 			try
 			{
-				listIn.removeIf(x -> (x.seq == __item0.seq));
+				listIn.removeIf(x -> x.seq == __item0.seq);
+				listIn.removeIf(x -> x.seq == __item1.seq);
 			}
 			finally
 			{
 				w.unlock();
 			}
-			
+/*
 			w.lock();
 			try
 			{
@@ -438,7 +461,7 @@ public class RTPRecordInfo implements Closeable
 			{
 				w.unlock();
 			}
-
+*/
 			w.lock();
 			try
 			{
@@ -486,7 +509,7 @@ public class RTPRecordInfo implements Closeable
 				
 				_item1 = new ReceivedRTP();
 				_item1.buff = new byte[332];
-				_item1.seq = seq;
+				_item1.seq = seq + 1;
 				_item1.size = 92;
 				_item1.ext = item.ext;
 				_item1.peer = item.peer;
@@ -502,10 +525,10 @@ public class RTPRecordInfo implements Closeable
 			// item2 + tmpitem mix with item1 and write
 			byte[] tmpbuff = new byte[332];
 			System.arraycopy(__item0.buff, 0, tmpbuff, 0, __item0.size);
-			System.arraycopy(__item1.buff, headersize, tmpbuff, __item0.size, (__item1.size - headersize));
+			System.arraycopy(__item1.buff, headersize, tmpbuff, __item0.size, __item1.size - headersize);
 			ReceivedRTP _itm = new ReceivedRTP();
 			_itm.buff = tmpbuff;
-			_itm.size = (__item0.size + __item1.size - headersize);
+			_itm.size = __item0.size + __item1.size - headersize;
 
 			try
 			{
@@ -531,12 +554,13 @@ public class RTPRecordInfo implements Closeable
 			try
 			{
 				listOut.removeIf(x -> x.seq == __item0.seq);				
+				listOut.removeIf(x -> x.seq == __item1.seq);
 			}
 			finally
 			{
 				w.unlock();
 			}
-
+/*
 			w.lock();
 			try
 			{
@@ -546,10 +570,11 @@ public class RTPRecordInfo implements Closeable
 			{
 				w.unlock();
 			}
+*/
 		}
-		else
+		else if (delayedMsec == DelayedMsec.same)
 		{
-			// item > in
+			// item -> out
 			// same
 			// item1 mix with item2 and write
 			ReceivedRTP _item = null;
@@ -557,7 +582,7 @@ public class RTPRecordInfo implements Closeable
 			r.lock();
 			try
 			{
-				_item = linout.stream().filter(x -> x.seq == item.seq).findFirst().get();					
+				_item = linin.stream().filter(x -> x.seq == item.seq).findFirst().get();
 			}
 			catch (NoSuchElementException | NullPointerException e)
 			{
@@ -606,6 +631,255 @@ public class RTPRecordInfo implements Closeable
 				w.unlock();
 			}
 		}
+		else if (delayedMsec == DelayedMsec.i80o240)
+		{
+			int seq = item.seq * 3;
+			
+			r.lock();
+			try
+			{
+				_item0 = linin.stream().filter(x -> x.seq == seq).findFirst().get();					
+			}
+			catch (NoSuchElementException | NullPointerException e)
+			{
+				Util.WriteLog(String.format(Finalvars.ErrHeader, 1007, e.getMessage()), 1);
+				
+				_item0 = new ReceivedRTP();
+				_item0.buff = new byte[332];
+				_item0.seq = seq;
+				_item0.size = 92;
+				_item0.ext = item.ext;
+				_item0.peer = item.peer;
+			}
+			finally
+			{
+				r.unlock();
+			}
+			
+			r.lock();
+			try
+			{
+				_item1 = linin.stream().filter(x -> x.seq == (seq + 1)).findFirst().get();					
+			}
+			catch (NoSuchElementException | NullPointerException e)
+			{
+				Util.WriteLog(String.format(Finalvars.ErrHeader, 1008, e.getMessage()), 1);
+				
+				_item1 = new ReceivedRTP();
+				_item1.buff = new byte[332];
+				_item1.seq = seq + 1;
+				_item1.size = 92;
+				_item1.ext = item.ext;
+				_item1.peer = item.peer;
+			}
+			finally
+			{
+				r.unlock();
+			}
+			
+			r.lock();
+			try
+			{
+				_item2 = linin.stream().filter(x -> x.seq == (seq + 2)).findFirst().get();					
+			}
+			catch (NoSuchElementException | NullPointerException e)
+			{
+				Util.WriteLog(String.format(Finalvars.ErrHeader, 1008, e.getMessage()), 1);
+				
+				_item2 = new ReceivedRTP();
+				_item2.buff = new byte[332];
+				_item2.seq = seq + 2;
+				_item2.size = 92;
+				_item2.ext = item.ext;
+				_item2.peer = item.peer;
+			}
+			finally
+			{
+				r.unlock();
+			}
+			
+			final ReceivedRTP __item0 = _item0;
+			final ReceivedRTP __item1 = _item1;
+			final ReceivedRTP __item2 = _item2;
+
+			// item2 + tmpitem mix with item1 and write
+			byte[] tmpbuff = new byte[332];
+			System.arraycopy(__item0.buff, 0, tmpbuff, 0, __item0.size);
+			System.arraycopy(__item1.buff, headersize, tmpbuff, __item0.size, __item1.size - headersize);
+			System.arraycopy(__item2.buff, headersize, tmpbuff, __item0.size + __item1.size - headersize, __item2.size - headersize);
+
+			ReceivedRTP _itm = new ReceivedRTP();
+			_itm.buff = tmpbuff;
+			_itm.size = _item0.size + _item1.size + _item2.size - headersize;
+
+			try
+			{
+				mixedbytes = this.RealMix(_itm, item);
+			}
+			catch (IOException e)
+			{
+				// e.printStackTrace();
+				Util.WriteLog(String.format(Finalvars.ErrHeader, 1009, e.getMessage()), 1);
+			}
+
+			w.lock();
+			try
+			{
+				listIn.removeIf(x -> x.seq == __item0.seq);
+				listIn.removeIf(x -> x.seq == __item1.seq);
+				listIn.removeIf(x -> x.seq == __item2.seq);
+			}
+			finally
+			{
+				w.unlock();
+			}
+/*			
+			w.lock();
+			try
+			{
+				listIn.removeIf(x -> x.seq == __item1.seq);				
+			}
+			finally
+			{
+				w.unlock();
+			}
+*/
+			w.lock();
+			try
+			{
+				listOut.removeIf(x -> x.seq == item.seq);				
+			}
+			finally
+			{
+				w.unlock();
+			}
+		}
+		else if (delayedMsec == DelayedMsec.i240o80)
+		{
+			int seq = item.seq * 3;
+			
+			r.lock();
+			try
+			{
+				_item0 = linout.stream().filter(x -> x.seq == seq).findFirst().get();					
+			}
+			catch (NoSuchElementException | NullPointerException e)
+			{
+				Util.WriteLog(String.format(Finalvars.ErrHeader, 1010, e.getMessage()), 1);
+				
+				_item0 = new ReceivedRTP();
+				_item0.buff = new byte[332];
+				_item0.seq = seq;
+				_item0.size = 92;
+				_item0.ext = item.ext;
+				_item0.peer = item.peer;
+			}
+			finally
+			{
+				r.unlock();
+			}
+
+
+			r.lock();
+			try
+			{
+				_item1 = linout.stream().filter(x -> x.seq == seq + 1).findFirst().get();					
+			}
+			catch (NoSuchElementException | NullPointerException e)
+			{
+				Util.WriteLog(String.format(Finalvars.ErrHeader, 1011, e.getMessage()), 1);
+				
+				_item1 = new ReceivedRTP();
+				_item1.buff = new byte[332];
+				_item1.seq = seq + 1;
+				_item1.size = 92;
+				_item1.ext = item.ext;
+				_item1.peer = item.peer;
+			}
+			finally
+			{
+				r.unlock();
+			}
+			
+			
+			r.lock();
+			try
+			{
+				_item2 = linout.stream().filter(x -> x.seq == seq + 2).findFirst().get();					
+			}
+			catch (NoSuchElementException | NullPointerException e)
+			{
+				Util.WriteLog(String.format(Finalvars.ErrHeader, 1011, e.getMessage()), 1);
+				
+				_item2 = new ReceivedRTP();
+				_item2.buff = new byte[332];
+				_item2.seq = seq + 2;
+				_item2.size = 92;
+				_item2.ext = item.ext;
+				_item2.peer = item.peer;
+			}
+			finally
+			{
+				r.unlock();
+			}
+			
+			
+			final ReceivedRTP __item0 = _item0;
+			final ReceivedRTP __item1 = _item1;
+			final ReceivedRTP __item2 = _item2;
+
+			// item2 + tmpitem mix with item1 and write
+			byte[] tmpbuff = new byte[332];
+			System.arraycopy(__item0.buff, 0, tmpbuff, 0, __item0.size);
+			System.arraycopy(__item1.buff, headersize, tmpbuff, __item0.size, __item1.size - headersize);
+			System.arraycopy(__item2.buff, headersize, tmpbuff, __item0.size + __item1.size - headersize, __item2.size - headersize);
+			ReceivedRTP _itm = new ReceivedRTP();
+			_itm.buff = tmpbuff;
+			_itm.size = __item0.size + __item1.size + __item2.size - headersize;
+
+			try
+			{
+				mixedbytes = this.RealMix(_itm, item);
+			}
+			catch (IOException e)
+			{
+				// e.printStackTrace();
+				Util.WriteLog(String.format(Finalvars.ErrHeader, 1012, e.getMessage()), 1);
+			}
+
+			w.lock();
+			try
+			{
+				listIn.removeIf(x -> x.seq == item.seq);				
+			}
+			finally
+			{
+				w.unlock();
+			}
+
+			w.lock();
+			try
+			{
+				listOut.removeIf(x -> x.seq == __item0.seq);
+				listOut.removeIf(x -> x.seq == __item1.seq);
+				listOut.removeIf(x -> x.seq == __item2.seq);
+			}
+			finally
+			{
+				w.unlock();
+			}
+/*
+			w.lock();
+			try
+			{
+				listOut.removeIf(x -> x.seq == __item1.seq);				
+			}
+			finally
+			{
+				w.unlock();
+			}
+*/
+		}
 
 		return mixedbytes;
 	}
@@ -634,16 +908,20 @@ public class RTPRecordInfo implements Closeable
 		switch (codec.waveFormatTag)
 		{
 		case ALaw:
-			aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, true);
+			// aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, true);
+			aformat = new AudioFormat(new AudioFormat.Encoding("ALAW"), 8000, 8, 1, 1, 8000 * 1, true);
 			break;
 		case MuLaw:
-			aformat = new AudioFormat(AudioFormat.Encoding.ULAW, 8000, 8, 1, 1, 8000 * 1, true);
+			// aformat = new AudioFormat(AudioFormat.Encoding.ULAW, 8000, 8, 1, 1, 8000 * 1, true);
+			aformat = new AudioFormat(new AudioFormat.Encoding("ULAW"), 8000, 8, 1, 1, 8000 * 1, true);
 			break;
 		case G723:
-			aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, true);
+			// aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, true);
+			aformat = new AudioFormat(new AudioFormat.Encoding("G723"), 8000, 8, 1, 1, 8000 * 1, true);
 			break;
 		case G729:
-			aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, true);
+			// aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, true);
+			aformat = new AudioFormat(new AudioFormat.Encoding("G729"), 8000, 8, 1, 1, 8000 * 1, true);
 			break;
 		case Pcm:
 			aformat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 8000, 8, 1, 1, 8000 * 1, true);
@@ -732,7 +1010,7 @@ public class RTPRecordInfo implements Closeable
 
 	enum DelayedMsec
 	{
-		i80o160, i160o80, same
+		i80o160, i160o80, i80o240, i240o80, same
 	}
 
 	class Timer_Elapsed extends TimerTask

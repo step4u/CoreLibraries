@@ -124,7 +124,7 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 
 				switch (rtp.codec) {
 					case 0:
-						wavformat = WaveFormat.CreateALawFormat(8000, 1);
+						wavformat = WaveFormat.CreateMuLawFormat(8000, 1);
 						// wavformat = WaveFormat.CreateMuLawFormat(8000, 1);
 						// wavformat = WaveFormat.CreateCustomFormat(WaveFormatEncoding.MuLaw, 8000, 1, 16000, 1, 16);
 						break;
@@ -199,7 +199,7 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 		String ext = item.ext;
 		String peer = item.peer;
 		String filename = item.filename;
-		
+
 		try {
 			recordIngList.removeIf(x -> x.ext.equals(item.ext));
 			
@@ -227,5 +227,6 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 		} finally {
 			System.out.println(String.format("stream end event : ext: %s, peer: %s, filename: %s", ext, peer, filename));
 		}
+
 	}
 }
