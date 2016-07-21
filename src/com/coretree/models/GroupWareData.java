@@ -25,8 +25,17 @@ public class GroupWareData extends SetGetBytes<Object>
     private byte[] busy = new byte[16];
     private byte DnD;
     private byte[] UserAgent = new byte[10];
-    private byte[] dummy = new byte[50];
+    private byte[] InputData = new byte[20];
+    private byte InputDataType;
+    private int pList;
+    private int	plvrKey;
+    private byte inputDataResult;
     private byte[] dummy1 = new byte[3];
+    private int StartCallSec;
+    private int StartCallUSec;
+    private byte[] dummy = new byte[12];
+    //private byte[] dummy = new byte[50];
+    //private byte[] dummy1 = new byte[3];
     
 	private int len = 168;
 	
@@ -121,8 +130,8 @@ public class GroupWareData extends SetGetBytes<Object>
 	}
 	public String getExtension() { return new String(this.extension).trim(); }
 
-	public void setDummy0(byte[] dummy0) { this.dummy0 = dummy0; }
-	public byte[] getDummy0() { return this.dummy0; }
+//	public void setDummy0(byte[] dummy0) { this.dummy0 = dummy0; }
+//	public byte[] getDummy0() { return this.dummy0; }
 	
 	public void setResponseCode(int responseCode) { this.responseCode = responseCode; }
 	public int getResponseCode() { return this.responseCode; }
@@ -287,8 +296,8 @@ public class GroupWareData extends SetGetBytes<Object>
 	}
 	public String getDummy() { return new String(this.dummy).trim(); }
 	
-	public void setDummy1(byte[] dummy1) { this.dummy1 = dummy1; }
-	public byte[] getDummy1() { return this.dummy1; }
+//	public void setDummy1(byte[] dummy1) { this.dummy1 = dummy1; }
+//	public byte[] getDummy1() { return this.dummy1; }
 	
 
 	public GroupWareData(){}
@@ -402,8 +411,8 @@ public class GroupWareData extends SetGetBytes<Object>
 		System.arraycopy(rcv, tlength, this.extension, 0, this.extension.length);
 		tlength += this.extension.length;
 
-		System.arraycopy(rcv, tlength, this.dummy0, 0, this.dummy0.length);
-		tlength += this.dummy0.length;
+//		System.arraycopy(rcv, tlength, this.dummy0, 0, this.dummy0.length);
+//		tlength += this.dummy0.length;
 
 		this.responseCode = (int)bytes2Object(this.responseCode, rcv, tlength, 4);
 		tlength += 4;
