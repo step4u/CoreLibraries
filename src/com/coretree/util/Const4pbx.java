@@ -113,4 +113,12 @@ public class Const4pbx
 	public static final int WS_STATUS_ING_NOTFOUND = 210001;
 	public static final int WS_STATUS_ING_UNSUPPORTED = 210002;
 	// public static final int WS_STATUS_ING_NOTFOUND = 210002;
+	
+
+	// for CDR //
+	public static final int CDR_SAVE_REQ = 1;										// CDR 저장 요청
+	public static final int CDR_SAVE_RES = 2;										// CDR 저장 답변
+	public static final int CDR_GET_LIST_REQ = 6;									// CDR 전송 요청
+	public static final int CDR_GET_LIST_RES = 7;									// CDR 결과
+	public static final int CDR_RESULT_SUCCESS = 0;									// CDR 전송 상태 success
 }
