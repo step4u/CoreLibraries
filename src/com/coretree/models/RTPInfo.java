@@ -7,6 +7,7 @@ import com.coretree.core.SetGetBytes;
 public class RTPInfo extends SetGetBytes<Object> {
 	public String extension;
 	public String peer_number;
+	public String dummy0;
 	public int isExtension;
 	public int codec;
 	public int seq;
@@ -21,9 +22,11 @@ public class RTPInfo extends SetGetBytes<Object> {
 	public int offset;
 	public int size;
 	public byte[] voice = new byte[320 + 12];
-	public int next;	
+	public int StartCallSec;
+	public int StartCallUSec;
+	public int next;
 	
-	private int len = 5 + 20 + (4 * 13) + (320 + 12) + 4;
+	private int len = 5 + 20 + 3 + (4 * 13) + (320 + 12) + 4 + 4 + 4;
 	
 	public RTPInfo()
 	{
@@ -51,6 +54,10 @@ public class RTPInfo extends SetGetBytes<Object> {
 		tlength += bytes.length;
 		
 		bytes = object2Bytes(peer_number);
+		System.arraycopy(bytes, 0, out, tlength, bytes.length);
+		tlength += bytes.length;
+		
+		bytes = new byte[3];
 		System.arraycopy(bytes, 0, out, tlength, bytes.length);
 		tlength += bytes.length;
 		
@@ -110,6 +117,14 @@ public class RTPInfo extends SetGetBytes<Object> {
 		System.arraycopy(bytes, 0, out, tlength, bytes.length);
 		tlength += bytes.length;
 		
+		bytes = object2Bytes(StartCallSec);
+		System.arraycopy(bytes, 0, out, tlength, bytes.length);
+		tlength += bytes.length;
+		
+		bytes = object2Bytes(StartCallUSec);
+		System.arraycopy(bytes, 0, out, tlength, bytes.length);
+		tlength += bytes.length;
+		
 		bytes = object2Bytes(next);
 		System.arraycopy(bytes, 0, out, tlength, bytes.length);
 		tlength += bytes.length;
@@ -153,6 +168,10 @@ public class RTPInfo extends SetGetBytes<Object> {
 		tlength += 4;
 		System.arraycopy(rcv, tlength, this.voice, 0, 320 + 12);
 		tlength += (320 + 12);
+		this.StartCallSec = (int)bytes2Object(this.StartCallSec, rcv, tlength, 4);
+		tlength += 4;
+		this.StartCallUSec = (int)bytes2Object(this.StartCallUSec, rcv, tlength, 4);
+		tlength += 4;
 		this.next = (int)bytes2Object(this.next, rcv, tlength, 4);
 		tlength += 4;
 	}
