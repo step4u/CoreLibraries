@@ -25,11 +25,17 @@ public class GroupWareData extends SetGetBytes<Object>
     private byte[] busy = new byte[16];
     private byte DnD;
     private byte[] UserAgent = new byte[10];
-    private byte[] dummy = new byte[50];
+    private byte[] InputData = new byte[20];
+    private byte InputDataType;
+    private int pList;
+    private int	plvrKey;
+    private byte InputDataResult;
     private byte[] dummy1 = new byte[3];
+    private int StartCallSec;
+    private int StartCallUSec;
+    private byte[] dummy = new byte[12];
     
 	private int len = 168;
-	
 	
 	public void setCmd(byte cmd) { this.cmd = cmd; }
 	public byte getCmd() { return this.cmd; }
@@ -234,7 +240,6 @@ public class GroupWareData extends SetGetBytes<Object>
 	public void setDnD(byte DnD) { this.DnD = DnD; }
 	public byte getDnD() { return this.DnD; }
 	
-	
 	public void setUserAgent(String UserAgent) {
 		try {
 			byte[] strbuff = UserAgent.getBytes("EUC-KR");
@@ -261,6 +266,64 @@ public class GroupWareData extends SetGetBytes<Object>
 	}
 	public String getUserAgent() { return new String(this.UserAgent).trim(); }
 	
+	public void setInputData(String InputData) {
+		try {
+			byte[] strbuff = InputData.getBytes("EUC-KR");
+			
+			int lcount = 0;
+			if (strbuff.length < this.InputData.length) {
+				lcount = strbuff.length;
+			} else {
+				lcount = this.InputData.length;
+			}
+			
+			for (int i = 0 ; i < lcount ; i++) {
+				this.InputData[i] = strbuff[i];
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+	public String getInputData() { return new String(this.InputData).trim(); }
+	
+	public void setInputDataType(byte InputDataType) { this.InputDataType = InputDataType; }
+	public byte getInputDataType() { return this.InputDataType; }
+	
+	public void setpList(byte pList) { this.pList = pList; }
+	public int getpList() { return this.pList; }
+	
+	public void setplvrKey(byte plvrKey) { this.plvrKey = plvrKey; }
+	public int getplvrKey() { return this.plvrKey; }
+	
+	public void setInputDataResult(byte InputDataResult) { this.InputDataResult = InputDataResult; }
+	public byte getInputDataResult() { return this.InputDataResult; }
+	
+	public void setDummy1(String dummy1) {
+		try {
+			byte[] strbuff = dummy1.getBytes("EUC-KR");
+			
+			int lcount = 0;
+			if (strbuff.length < this.dummy1.length) {
+				lcount = strbuff.length;
+			} else {
+				lcount = this.dummy1.length;
+			}
+			
+			for (int i = 0 ; i < lcount ; i++) {
+				this.dummy1[i] = strbuff[i];
+			}
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+	public String getDummy1() { return new String(this.dummy1).trim(); }
+	
+	public void setStartCallSec(byte StartCallSec) { this.StartCallSec = StartCallSec; }
+	public int getStartCallSec() { return this.StartCallSec; }
+	
+	public void setStartCallUSec(byte StartCallUSec) { this.StartCallUSec = StartCallUSec; }
+	public int getStartCallUSec() { return this.StartCallUSec; }
+	
 	public void setDummy(String dummy) {
 		try {
 			byte[] strbuff = dummy.getBytes("EUC-KR");
@@ -278,17 +341,8 @@ public class GroupWareData extends SetGetBytes<Object>
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		
-/*		
-		for (int i = 0 ; i < dummy.length() ; i++) {
-			this.dummy[i] = dummy.charAt(i);
-		}
-*/		
 	}
 	public String getDummy() { return new String(this.dummy).trim(); }
-	
-	public void setDummy1(byte[] dummy1) { this.dummy1 = dummy1; }
-	public byte[] getDummy1() { return this.dummy1; }
 	
 
 	public GroupWareData(){}
@@ -334,9 +388,8 @@ public class GroupWareData extends SetGetBytes<Object>
 		tlength += extension.length;
 		
 		// dummy space
-		bytes = new byte[3];
-		System.arraycopy(bytes, 0, out, tlength, bytes.length);
-		tlength += bytes.length;
+		System.arraycopy(dummy0, 0, out, tlength, dummy0.length);
+		tlength += dummy0.length;
 		
 		bytes = object2Bytes(responseCode);
 		System.arraycopy(bytes, 0, out, tlength, bytes.length);
@@ -365,13 +418,37 @@ public class GroupWareData extends SetGetBytes<Object>
 		System.arraycopy(this.UserAgent, 0, out, tlength, this.UserAgent.length);
 		tlength += this.UserAgent.length;
 		
-		System.arraycopy(dummy, 0, out, tlength, dummy.length);
-		tlength += this.dummy.length;
+		System.arraycopy(this.InputData, 0, out, tlength, this.InputData.length);
+		tlength += this.InputData.length;
 		
-		// dummy space
-		bytes = new byte[3];
+		out[tlength] = this.InputDataType;
+		tlength += 1;
+		
+		bytes = object2Bytes(this.pList);
 		System.arraycopy(bytes, 0, out, tlength, bytes.length);
 		tlength += bytes.length;
+		
+		bytes = object2Bytes(this.plvrKey);
+		System.arraycopy(bytes, 0, out, tlength, bytes.length);
+		tlength += bytes.length;
+
+		out[tlength] = this.InputDataResult;
+		tlength += 1;
+		
+		// dummy space
+		System.arraycopy(dummy1, 0, out, tlength, dummy1.length);
+		tlength += dummy1.length;
+		
+		bytes = object2Bytes(this.StartCallSec);
+		System.arraycopy(bytes, 0, out, tlength, bytes.length);
+		tlength += bytes.length;
+		
+		bytes = object2Bytes(this.StartCallUSec);
+		System.arraycopy(bytes, 0, out, tlength, bytes.length);
+		tlength += bytes.length;
+		
+		System.arraycopy(dummy, 0, out, tlength, dummy.length);
+		tlength += this.dummy.length;
 		
 		return out;
 	}
@@ -428,6 +505,30 @@ public class GroupWareData extends SetGetBytes<Object>
 		
 		System.arraycopy(rcv, tlength, this.UserAgent, 0, this.UserAgent.length);
 		tlength += this.UserAgent.length;
+		
+		System.arraycopy(rcv, tlength, this.InputData, 0, this.InputData.length);
+		tlength += this.InputData.length;
+		
+		this.InputDataType = rcv[tlength];
+		tlength += 1;
+		
+		this.pList = (int)bytes2Object(this.pList, rcv, tlength, 4);
+		tlength += 4;
+		
+		this.plvrKey = (int)bytes2Object(this.plvrKey, rcv, tlength, 4);
+		tlength += 4;
+		
+		this.InputDataResult = rcv[tlength];
+		tlength += 1;
+		
+		System.arraycopy(rcv, tlength, this.dummy1, 0, this.dummy1.length);
+		tlength += this.dummy1.length;
+		
+		this.StartCallSec = (int)bytes2Object(this.StartCallSec, rcv, tlength, 4);
+		tlength += 4;
+		
+		this.StartCallUSec = (int)bytes2Object(this.StartCallUSec, rcv, tlength, 4);
+		tlength += 4;
 
 		System.arraycopy(rcv, tlength, this.dummy, 0, this.dummy.length);
 		tlength += this.dummy.length;
@@ -438,7 +539,9 @@ public class GroupWareData extends SetGetBytes<Object>
 		return "GroupWareData [cmd=" + getCmd() + ", direct=" + getDirect() + ", type=" + getType() + ", status=" + getStatus()
 		+ ", caller=" + getCaller() + ", callee=" + getCallee() + ", extension=" + getExtension() + ", responseCode=" + getResponseCode()
 		+ ", ip=" + getIp() + ", port=" + getPort() + ", unconditional=" + getUnconditional() + ", noanswer=" + getNoanswer()
-		+ ", busy=" + getBusy() + ", DnD=" + getDnD() + "]";
+		+ ", busy=" + getBusy() + ", DnD=" + getDnD() + ", UserAgent=" + getUserAgent() + ", InputData=" + getInputData() + ", InputDataType=" + getInputDataType()
+		+ ", pList=" + getpList() + ", plvrKey=" + getplvrKey() + ", InputDataResult=" + getInputDataResult()
+		+ ", StartCallSec=" + getStartCallSec() + ", StartCallUSec=" + getStartCallUSec() + "]";
 	}
 	
 	private String intToIp(int i) {

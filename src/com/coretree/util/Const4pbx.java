@@ -33,6 +33,16 @@ public class Const4pbx
 	public static final byte UC_TRANSFER_CALL_RES = 87;
 	public static final byte UC_PICKUP_TRANSFER_REQ = 88;
 	public static final byte UC_PICKUP_TRANSFER_RES = 89;
+	public static final byte UC_SEND_INPUT_DATA_REQ = 90;
+	public static final byte UC_SEND_INPUT_DATA_RES = 91;
+	public static final byte UC_INPUT_DATA_RESULT_REQ = 92;
+	public static final byte UC_INPUT_DATA_RESULT_RES = 93;
+	public static final byte UC_MANAGER_EXT_REQ = 94;
+	public static final byte UC_MANAGER_EXT_RES = 95;
+	public static final byte UC_CALLCENTER_GROUP_REQ = 96;
+	public static final byte UC_CALLCENTER_GROUP_RES = 97;
+	public static final byte UC_LISTEN_TO_CALL_REQ = 98;
+	public static final byte UC_LISTEN_TO_CALL_RES = 99;
 	
 	public static final byte UC_CLEAR_EXT_STATE_REQ = 100;
 	public static final byte UC_CLEAR_EXT_STATE_RES = 101;
