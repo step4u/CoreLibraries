@@ -5,7 +5,7 @@ public class UcMessage {
 	public byte direct;
 	public long call_idx;
 	public String extension;
-	public long cust_idx;
+	public String cust_no;
 	public String caller;
 	public String callername;
 	public String callee;
@@ -59,7 +59,7 @@ public class UcMessage {
 	
 	@Override
 	public String toString() {
-		return "UcMessage [cmd=" + cmd + ", direct=" + direct + ", extension=" + extension + ", call_idx=" + call_idx + ", cust_idx=" + cust_idx
+		return "UcMessage [cmd=" + cmd + ", direct=" + direct + ", extension=" + extension + ", call_idx=" + call_idx + ", cust_no=" + cust_no
 		+ ", caller=" + caller + ", callername=" + callername + ", callee=" + callee + ", calleename=" + calleename
 		+ ", responseCode=" + responseCode + ", unconditional=" + unconditional + ", status=" + status + "]";
 	}
