@@ -67,10 +67,13 @@ public class UcServer implements Runnable
 	        Timer_Elapsed timer_elapsed = new Timer_Elapsed();
 			timer = new Timer();
 			timer.schedule(timer_elapsed, timerInterval, timerInterval);
+			
+			this.regist();
 		}
 		catch (SocketException e)
 		{
-			
+			System.err.println("an error has broken out.");
+			e.printStackTrace();
 		}
 	}
 	
