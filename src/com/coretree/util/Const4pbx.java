@@ -113,10 +113,19 @@ public class Const4pbx
 	public static final int  WS_RES_RELOAD_USER = 10006;
 	
 	// etc state
-	public static final int WS_VALUE_EXTENSION_STATE_ONLINE = 20001;				// 온라인
-	public static final int WS_VALUE_EXTENSION_STATE_LEFT = 20002;					// 자리비움
-	public static final int WS_VALUE_EXTENSION_STATE_DND = 20003;					// 수신거부
-	public static final int WS_VALUE_EXTENSION_STATE_REDIRECTED = 20004;			// 착신전환
+	/*
+	public static final int WS_VALUE_EXTENSION_STATE_ONLINE = 1001;				// 대기 (온라인)
+	public static final int WS_VALUE_EXTENSION_STATE_LEFT = 1002;				// 후처리
+	public static final int WS_VALUE_EXTENSION_STATE_DND = 1003;				// 이석
+	public static final int WS_VALUE_EXTENSION_STATE_REDIRECTED = 1004;			// 휴식
+	public static final int WS_VALUE_EXTENSION_STATE_REDIRECTED = 1005;			// 교육
+	*/
+	
+	public static final int WS_VALUE_EXTENSION_STATE_READY = 1001;				// 대기 (온라인)
+	public static final int WS_VALUE_EXTENSION_STATE_AFTER = 1002;				// 후처리 (자리비움)
+	public static final int WS_VALUE_EXTENSION_STATE_LEFT = 1003;				// 이석 (자리비움)
+	public static final int WS_VALUE_EXTENSION_STATE_REST = 1004;				// 휴식 (자리비움)
+	public static final int WS_VALUE_EXTENSION_STATE_EDU = 1005;				// 교육 (자리비움)
 	
 	// uc websocket message
 	public static final int WS_STATUS_ING_NOTFOUND = 210001;

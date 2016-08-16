@@ -150,6 +150,17 @@ public class UcServer implements Runnable
 		}
 	}
 	
+	public void Send(GroupWareData msg) throws IOException
+	{
+		byte[] sendData = msg.toBytes();
+		
+		DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length);
+		
+		serverSocket.send(sendPacket);
+		System.out.println("");
+		System.err.println(String.format("Has sent %s", msg.toString()));
+	}
+	
 	public void Send(DatagramSocket sock, DatagramPacket packet, GroupWareData data) throws IOException
 	{
 		byte[] sendData = data.toBytes();
@@ -250,14 +261,14 @@ public class UcServer implements Runnable
 			case Const4pbx.UC_ANSWER_CALL_REQ:
 				data.setExtension(msg.extension);
 				break;
-			case Const4pbx.WS_VALUE_EXTENSION_STATE_ONLINE:
+			case Const4pbx.WS_VALUE_EXTENSION_STATE_READY:
 				data.setCmd(Const4pbx.UC_CLEAR_SRV_REQ);
 				data.setExtension(msg.extension);
 				data.setResponseCode(msg.responseCode);
 				break;
+			case Const4pbx.WS_VALUE_EXTENSION_STATE_AFTER:
 			case Const4pbx.WS_VALUE_EXTENSION_STATE_LEFT:
-			case Const4pbx.WS_VALUE_EXTENSION_STATE_DND:
-			case Const4pbx.WS_VALUE_EXTENSION_STATE_REDIRECTED:
+			case Const4pbx.WS_VALUE_EXTENSION_STATE_EDU:
 				data.setCmd(Const4pbx.UC_SET_SRV_REQ);
 				data.setExtension(msg.extension);
 				data.setResponseCode(msg.responseCode);
