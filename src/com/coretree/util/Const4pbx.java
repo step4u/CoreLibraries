@@ -126,6 +126,7 @@ public class Const4pbx
 	public static final int WS_VALUE_EXTENSION_STATE_LEFT = 1003;				// 이석 (자리비움)
 	public static final int WS_VALUE_EXTENSION_STATE_REST = 1004;				// 휴식 (자리비움)
 	public static final int WS_VALUE_EXTENSION_STATE_EDU = 1005;				// 교육 (자리비움)
+	public static final int WS_VALUE_EXTENSION_STATE_BUSY = 1006;				// 통화중
 	
 	// uc websocket message
 	public static final int WS_STATUS_ING_NOTFOUND = 210001;
