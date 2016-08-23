@@ -21,9 +21,11 @@ public class RTPInfo extends SetGetBytes<Object> {
 	public int offset;
 	public int size;
 	public byte[] voice = new byte[320 + 12];
-	public int next;	
+	public int StartCallSec;
+	public int StartCallUSec;
+	public int next;
 	
-	private int len = 5 + 20 + (4 * 13) + (320 + 12) + 4;
+	private int len = 7 + 20 + 1 + (4 * 13) + (320 + 12) + 4 + 4 + 4;
 	
 	public RTPInfo()
 	{
@@ -34,7 +36,7 @@ public class RTPInfo extends SetGetBytes<Object> {
 		this.SetByteOrder(byteorder);
 	}
 	
-	public RTPInfo(byte[] buff, ByteOrder byteorder)
+	public RTPInfo(byte[] buff, ByteOrder byteorder) throws ArrayIndexOutOfBoundsException
 	{
 		this.SetByteOrder(byteorder);
 		this.toObject(buff);
@@ -51,6 +53,10 @@ public class RTPInfo extends SetGetBytes<Object> {
 		tlength += bytes.length;
 		
 		bytes = object2Bytes(peer_number);
+		System.arraycopy(bytes, 0, out, tlength, bytes.length);
+		tlength += bytes.length;
+		
+		bytes = new byte[3];
 		System.arraycopy(bytes, 0, out, tlength, bytes.length);
 		tlength += bytes.length;
 		
@@ -110,6 +116,14 @@ public class RTPInfo extends SetGetBytes<Object> {
 		System.arraycopy(bytes, 0, out, tlength, bytes.length);
 		tlength += bytes.length;
 		
+		bytes = object2Bytes(StartCallSec);
+		System.arraycopy(bytes, 0, out, tlength, bytes.length);
+		tlength += bytes.length;
+		
+		bytes = object2Bytes(StartCallUSec);
+		System.arraycopy(bytes, 0, out, tlength, bytes.length);
+		tlength += bytes.length;
+		
 		bytes = object2Bytes(next);
 		System.arraycopy(bytes, 0, out, tlength, bytes.length);
 		tlength += bytes.length;
@@ -118,13 +132,13 @@ public class RTPInfo extends SetGetBytes<Object> {
 	}
 	
 	@Override
-	public void toObject(byte[] rcv) {
+	public void toObject(byte[] rcv) throws ArrayIndexOutOfBoundsException {
 		int tlength = 0;
-		this.extension = new String((byte[])bytes2Object(new byte[5], rcv, tlength, 5)).trim();
-		tlength += 5;
+		this.extension = new String((byte[])bytes2Object(new byte[5], rcv, tlength, 7)).trim();
+		tlength += 7;
 		this.peer_number = new String((byte[])bytes2Object(new byte[20], rcv, tlength, 20)).trim();
 		tlength += 20;
-		tlength += 3;
+		tlength += 1;
 		this.isExtension = (int)bytes2Object(this.isExtension, rcv, tlength, 4);
 		tlength += 4;
 		this.codec = (int)bytes2Object(this.codec, rcv, tlength, 4);
@@ -153,49 +167,11 @@ public class RTPInfo extends SetGetBytes<Object> {
 		tlength += 4;
 		System.arraycopy(rcv, tlength, this.voice, 0, 320 + 12);
 		tlength += (320 + 12);
+		this.StartCallSec = (int)bytes2Object(this.StartCallSec, rcv, tlength, 4);
+		tlength += 4;
+		this.StartCallUSec = (int)bytes2Object(this.StartCallUSec, rcv, tlength, 4);
+		tlength += 4;
 		this.next = (int)bytes2Object(this.next, rcv, tlength, 4);
 		tlength += 4;
 	}
-
-	/*
-	@Override
-	public void toObject(byte[] rcv) {
-		int tlength = 0;
-		this.extension = new String((byte[])bytes2Object(new byte[5], rcv, tlength, 5)).trim();
-		tlength += 5;
-		this.peer_number = new String((byte[])bytes2Object(new byte[20], rcv, tlength, 20)).trim();
-		tlength += 20;
-		tlength += 3;
-		this.isExtension = (int)bytes2Object(this.isExtension, rcv, tlength, 4);
-		tlength += 4;
-		this.codec = (int)bytes2Object(this.codec, rcv, tlength, 4);
-		tlength += 4;
-		this.seq = (int)bytes2Object(this.seq, rcv, tlength, 4);
-		tlength += 4;
-		this.rtp_seq = (int)bytes2Object(this.rtp_seq, rcv, tlength, 4);
-		tlength += 4;
-		this.yyyy = (int)bytes2Object(this.yyyy, rcv, tlength, 4);
-		tlength += 4;
-		this.month = (int)bytes2Object(this.month, rcv, tlength, 4);
-		tlength += 4;
-		this.day = (int)bytes2Object(this.day, rcv, tlength, 4);
-		tlength += 4;
-		this.hh = (int)bytes2Object(this.hh, rcv, tlength, 4);
-		tlength += 4;
-		this.mm = (int)bytes2Object(this.mm, rcv, tlength, 4);
-		tlength += 4;
-		this.sec = (int)bytes2Object(this.sec, rcv, tlength, 4);
-		tlength += 4;
-		this.msec = (int)bytes2Object(this.msec, rcv, tlength, 4);
-		tlength += 4;
-		this.offset = (int)bytes2Object(this.offset, rcv, tlength, 4);
-		tlength += 4;
-		this.size = (int)bytes2Object(this.size, rcv, tlength, 4);
-		tlength += 4;
-		System.arraycopy(rcv, tlength, this.voice, 0, 320 + 12);
-		tlength += (320 + 12);
-		this.next = (int)bytes2Object(this.next, rcv, tlength, 4);
-		tlength += 4;
-	}
-	*/
 }

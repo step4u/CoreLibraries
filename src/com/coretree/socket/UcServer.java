@@ -268,6 +268,7 @@ public class UcServer implements Runnable
 				break;
 			case Const4pbx.WS_VALUE_EXTENSION_STATE_AFTER:
 			case Const4pbx.WS_VALUE_EXTENSION_STATE_LEFT:
+			case Const4pbx.WS_VALUE_EXTENSION_STATE_REST:
 			case Const4pbx.WS_VALUE_EXTENSION_STATE_EDU:
 				data.setCmd(Const4pbx.UC_SET_SRV_REQ);
 				data.setExtension(msg.extension);

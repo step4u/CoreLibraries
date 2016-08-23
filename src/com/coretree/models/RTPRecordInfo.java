@@ -33,15 +33,18 @@ public class RTPRecordInfo implements Closeable
 	private Timer timer;
 	private Timer endtimer;
 	private short endcount = 0;
-	public double idx = 0.0d;
+	public String callid;
+	public int seq;
 	public String ext;
 	public String peer;
+	public String StartDate;
+	public String StartHms;
 	public WaveFormat codec;
 	public String savepath;
 	public String filename;
 
-	private List<ReceivedRTP> listIn;
-	private List<ReceivedRTP> listOut;
+	private List<RTPInfo> listIn;
+	private List<RTPInfo> listOut;
 	private WaveFileWriter writer = null;
 	// private WaveFormat pcmFormat = new WaveFormat(8000, 16, 1);
 
@@ -55,12 +58,9 @@ public class RTPRecordInfo implements Closeable
 		this.savepath = savepath;
 		this.filename = filename;
 		
-		// LocalDateTime now = LocalDateTime.now();
-		// long ts = now - (new LocalDateTime(1970, 1, 1, 0, 0, 0, 0));
-		// idx = ts.TotalMilliseconds;
 		codec = _codec;
-		listIn = new ArrayList<ReceivedRTP>();
-		listOut = new ArrayList<ReceivedRTP>();
+		listIn = new ArrayList<RTPInfo>();
+		listOut = new ArrayList<RTPInfo>();
 		
 		try
 		{
@@ -96,9 +96,9 @@ public class RTPRecordInfo implements Closeable
 		endtimer.schedule(endtimer_Elapsed, endtimerInterval, endtimerInterval);
 	}
 
-	public void Add(ReceivedRTP obj)
+	public void Add(RTPInfo rtp)
     {
-        if (obj.size == 0)
+        if (rtp.size == 0)
         {
             endcount++;
         }
@@ -146,17 +146,17 @@ public class RTPRecordInfo implements Closeable
 //            endtimer.schedule(endtimer_Elapsed, endtimerInterval, endtimerInterval);
 //        }
 
-        if (obj.size == 0) return;
+        if (rtp.size == 0) return;
 
-        if (obj.isExtension == 1)
+        if (rtp.isExtension == 1)
         {
-        	ReceivedRTP tmpRtp = new ReceivedRTP();
-        	tmpRtp.seq = obj.seq;
-        	tmpRtp.size = obj.size;
-        	tmpRtp.isExtension = obj.isExtension;
-        	tmpRtp.ext = obj.ext;
-        	tmpRtp.peer = obj.peer;
-        	tmpRtp.buff = obj.buff;
+        	RTPInfo tmpRtp = new RTPInfo();
+        	tmpRtp.seq = rtp.seq;
+        	tmpRtp.size = rtp.size;
+        	tmpRtp.isExtension = rtp.isExtension;
+        	tmpRtp.extension = rtp.extension;
+        	tmpRtp.peer_number = rtp.peer_number;
+        	tmpRtp.voice = rtp.voice;
         	
         	w.lock();
         	try
@@ -170,13 +170,13 @@ public class RTPRecordInfo implements Closeable
         }
         else
         {
-        	ReceivedRTP tmpRtp = new ReceivedRTP();
-        	tmpRtp.seq = obj.seq;
-        	tmpRtp.size = obj.size;
-        	tmpRtp.isExtension = obj.isExtension;
-        	tmpRtp.ext = obj.ext;
-        	tmpRtp.peer = obj.peer;
-        	tmpRtp.buff = obj.buff;
+        	RTPInfo tmpRtp = new RTPInfo();
+        	tmpRtp.seq = rtp.seq;
+        	tmpRtp.size = rtp.size;
+        	tmpRtp.isExtension = rtp.isExtension;
+        	tmpRtp.extension = rtp.extension;
+        	tmpRtp.peer_number = rtp.peer_number;
+        	tmpRtp.voice = rtp.voice;
         	
         	w.lock();
         	try
@@ -192,11 +192,10 @@ public class RTPRecordInfo implements Closeable
 
 	private void MixRtp(String check)
 	{
-		if (listIn == null || listOut == null)
-			return;
+		if (listIn == null || listOut == null) return;
 
-		List<ReceivedRTP> linin = new ArrayList<ReceivedRTP>();
-		List<ReceivedRTP> linout = new ArrayList<ReceivedRTP>();
+		List<RTPInfo> linin = new ArrayList<RTPInfo>();
+		List<RTPInfo> linout = new ArrayList<RTPInfo>();
 
 		r.lock();
 		try
@@ -218,10 +217,10 @@ public class RTPRecordInfo implements Closeable
 			r.unlock();
 		}
 
-		Collections.sort(linin, new Comparator<ReceivedRTP>()
+		Collections.sort(linin, new Comparator<RTPInfo>()
 		{
 			@Override
-			public int compare(ReceivedRTP o1, ReceivedRTP o2)
+			public int compare(RTPInfo o1, RTPInfo o2)
 			{
 				if (o1.seq > o2.seq)
 					return 1;
@@ -232,10 +231,10 @@ public class RTPRecordInfo implements Closeable
 			}
 		});
 
-		Collections.sort(linout, new Comparator<ReceivedRTP>()
+		Collections.sort(linout, new Comparator<RTPInfo>()
 		{
 			@Override
-			public int compare(ReceivedRTP o1, ReceivedRTP o2)
+			public int compare(RTPInfo o1, RTPInfo o2)
 			{
 				if (o1.seq > o2.seq)
 					return 1;
@@ -246,8 +245,8 @@ public class RTPRecordInfo implements Closeable
 			}
 		});
 
-		ReceivedRTP itemIn = null;
-		ReceivedRTP itemOut = null;
+		RTPInfo itemIn = null;
+		RTPInfo itemOut = null;
 		
 		try
 		{
@@ -283,7 +282,7 @@ public class RTPRecordInfo implements Closeable
 
 				if (check.equals("final"))
 				{
-					for (ReceivedRTP item : linout)
+					for (RTPInfo item : linout)
 					{
 						mixedbytes = this.Mixing(linin, linout, item, delayedMsec);
 						this.WaveFileWriting(mixedbytes);
@@ -304,7 +303,7 @@ public class RTPRecordInfo implements Closeable
 
 				if (check.equals("final"))
 				{
-					for (ReceivedRTP item : linin)
+					for (RTPInfo item : linin)
 					{
 						mixedbytes = this.Mixing(linin, linout, item, delayedMsec);
 						this.WaveFileWriting(mixedbytes);
@@ -325,7 +324,7 @@ public class RTPRecordInfo implements Closeable
 
 				if (check.equals("final"))
 				{
-					for (ReceivedRTP item : linin)
+					for (RTPInfo item : linin)
 					{
 						mixedbytes = this.Mixing(linin, linout, item, delayedMsec);
 						this.WaveFileWriting(mixedbytes);
@@ -344,12 +343,12 @@ public class RTPRecordInfo implements Closeable
 	}
 
 	private int headersize = 12;
-	private byte[] Mixing(List<ReceivedRTP> linin, List<ReceivedRTP> linout, ReceivedRTP item, DelayedMsec delayedMsec)
+	private byte[] Mixing(List<RTPInfo> linin, List<RTPInfo> linout, RTPInfo item, DelayedMsec delayedMsec)
 	{
 		byte[] mixedbytes = null;
 		
-		ReceivedRTP _item0 = null;
-		ReceivedRTP _item1 = null;
+		RTPInfo _item0 = null;
+		RTPInfo _item1 = null;
 
 		if (delayedMsec == DelayedMsec.i80o160)
 		{
@@ -364,12 +363,12 @@ public class RTPRecordInfo implements Closeable
 			{
 				Util.WriteLog(String.format(Finalvars.ErrHeader, 1007, e.getMessage()), 1);
 				
-				_item0 = new ReceivedRTP();
-				_item0.buff = new byte[332];
+				_item0 = new RTPInfo();
+				_item0.voice = new byte[332];
 				_item0.seq = seq;
 				_item0.size = 92;
-				_item0.ext = item.ext;
-				_item0.peer = item.peer;
+				_item0.extension = item.extension;
+				_item0.peer_number = item.peer_number;
 			}
 			finally
 			{
@@ -385,28 +384,28 @@ public class RTPRecordInfo implements Closeable
 			{
 				Util.WriteLog(String.format(Finalvars.ErrHeader, 1008, e.getMessage()), 1);
 				
-				_item1 = new ReceivedRTP();
-				_item1.buff = new byte[332];
+				_item1 = new RTPInfo();
+				_item1.voice = new byte[332];
 				_item1.seq = seq + 1;
 				_item1.size = 92;
-				_item1.ext = item.ext;
-				_item1.peer = item.peer;
+				_item1.extension = item.extension;
+				_item1.peer_number = item.peer_number;
 			}
 			finally
 			{
 				r.unlock();
 			}
 			
-			final ReceivedRTP __item0 = _item0;
-			final ReceivedRTP __item1 = _item1;
+			final RTPInfo __item0 = _item0;
+			final RTPInfo __item1 = _item1;
 
 			// item2 + tmpitem mix with item1 and write
 			byte[] tmpbuff = new byte[332];
-			System.arraycopy(__item0.buff, 0, tmpbuff, 0, __item0.size);
-			System.arraycopy(__item1.buff, headersize, tmpbuff, __item0.size, (__item1.size - headersize));
+			System.arraycopy(__item0.voice, 0, tmpbuff, 0, __item0.size);
+			System.arraycopy(__item1.voice, headersize, tmpbuff, __item0.size, (__item1.size - headersize));
 
-			ReceivedRTP _itm = new ReceivedRTP();
-			_itm.buff = tmpbuff;
+			RTPInfo _itm = new RTPInfo();
+			_itm.voice = tmpbuff;
 			_itm.size = (_item0.size + _item1.size - headersize);
 
 			try
@@ -462,12 +461,12 @@ public class RTPRecordInfo implements Closeable
 			{
 				Util.WriteLog(String.format(Finalvars.ErrHeader, 1010, e.getMessage()), 1);
 				
-				_item0 = new ReceivedRTP();
-				_item0.buff = new byte[332];
+				_item0 = new RTPInfo();
+				_item0.voice = new byte[332];
 				_item0.seq = seq;
 				_item0.size = 92;
-				_item0.ext = item.ext;
-				_item0.peer = item.peer;
+				_item0.extension = item.extension;
+				_item0.peer_number = item.peer_number;
 			}
 			finally
 			{
@@ -484,27 +483,27 @@ public class RTPRecordInfo implements Closeable
 			{
 				Util.WriteLog(String.format(Finalvars.ErrHeader, 1011, e.getMessage()), 1);
 				
-				_item1 = new ReceivedRTP();
-				_item1.buff = new byte[332];
+				_item1 = new RTPInfo();
+				_item1.voice = new byte[332];
 				_item1.seq = seq;
 				_item1.size = 92;
-				_item1.ext = item.ext;
-				_item1.peer = item.peer;
+				_item1.extension = item.extension;
+				_item1.peer_number = item.peer_number;
 			}
 			finally
 			{
 				r.unlock();
 			}
 			
-			final ReceivedRTP __item0 = _item0;
-			final ReceivedRTP __item1 = _item1;
+			final RTPInfo __item0 = _item0;
+			final RTPInfo __item1 = _item1;
 
 			// item2 + tmpitem mix with item1 and write
 			byte[] tmpbuff = new byte[332];
-			System.arraycopy(__item0.buff, 0, tmpbuff, 0, __item0.size);
-			System.arraycopy(__item1.buff, headersize, tmpbuff, __item0.size, (__item1.size - headersize));
-			ReceivedRTP _itm = new ReceivedRTP();
-			_itm.buff = tmpbuff;
+			System.arraycopy(__item0.voice, 0, tmpbuff, 0, __item0.size);
+			System.arraycopy(__item1.voice, headersize, tmpbuff, __item0.size, (__item1.size - headersize));
+			RTPInfo _itm = new RTPInfo();
+			_itm.voice = tmpbuff;
 			_itm.size = (__item0.size + __item1.size - headersize);
 
 			try
@@ -552,7 +551,7 @@ public class RTPRecordInfo implements Closeable
 			// item > in
 			// same
 			// item1 mix with item2 and write
-			ReceivedRTP _item = null;
+			RTPInfo _item = null;
 			
 			r.lock();
 			try
@@ -563,19 +562,19 @@ public class RTPRecordInfo implements Closeable
 			{
 				Util.WriteLog(String.format(Finalvars.ErrHeader, 1013, e.getMessage()), 1);
 				
-				_item = new ReceivedRTP();
-				_item.buff = new byte[332];
+				_item = new RTPInfo();
+				_item.voice = new byte[332];
 				_item.seq = item.seq;
 				_item.size = item.size;
-				_item.ext = item.ext;
-				_item.peer = item.peer;
+				_item.extension = item.extension;
+				_item.peer_number = item.peer_number;
 			}
 			finally
 			{
 				r.unlock();
 			}
 			
-			final ReceivedRTP __item = _item;
+			final RTPInfo __item = _item;
 
 			try
 			{
@@ -610,19 +609,17 @@ public class RTPRecordInfo implements Closeable
 		return mixedbytes;
 	}
 
-	private byte[] RealMix(ReceivedRTP item1, ReceivedRTP item2) throws IOException
+	private byte[] RealMix(RTPInfo item1, RTPInfo item2) throws IOException
 	{
-		if (item1 == null || item2 == null)
-			return null;
+		if (item1 == null || item2 == null) return null;
 
-		if (item1.size == 0 || item2.size == 0)
-			return null;
+		if (item1.size == 0 || item2.size == 0) return null;
 
 		byte[] wavSrc1 = new byte[item1.size - headersize];
 		byte[] wavSrc2 = new byte[item2.size - headersize];
 
-		System.arraycopy(item1.buff, headersize, wavSrc1, 0, wavSrc1.length);
-		System.arraycopy(item2.buff, headersize, wavSrc2, 0, wavSrc2.length);
+		System.arraycopy(item1.voice, headersize, wavSrc1, 0, wavSrc1.length);
+		System.arraycopy(item2.voice, headersize, wavSrc2, 0, wavSrc2.length);
 		
 		List<AudioInputStream> audioInputStreamList = new ArrayList();
 		

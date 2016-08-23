@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.nio.ByteOrder;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -62,15 +65,25 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 			// serverSocket = new DatagramSocket(address);
 			serverSocket = new DatagramSocket(21010);
 			
-			byte[] receiveData = new byte[416];
+			byte[] receiveData = new byte[424];
+			// byte[] receiveData = new byte[1024];
 			// byte[] sendData = new byte[1024];
 
 			while (true) {
 				DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 				serverSocket.receive(receivePacket);
 				byte[] rcvbytes = receivePacket.getData();
-				// RTPInfo rtpObj = new RTPInfo(rcvbytes, ByteOrder.BIG_ENDIAN);
-				RTPInfo rtpObj = new RTPInfo(rcvbytes, defaultbyteorder);
+
+				RTPInfo rtpObj = null;
+				
+				try
+				{
+					// rtpObj = new RTPInfo(rcvbytes, ByteOrder.BIG_ENDIAN);
+					rtpObj = new RTPInfo(rcvbytes, defaultbyteorder);
+				} catch (ArrayIndexOutOfBoundsException e){
+					System.out.println("ArrayIndexOutOfBoundsException :\r\n" + e.getMessage());
+					continue;
+				}
 
 				int nDataSize = rtpObj.size - 12;
 
@@ -79,20 +92,20 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 					continue;
 				}
 
-				ReceivedRTP rcvRtp = new ReceivedRTP();
-				rcvRtp.seq = rtpObj.seq;
-				rcvRtp.codec = rtpObj.codec;
-				rcvRtp.isExtension = rtpObj.isExtension;
-				rcvRtp.ext = rtpObj.extension;
-				rcvRtp.peer = rtpObj.peer_number;
-				rcvRtp.size = rtpObj.size;
-				rcvRtp.buff = rtpObj.voice;
-				
-				String logMsg = String.format("seq:%d, ext:%s, peer:%s, isExtension:%d, size:%d, codec:%d", rcvRtp.seq, rcvRtp.ext, rcvRtp.peer, rcvRtp.isExtension, rcvRtp.size, rcvRtp.codec);
-				// Util.WriteLog(logMsg, 0);
-				System.out.println(logMsg);
+//				ReceivedRTP rcvRtp = new ReceivedRTP();
+//				rcvRtp.seq = rtpObj.seq;
+//				rcvRtp.codec = rtpObj.codec;
+//				rcvRtp.isExtension = rtpObj.isExtension;
+//				rcvRtp.ext = rtpObj.extension;
+//				rcvRtp.peer = rtpObj.peer_number;
+//				rcvRtp.size = rtpObj.size;
+//				rcvRtp.buff = rtpObj.voice;
+//				
+//				String logMsg = String.format("seq:%d, ext:%s, peer:%s, isExtension:%d, size:%d, codec:%d", rcvRtp.seq, rcvRtp.ext, rcvRtp.peer, rcvRtp.isExtension, rcvRtp.size, rcvRtp.codec);
+//				// Util.WriteLog(logMsg, 0);
+//				System.out.println(logMsg);
 
-				StackRtp2Instance(rcvRtp);
+				this.StackRtp2Instance(rtpObj);
 			}
 		} catch (IOException e) {
 			// e.printStackTrace();
@@ -104,86 +117,82 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 		
 	}
 
-	private void StackRtp2Instance(ReceivedRTP rtp) {
-		// System.out.println("entered into StackRtp2Instance");
-		
+	private void StackRtp2Instance(RTPInfo rtp) {
 		RTPRecordInfo ingInstance = null;
 
 		r.lock();
 		try {
-			ingInstance = recordIngList.stream().filter(x -> x.ext.equals(rtp.ext)).findFirst().get();
+			ingInstance = recordIngList.stream().filter(x -> x.ext.equals(rtp.extension)).findFirst().get();
 			ingInstance.Add(rtp);
 		} catch (NoSuchElementException | NullPointerException e) {
-			// Util.WriteLog(e.getMessage(), 1);
+			WaveFormat wavformat;
+
+			switch (rtp.codec) {
+				case 0:
+					wavformat = WaveFormat.CreateALawFormat(8000, 1);
+					// wavformat = WaveFormat.CreateMuLawFormat(8000, 1);
+					// wavformat = WaveFormat.CreateCustomFormat(WaveFormatEncoding.MuLaw, 8000, 1, 16000, 1, 16);
+					break;
+				case 8:
+					wavformat = WaveFormat.CreateALawFormat(8000, 1);
+					// wavformat = WaveFormat.CreateCustomFormat(WaveFormatEncoding.ALaw, 8000, 1, 16000, 1, 16);
+					// wavformat = WaveFormat.CreateCustomFormat(WaveFormatEncoding.Pcm, 8000, 1, 8000, 1, 8);
+					break;
+				case 4:
+					wavformat = WaveFormat.CreateCustomFormat(WaveFormatEncoding.G723, 8000, 1, 8000, 1, 8);
+					break;
+				case 18:
+					wavformat = WaveFormat.CreateCustomFormat(WaveFormatEncoding.G729, 8000, 1, 8000, 1, 8);
+					break;
+				default:
+					wavformat = WaveFormat.CreateMuLawFormat(8000, 1);
+					break;
+			}
+
+			LocalDateTime localdatetime = LocalDateTime.now();
+			// TimeSpan ts = now - new DateTime(1970, 1, 1, 0, 0, 0, 0,
+			// DateTimeKind.Local);
+
+			DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
+			String _header = localdatetime.format(df);
+			df = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			String _datepath = localdatetime.format(df);
+
+			String _strformat = "%s/%s";
+			if (OS.contains("Windows")) {
+				_strformat = "%s\\%s";
+			} else {
+				_strformat = "%s/%s";
+			}
 			
-//			if (ingInstance == null) {
-				WaveFormat wavformat;
+			String _fileName = String.format("%s_%s_%s.wav", _header.trim(), rtp.extension.trim(), rtp.peer_number.trim());
 
-				switch (rtp.codec) {
-					case 0:
-						wavformat = WaveFormat.CreateALawFormat(8000, 1);
-						// wavformat = WaveFormat.CreateMuLawFormat(8000, 1);
-						// wavformat = WaveFormat.CreateCustomFormat(WaveFormatEncoding.MuLaw, 8000, 1, 16000, 1, 16);
-						break;
-					case 8:
-						wavformat = WaveFormat.CreateALawFormat(8000, 1);
-						// wavformat = WaveFormat.CreateCustomFormat(WaveFormatEncoding.ALaw, 8000, 1, 16000, 1, 16);
-						// wavformat = WaveFormat.CreateCustomFormat(WaveFormatEncoding.Pcm, 8000, 1, 8000, 1, 8);
-						break;
-					case 4:
-						wavformat = WaveFormat.CreateCustomFormat(WaveFormatEncoding.G723, 8000, 1, 8000, 1, 8);
-						break;
-					case 18:
-						wavformat = WaveFormat.CreateCustomFormat(WaveFormatEncoding.G729, 8000, 1, 8000, 1, 8);
-						break;
-					default:
-						wavformat = WaveFormat.CreateMuLawFormat(8000, 1);
-						break;
-				}
+			 String _path = String.format(_strformat, _option.saveDirectory, _datepath);
+			 
+			 File _dir = new File(_path);
+			 if (!_dir.exists()) {
+				 // boolean result = _dir.mkdir();
+				 _dir.mkdir();
+			 }
 
-				LocalDateTime localdatetime = LocalDateTime.now();
-				// TimeSpan ts = now - new DateTime(1970, 1, 1, 0, 0, 0, 0,
-				// DateTimeKind.Local);
+			ingInstance = new RTPRecordInfo(wavformat, String.format(_strformat, _option.saveDirectory, _datepath), _fileName);
+			ingInstance.callid = String.valueOf(rtp.StartCallSec) + String.valueOf(rtp.StartCallUSec);
+			ingInstance.ext = rtp.extension;
+			ingInstance.peer = rtp.peer_number;
+			// recInstance.codec = wavformat;
+			ingInstance.StartDate = localdatetime.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+			ingInstance.StartHms = localdatetime.format(DateTimeFormatter.ofPattern("HHmmss"));
+			ingInstance.savepath = String.format(_strformat, _option.saveDirectory, _datepath);
+			ingInstance.filename = _fileName;
 
-				DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
-				String _header = localdatetime.format(df);
-				df = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-				String _datepath = localdatetime.format(df);
-
-				String _strformat = "%s/%s";
-				if (OS.contains("Windows")) {
-					_strformat = "%s\\%s";
-				} else {
-					_strformat = "%s/%s";
-				}
-				
-				String _fileName = String.format("%s_%s_%s.wav", _header.trim(), rtp.ext.trim(), rtp.peer.trim());
-
-				 String _path = String.format(_strformat, _option.saveDirectory, _datepath);
-				 
-				 File _dir = new File(_path);
-				 if (!_dir.exists()) {
-					 // boolean result = _dir.mkdir();
-					 _dir.mkdir();
-				 }
-
-				ingInstance = new RTPRecordInfo(wavformat, String.format(_strformat, _option.saveDirectory, _datepath), _fileName);
-				ingInstance.ext = rtp.ext;
-				ingInstance.peer = rtp.peer;
-				// recInstance.codec = wavformat;
-				// recInstance.idx = ts.TotalMilliseconds;
-				ingInstance.savepath = String.format(_strformat, _option.saveDirectory, _datepath);
-				ingInstance.filename = _fileName;
-
-				ingInstance.Add(rtp);
-				ingInstance.EndOfCallEventHandler.addEventHandler(this);
-				
-//				w.lock();
-//				try {
-					recordIngList.add(ingInstance);
-//				} finally {
-//					w.unlock();
-//				}
+			ingInstance.Add(rtp);
+			ingInstance.EndOfCallEventHandler.addEventHandler(this);
+			
+//			w.lock();
+//			try {
+				recordIngList.add(ingInstance);
+//			} finally {
+//				w.unlock();
 //			}
 		} finally {
 			r.unlock();
@@ -193,36 +202,83 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 	@Override
 	public void eventReceived(Object sender, EndOfCallEventArgs e) {
 		RTPRecordInfo item = (RTPRecordInfo)sender;
-		String ext = item.ext;
-		String peer = item.peer;
-		String filename = item.filename;
+		
+		int size = 0;
+		try {
+			size = (int)Files.size(Paths.get(item.savepath + "\\" + item.filename));
+		} catch (IOException e3) {
+			e3.printStackTrace();
+		}
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append("insert into trecord_mgt (");
+		sb.append("rec_seq");
+		sb.append(", callid");
+		sb.append(", extension_no");
+		sb.append(", emp_no");
+		sb.append(", tel_no");
+		sb.append(", rec_start_date");
+		sb.append(", rec_start_hms");
+		sb.append(", rec_end_date");
+		sb.append(", rec_end_hms");
+		sb.append(", file_name");
+		sb.append(", file_size");
+		sb.append(") values (");
+		sb.append("GEN_ID(SEQ_REC, 1)");
+		sb.append(", ?");
+		sb.append(", ?");
+		sb.append(", (select emp_no from torganization where extension_no=?)");
+		sb.append(", ?");
+		sb.append(", ?");
+		sb.append(", ?");
+		sb.append(", replace(cast(current_date as varchar(10)), '-', '')");
+		sb.append(", substring(replace(cast(current_time as varchar(13)), ':', '') from 1 for 6)");
+		sb.append(", ?");
+		sb.append(", ?");
+		sb.append(")");
+		
+		Connection con = null;
 		
 		try {
-			recordIngList.removeIf(x -> x.ext.equals(item.ext));
+			con = DBConnection.getConnection();
+			PreparedStatement stmt = con.prepareStatement(sb.toString());
+			con.setAutoCommit(false);
 			
-			String sql = "insert into recinfo "
-					+ " ( extension, peernum, filename )"
-					+ " values "
-					+ " ( ?, ?, ? )";
+			stmt.setString(1, item.callid);
+			stmt.setString(2, item.ext);
+			stmt.setString(3, item.ext);
+			stmt.setString(4, item.peer);
+			stmt.setString(5, item.StartDate);
+			stmt.setString(6, item.StartHms);
+			stmt.setString(7, item.filename);
+			stmt.setInt(8, size);
 			
-			try(Connection con = DBConnection.getConnection();
-					PreparedStatement stmt = con.prepareStatement(sql)) {
-				con.setAutoCommit(true);
-				
-				stmt.setString(1, ext);
-				stmt.setString(2, peer);
-				stmt.setString(3, filename);
-				
-				stmt.executeUpdate();
-			} catch (SQLException ex) {
-				ex.printStackTrace();
-			} finally {
-				System.out.println(String.format("stream end event insert db : sql: %s", sql));
+			stmt.executeUpdate();
+			stmt.close();
+			
+			con.commit();
+			con.close();
+			
+			recordIngList.removeIf(x -> x.ext.equals(item.ext) && x.peer.equals(item.peer));
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+			try {
+				con.rollback();
+			} catch (SQLException e2) {
+				e2.printStackTrace();
 			}
-		} catch (NullPointerException | UnsupportedOperationException e1) {
-			Util.WriteLog(String.format(Finalvars.ErrHeader, 1002, e1.getMessage()), 1);
+		} catch (RuntimeException e2) {
+		//} catch (NullPointerException | UnsupportedOperationException e3) {
+			e2.printStackTrace();
+			try {
+				con.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+			Util.WriteLog(String.format(Finalvars.ErrHeader, 1002, e2.getMessage()), 1);
 		} finally {
-			System.out.println(String.format("stream end event : ext: %s, peer: %s, filename: %s", ext, peer, filename));
+			System.out.println(String.format("stream end event insert db : sql: %s", sb.toString()));
+			System.out.println(String.format("stream end event : callid: %s, ext: %s, peer: %s, filename: %s", item.callid, item.ext, item.peer, item.filename));
 		}
 	}
 }

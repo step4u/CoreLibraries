@@ -15,8 +15,8 @@ public class GroupWareData extends SetGetBytes<Object>
 	private byte status;
 	private byte[] caller = new byte[16];
 	private byte[] callee = new byte[16];
-	private byte[] extension = new byte[5];
-	private byte[] dummy0 = new byte[3];
+	private byte[] extension = new byte[7];
+	private byte[] dummy0 = new byte[1];
     private int responseCode;
     private int ip;
     private int port;
