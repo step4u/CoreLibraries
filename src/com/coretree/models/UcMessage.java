@@ -3,6 +3,7 @@ package com.coretree.models;
 public class UcMessage {
 	public int cmd;
 	public byte direct;
+	public String callid;
 	public long call_idx;
 	public String extension;
 	public String cust_no;
