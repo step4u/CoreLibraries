@@ -58,7 +58,7 @@ public class Organization {
 	private String newPwd;
 	private int existCount;
 
-	private int tempval;
+	private int tempval = -1;
 	private String tempstr;
 	private Date startdate = new Date();
 	

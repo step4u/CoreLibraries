@@ -174,6 +174,8 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 				 // boolean result = _dir.mkdir();
 				 _dir.mkdir();
 			 }
+			 
+			System.out.println(String.valueOf(rtp.StartCallSec) + " // " + String.valueOf(rtp.StartCallUSec));
 
 			ingInstance = new RTPRecordInfo(wavformat, String.format(_strformat, _option.saveDirectory, _datepath), _fileName);
 			ingInstance.callid = String.valueOf(rtp.StartCallSec) + String.valueOf(rtp.StartCallUSec);
