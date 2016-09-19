@@ -261,19 +261,26 @@ public class UcServer implements Runnable
 			case Const4pbx.UC_ANSWER_CALL_REQ:
 				data.setExtension(msg.extension);
 				break;
-			case Const4pbx.WS_VALUE_EXTENSION_STATE_READY:
-				data.setCmd(Const4pbx.UC_CLEAR_SRV_REQ);
-				data.setExtension(msg.extension);
-				data.setResponseCode(msg.responseCode);
-				break;
-			case Const4pbx.WS_VALUE_EXTENSION_STATE_AFTER:
-			case Const4pbx.WS_VALUE_EXTENSION_STATE_LEFT:
-			case Const4pbx.WS_VALUE_EXTENSION_STATE_REST:
-			case Const4pbx.WS_VALUE_EXTENSION_STATE_EDU:
-				data.setCmd(Const4pbx.UC_SET_SRV_REQ);
-				data.setExtension(msg.extension);
-				data.setResponseCode(msg.responseCode);
-				data.setUnconditional(msg.unconditional);
+			case Const4pbx.WS_REQ_CHANGE_EXTENSION_STATE:
+				switch (Integer.valueOf(msg.status)) {
+					case Const4pbx.WS_VALUE_EXTENSION_STATE_AFTER:
+					case Const4pbx.WS_VALUE_EXTENSION_STATE_LEFT:
+					case Const4pbx.WS_VALUE_EXTENSION_STATE_REST:
+					case Const4pbx.WS_VALUE_EXTENSION_STATE_EDU:
+					case Const4pbx.WS_VALUE_EXTENSION_STATE_LOGEDON:
+					case Const4pbx.WS_VALUE_EXTENSION_STATE_LOGEDOUT:
+						data.setCmd(Const4pbx.UC_SET_SRV_REQ);
+						data.setExtension(msg.extension);
+						data.setResponseCode(msg.responseCode);
+						data.setUnconditional(msg.unconditional);
+						break;
+					case Const4pbx.WS_VALUE_EXTENSION_STATE_READY:
+					default:
+						data.setCmd(Const4pbx.UC_CLEAR_SRV_REQ);
+						data.setExtension(msg.extension);
+						data.setResponseCode(msg.responseCode);
+						break;
+				}
 				break;
 		}
 		

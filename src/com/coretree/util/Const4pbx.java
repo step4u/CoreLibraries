@@ -65,6 +65,7 @@ public class Const4pbx
 	public static final byte UC_SMS_TRANSFER_CANCEL_REQ = (byte)132;
 	public static final byte UC_SMS_TRANSFER_CANCEL_RES = (byte)133;
 	
+	
 	public static final byte UC_APP_AUTH_REQ = (byte)198;
 	public static final byte UC_APP_AUTH_RES = (byte)199;
 
@@ -121,14 +122,20 @@ public class Const4pbx
 	public static final int WS_VALUE_EXTENSION_STATE_REDIRECTED = 1005;			// 교육
 	*/
 	
-	public static final int WS_VALUE_EXTENSION_STATE_READY = 1001;				// 대기 (온라인)
-	public static final int WS_VALUE_EXTENSION_STATE_AFTER = 1002;				// 후처리 (자리비움)
-	public static final int WS_VALUE_EXTENSION_STATE_LEFT = 1003;				// 이석 (자리비움)
-	public static final int WS_VALUE_EXTENSION_STATE_REST = 1004;				// 휴식 (자리비움)
-	public static final int WS_VALUE_EXTENSION_STATE_EDU = 1005;				// 교육 (자리비움)
-	public static final int WS_VALUE_EXTENSION_STATE_BUSY = 1006;				// 통화중
-	public static final int WS_VALUE_EXTENSION_STATE_LOGEDOUT = 1007;			// 로그아웃
-	public static final int WS_VALUE_EXTENSION_STATE_LOGEDON = 1008;			// 로그온
+	
+	public static final int WS_REQ_CHANGE_EXTENSION_STATE = 1001;				// 상태 변경 명령
+	public static final int WS_RES_CHANGE_EXTENSION_STATE = 1002;				// 상태 변경 명령 결과
+	
+	public static final int WS_VALUE_EXTENSION_STATE_READY = 1011;				// 대기 (온라인)
+	public static final int WS_VALUE_EXTENSION_STATE_AFTER = 1012;				// 후처리 (자리비움)
+	public static final int WS_VALUE_EXTENSION_STATE_LEFT = 1013;				// 이석 (자리비움)
+	public static final int WS_VALUE_EXTENSION_STATE_REST = 1014;				// 휴식 (자리비움)
+	public static final int WS_VALUE_EXTENSION_STATE_EDU = 1015;				// 교육 (자리비움)
+	public static final int WS_VALUE_EXTENSION_STATE_BUSY = 1016;				// 통화중
+	public static final int WS_VALUE_EXTENSION_STATE_LOGEDOUT = 1017;			// 로그아웃
+	public static final int WS_VALUE_EXTENSION_STATE_LOGEDON = 1018;			// 로그온
+	public static final int WS_VALUE_EXTENSION_STATE_SAMEASNOW = 1019;			// 같은 상태 요청함
+	public static final int WS_VALUE_EXTENSION_STATE_WRONGREQ = 1020;			// 잘못 된 요청
 	
 	// uc websocket message
 	public static final int WS_STATUS_ING_NOTFOUND = 210001;

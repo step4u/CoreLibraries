@@ -13,7 +13,8 @@ public class UcMessage {
 	public String calleename;
 	public int responseCode;
 	public String unconditional;
-	public String status;
+	public int status;
+	public int statusmsg;
 /*
 	public void setCmd(byte cmd) { this.cmd = cmd; }
 	public byte getCmd() { return this.cmd; }

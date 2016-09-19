@@ -1,6 +1,7 @@
 package com.coretree.models;
 
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -33,9 +34,9 @@ public class Organization {
 //				
 //			}
 			
-			Date rightnow = new Date();
-			long diff = rightnow.getTime() - getStartdate().getTime();
-			long diffseconds = diff / 1000;
+			LocalDateTime rightnow = LocalDateTime.now();
+			
+			long diffseconds = getStartdate().until(rightnow, ChronoUnit.SECONDS);
 			
 			if (diffseconds >= limited_time) {
 				setAgentStatCd(String.valueOf(Const4pbx.WS_VALUE_EXTENSION_STATE_LOGEDOUT));
@@ -60,7 +61,7 @@ public class Organization {
 
 	private int tempval = -1;
 	private String tempstr;
-	private Date startdate = new Date();
+	private LocalDateTime startdate = LocalDateTime.now();
 	
 	
 	public String getEmpNo() { return empNo; }
@@ -108,8 +109,8 @@ public class Organization {
 	public String getTempstr() { return tempstr; }
 	public void setTempstr(String tempstr) { this.tempstr = tempstr; }
 	
-	public Date getStartdate() { return startdate; }
-	public void setStartdate(Date startdate) { this.startdate = startdate; }
+	public LocalDateTime getStartdate() { return startdate; }
+	public void setStartdate(LocalDateTime startdate) { this.startdate = startdate; }
 	
 	@Override
 	public String toString() {
