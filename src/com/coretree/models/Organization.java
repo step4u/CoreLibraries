@@ -1,6 +1,7 @@
 package com.coretree.models;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -56,12 +57,18 @@ public class Organization {
 	private String extensionNo;
 	private String note;
 	private String agentStatCd;
+	private String prevAgentStatCd;
 	private String newPwd;
 	private int existCount;
 
 	private int tempval = -1;
 	private String tempstr;
 	private LocalDateTime startdate = LocalDateTime.now();
+	private LocalDateTime prevstartdate = LocalDateTime.now();
+	private String sdate;
+	private String shms;
+	private String pdate;
+	private String phms;
 	
 	
 	public String getEmpNo() { return empNo; }
@@ -97,6 +104,9 @@ public class Organization {
 	public String getAgentStatCd() { return this.agentStatCd; }
 	public void setAgentStatCd(String agentStatCd) { this.agentStatCd = agentStatCd; }
 	
+	public String getPrevAgentStatCd() { return this.prevAgentStatCd; }
+	public void setPrevAgentStatCd(String prevAgentStatCd) { this.prevAgentStatCd = prevAgentStatCd; }
+	
 	public String getNewPwd() { return newPwd; }
 	public void setNewPwd(String newPwd) { this.newPwd = newPwd; }
 	
@@ -110,7 +120,38 @@ public class Organization {
 	public void setTempstr(String tempstr) { this.tempstr = tempstr; }
 	
 	public LocalDateTime getStartdate() { return startdate; }
-	public void setStartdate(LocalDateTime startdate) { this.startdate = startdate; }
+	public void setStartdate(LocalDateTime startdate) {
+		this.startdate = startdate;
+		
+		LocalDateTime localdatetime = LocalDateTime.now();
+		DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyyMMdd");
+		this.setSdate(localdatetime.format(df));
+		df = DateTimeFormatter.ofPattern("HHmmss");
+		this.setShms(localdatetime.format(df));
+	}
+	
+	public String getSdate() { return this.sdate; }
+	public void setSdate(String sdate) { this.sdate = sdate; }
+	
+	public String getShms() { return this.shms; }
+	public void setShms(String shms) { this.shms = shms; }
+	
+	public LocalDateTime getPrevStartdate() { return prevstartdate; }
+	public void setPrevStartdate(LocalDateTime prevstartdate) {
+		this.prevstartdate = prevstartdate;
+		
+		LocalDateTime localdatetime = LocalDateTime.now();
+		DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyyMMdd");
+		this.setPdate(localdatetime.format(df));
+		df = DateTimeFormatter.ofPattern("HHmmss");
+		this.setPhms(localdatetime.format(df));
+	}
+	
+	public String getPdate() { return this.pdate; }
+	public void setPdate(String pdate) { this.pdate = pdate; }
+	
+	public String getPhms() { return this.phms; }
+	public void setPhms(String phms) { this.phms = phms; }
 	
 	@Override
 	public String toString() {
