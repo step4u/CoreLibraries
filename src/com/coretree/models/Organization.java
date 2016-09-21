@@ -21,6 +21,8 @@ public class Organization {
 		Timer_Elapsed timer_elapsed = new Timer_Elapsed();
 		timer = new Timer();
 		timer.schedule(timer_elapsed, timerInterval, timerInterval);
+		
+		this.setStartdate(LocalDateTime.now());
 	}
 	
 	class Timer_Elapsed extends TimerTask
@@ -63,8 +65,8 @@ public class Organization {
 
 	private int tempval = -1;
 	private String tempstr;
-	private LocalDateTime startdate = LocalDateTime.now();
-	private LocalDateTime prevstartdate = LocalDateTime.now();
+	private LocalDateTime startdate;
+	private LocalDateTime prevstartdate;
 	private String sdate;
 	private String shms;
 	private String pdate;
@@ -123,11 +125,10 @@ public class Organization {
 	public void setStartdate(LocalDateTime startdate) {
 		this.startdate = startdate;
 		
-		LocalDateTime localdatetime = LocalDateTime.now();
 		DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyyMMdd");
-		this.setSdate(localdatetime.format(df));
+		this.setSdate(this.startdate.format(df));
 		df = DateTimeFormatter.ofPattern("HHmmss");
-		this.setShms(localdatetime.format(df));
+		this.setShms(this.startdate.format(df));
 	}
 	
 	public String getSdate() { return this.sdate; }
@@ -140,11 +141,10 @@ public class Organization {
 	public void setPrevStartdate(LocalDateTime prevstartdate) {
 		this.prevstartdate = prevstartdate;
 		
-		LocalDateTime localdatetime = LocalDateTime.now();
 		DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyyMMdd");
-		this.setPdate(localdatetime.format(df));
+		this.setPdate(this.prevstartdate.format(df));
 		df = DateTimeFormatter.ofPattern("HHmmss");
-		this.setPhms(localdatetime.format(df));
+		this.setPhms(this.prevstartdate.format(df));
 	}
 	
 	public String getPdate() { return this.pdate; }
@@ -157,7 +157,7 @@ public class Organization {
 	public String toString() {
 		return "Organization [empNo=" + empNo + ", empNm=" + empNm + ", password=" + password
 				+ ", authCd=" + authCd + ", emailId=" + emailId + ", extensionNo=" + extensionNo
-				+ ", note=" + note + ", agentStatCd=" + agentStatCd + ", newPwd=" + newPwd
-				+ ", existCount=" + existCount + "]";
+				+ ", note=" + note + ", agentStatCd=" + agentStatCd + ", prevAgentStatCd=" + prevAgentStatCd + ", newPwd=" + newPwd
+				+ ", existCount=" + existCount+ ", sdate=" + sdate + ", shms=" + shms + ", pdate=" + pdate + ", phms=" + phms + "]";
 	}
 }

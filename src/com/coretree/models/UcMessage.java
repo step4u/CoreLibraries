@@ -63,6 +63,6 @@ public class UcMessage {
 	public String toString() {
 		return "UcMessage [cmd=" + cmd + ", direct=" + direct + ", extension=" + extension + ", call_idx=" + call_idx + ", cust_no=" + cust_no
 		+ ", caller=" + caller + ", callername=" + callername + ", callee=" + callee + ", calleename=" + calleename
-		+ ", responseCode=" + responseCode + ", unconditional=" + unconditional + ", status=" + status + "]";
+		+ ", responseCode=" + responseCode + ", unconditional=" + unconditional + ", status=" + status + ", statusmsg=" + statusmsg + "]";
 	}
 }
