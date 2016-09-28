@@ -19,8 +19,11 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import com.coretree.consts.ErrorMessages;
+import com.coretree.crypto.CryptoAES;
 import com.coretree.event.EndOfCallEventArgs;
 import com.coretree.event.IEventHandler;
+import com.coretree.exceptions.CryptoException;
 import com.coretree.media.WaveFormat;
 import com.coretree.media.WaveFormatEncoding;
 import com.coretree.models.Options;
@@ -208,9 +211,22 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 		int size = 0;
 		try {
 			size = (int)Files.size(Paths.get(item.savepath + "\\" + item.filename));
+			
+			String k = "Mary has one cat";
+	        File inputFile = new File(item.savepath + "\\" + item.filename);
+	        String encryptedfn = item.filename.replace(".wav", ".encrypted");
+	        File encryptedFile = new File(item.savepath + "\\" + encryptedfn);
+	        // File decryptedFile = new File("d:\\document.wav");
+
+	        CryptoAES.encrypt(k, inputFile, encryptedFile);
+	        // CryptoAES.decrypt(key, encryptedFile, decryptedFile);
+	        
+	        Files.delete(Paths.get(item.savepath + "\\" + item.filename));
 		} catch (IOException e3) {
-			e3.printStackTrace();
-		}
+			Util.WriteLog(String.format(Finalvars.ErrHeader, ErrorMessages.ERR_FILE_DOES_NOT_EXIST, e3.getMessage()), 1);
+		} catch (CryptoException ex) {
+            Util.WriteLog(String.format(Finalvars.ErrHeader, ErrorMessages.ERR_CRYPTO_EXCEPTION, ex.getMessage()), 1);
+        }
 		
 		StringBuilder sb = new StringBuilder();
 		sb.append("insert into trecord_mgt (");
@@ -263,21 +279,26 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 			
 			recordIngList.removeIf(x -> x.ext.equals(item.ext) && x.peer.equals(item.peer));
 		} catch (SQLException e1) {
-			e1.printStackTrace();
+			Util.WriteLog(String.format(Finalvars.ErrHeader, ErrorMessages.ERR_SQL_EXCEPTION, e1.getMessage()), 1);
+			
 			try {
 				con.rollback();
 			} catch (SQLException e2) {
-				e2.printStackTrace();
+				Util.WriteLog(String.format(Finalvars.ErrHeader, ErrorMessages.ERR_SQL_EXCEPTION, e2.getMessage()), 1);
 			}
 		} catch (RuntimeException e2) {
 		//} catch (NullPointerException | UnsupportedOperationException e3) {
-			e2.printStackTrace();
+			// e2.printStackTrace();
+			
+			Util.WriteLog(String.format(Finalvars.ErrHeader, ErrorMessages.ERR_SQL_EXCEPTION, e2.getMessage()), 1);
+			
 			try {
 				con.rollback();
 			} catch (SQLException e1) {
-				e1.printStackTrace();
+				// e1.printStackTrace();
+				Util.WriteLog(String.format(Finalvars.ErrHeader, ErrorMessages.ERR_SQL_EXCEPTION, e2.getMessage()), 1);
 			}
-			Util.WriteLog(String.format(Finalvars.ErrHeader, 1002, e2.getMessage()), 1);
+			// Util.WriteLog(String.format(Finalvars.ErrHeader, 1002, e2.getMessage()), 1);
 		} finally {
 			System.out.println(String.format("stream end event insert db : sql: %s", sb.toString()));
 			System.out.println(String.format("stream end event : callid: %s, ext: %s, peer: %s, filename: %s", item.callid, item.ext, item.peer, item.filename));
