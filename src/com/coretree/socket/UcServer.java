@@ -87,7 +87,6 @@ public class UcServer implements Runnable
 	@Override
 	public void run()
 	{
-		// TODO Auto-generated method stub
 		this.InitiateSocket();
 	}
 	

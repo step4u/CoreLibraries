@@ -18,4 +18,6 @@ public class ErrorMessages {
 	// 100001 ~ 1000010
 	public static final int ERR_CDR_SOCKET = 100001;
 	public static final int ERR_CDR_IO = 100002;
+	public static final int ERR_CDR_SQL = 100003;
+	public static final int ERR_CDR_PARSING = 100004;
 }
