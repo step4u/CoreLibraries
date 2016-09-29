@@ -12,4 +12,10 @@ public class ErrorMessages {
 	
 	// 100091 ~ 100100 : Crypto error
 	public static final int ERR_CRYPTO_EXCEPTION = 100091;
+	
+	
+	// CDR ฐüทร ERROR
+	// 100001 ~ 1000010
+	public static final int ERR_CDR_SOCKET = 100001;
+	public static final int ERR_CDR_IO = 100002;
 }

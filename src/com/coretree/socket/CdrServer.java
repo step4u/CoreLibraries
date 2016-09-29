@@ -9,11 +9,15 @@ import java.nio.ByteOrder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
+import com.coretree.consts.ErrorMessages;
 import com.coretree.models.CDRData;
 import com.coretree.models.CDRRequest;
 import com.coretree.models.CDRResponse;
 // import com.coretree.models.Options;
 import com.coretree.sql.DBConnection;
+import com.coretree.util.Finalvars;
+import com.coretree.util.Util;
 
 public class CdrServer implements Runnable {
 	private DatagramSocket serverSocket;
@@ -34,8 +38,8 @@ public class CdrServer implements Runnable {
 			// serverSocket = new DatagramSocket(address);
 			serverSocket = new DatagramSocket(21003);
 		} catch (SocketException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// e.printStackTrace();
+			Util.WriteLog(String.format(Finalvars.ErrHeader, ErrorMessages.ERR_CDR_SOCKET, e.getMessage()), 1);
 		}
 		
 		threads = new Thread[threadcount];
@@ -78,12 +82,12 @@ public class CdrServer implements Runnable {
 				System.err.println("Has answered.");
 				
 				String sql = "insert into cdr "
-						+ " ( office_name, startdate, enddate"
+						+ " ( idx, office_name, startdate, enddate"
 						+ ", caller_type, caller, caller_ipn_number, caller_group_code, caller_group_name, caller_human_name"
 						+ ", callee_type, callee, callee_ipn_number, callee_group_code, callee_group_name, callee_human_name"
 						+ ", result, seq )"
 						+ " values "
-						+ " ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+						+ " ( gen_id(GEN_CDR_IDX, 1), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 				
 				try(Connection con = DBConnection.getConnection();
 						PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -118,15 +122,16 @@ public class CdrServer implements Runnable {
 				}
 			}
 		} catch (SocketException e) {
-			e.printStackTrace();
+			// e.printStackTrace();
+			Util.WriteLog(String.format(Finalvars.ErrHeader, ErrorMessages.ERR_CDR_SOCKET, e.getMessage()), 1);
 		} catch (IOException ie) {
-			ie.printStackTrace();
+			// ie.printStackTrace();
+			Util.WriteLog(String.format(Finalvars.ErrHeader, ErrorMessages.ERR_CDR_IO, ie.getMessage()), 1);
 		}
 	}
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
 		this.InitiateSocket();
 	}
 }
