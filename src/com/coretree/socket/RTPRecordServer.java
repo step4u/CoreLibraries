@@ -44,6 +44,8 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 	private List<RTPRecordInfo> recordIngList;
 	
 	private Options _option;
+	private String _delimiter;
+	private String _strformat = "%s/%s";
 	private ByteOrder defaultbyteorder = ByteOrder.BIG_ENDIAN;
 	private String OS = System.getProperty("os.name");
 	// private Thread sockThread = null;
@@ -53,6 +55,14 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 	}
 	
 	public RTPRecordServer(ByteOrder byteorder) {
+		if (OS.contains("Windows")) {
+			_delimiter = "\\";
+			_strformat = "%s\\%s";
+		} else {
+			_delimiter = "/";
+			_strformat = "%s/%s";
+		}
+		
 		recordIngList = new ArrayList<RTPRecordInfo>();
 		_option = new Options();
 		_option.saveDirectory = "./";
@@ -161,24 +171,17 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 			df = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 			String _datepath = localdatetime.format(df);
 
-			String _strformat = "%s/%s";
-			if (OS.contains("Windows")) {
-				_strformat = "%s\\%s";
-			} else {
-				_strformat = "%s/%s";
-			}
-			
 			String _fileName = String.format("%s_%s_%s.wav", _header.trim(), rtp.extension.trim(), rtp.peer_number.trim());
 
-			 String _path = String.format(_strformat, _option.saveDirectory, _datepath);
+			String _path = String.format(_strformat, _option.saveDirectory, _datepath);
 			 
-			 File _dir = new File(_path);
-			 if (!_dir.exists()) {
-				 // boolean result = _dir.mkdir();
-				 _dir.mkdir();
-			 }
+			File _dir = new File(_path);
+			if (!_dir.exists()) {
+				// boolean result = _dir.mkdir();
+				_dir.mkdir();
+			}
 			 
-			System.out.println(String.valueOf(rtp.StartCallSec) + " // " + String.valueOf(rtp.StartCallUSec));
+			// System.out.println(String.valueOf(rtp.StartCallSec) + " // " + String.valueOf(rtp.StartCallUSec));
 
 			ingInstance = new RTPRecordInfo(wavformat, String.format(_strformat, _option.saveDirectory, _datepath), _fileName);
 			ingInstance.callid = String.valueOf(rtp.StartCallSec) + String.valueOf(rtp.StartCallUSec);
@@ -210,18 +213,18 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 		
 		int size = 0;
 		try {
-			size = (int)Files.size(Paths.get(item.savepath + "\\" + item.filename));
+			size = (int)Files.size(Paths.get(item.savepath + _delimiter + item.filename));
 			
 			String k = "Mary has one cat";
-	        File inputFile = new File(item.savepath + "\\" + item.filename);
+	        File inputFile = new File(item.savepath + _delimiter + item.filename);
 	        String encryptedfn = item.filename.replace(".wav", ".encrypted");
-	        File encryptedFile = new File(item.savepath + "\\" + encryptedfn);
+	        File encryptedFile = new File(item.savepath + _delimiter + encryptedfn);
 	        // File decryptedFile = new File("d:\\document.wav");
 
 	        CryptoAES.encrypt(k, inputFile, encryptedFile);
 	        // CryptoAES.decrypt(key, encryptedFile, decryptedFile);
 	        
-	        Files.delete(Paths.get(item.savepath + "\\" + item.filename));
+	        Files.delete(Paths.get(item.savepath + _delimiter + item.filename));
 		} catch (IOException e3) {
 			Util.WriteLog(String.format(Finalvars.ErrHeader, ErrorMessages.ERR_FILE_DOES_NOT_EXIST, e3.getMessage()), 1);
 		} catch (CryptoException ex) {

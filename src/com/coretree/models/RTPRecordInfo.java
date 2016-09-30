@@ -53,8 +53,7 @@ public class RTPRecordInfo implements Closeable
 	
 	private String OS = System.getProperty("os.name");
 
-	public RTPRecordInfo(WaveFormat _codec, String savepath, String filename)
-	{
+	public RTPRecordInfo(WaveFormat _codec, String savepath, String filename) {
 		this.savepath = savepath;
 		this.filename = filename;
 		
@@ -62,22 +61,16 @@ public class RTPRecordInfo implements Closeable
 		listIn = new ArrayList<RTPInfo>();
 		listOut = new ArrayList<RTPInfo>();
 		
-		try
-		{
+		try {
 			String _strformat = "%s/%s";
-			if (OS.contains("Windows"))
-			{
+			if (OS.contains("Windows")) {
 				_strformat = "%s\\%s";
-			}
-			else
-			{
+			} else {
 				_strformat = "%s/%s";
 			}
 			
 			writer = new WaveFileWriter(String.format(_strformat, savepath, filename), _codec);
-		}
-		catch (IOException e)
-		{
+		} catch (IOException e) {
 			// e.printStackTrace();
 			Util.WriteLog(String.format(Finalvars.ErrHeader, 1003, e.getMessage()), 1);
 		}
@@ -85,8 +78,7 @@ public class RTPRecordInfo implements Closeable
 		this.InitTimer();
 	}
 
-	private void InitTimer()
-	{
+	private void InitTimer() {
 		Timer_Elapsed timer_elapsed = new Timer_Elapsed();
 		timer = new Timer();
 		timer.schedule(timer_elapsed, timerInterval, timerInterval);
@@ -96,40 +88,30 @@ public class RTPRecordInfo implements Closeable
 		endtimer.schedule(endtimer_Elapsed, endtimerInterval, endtimerInterval);
 	}
 
-	public void Add(RTPInfo rtp)
-    {
-        if (rtp.size == 0)
-        {
+	public void Add(RTPInfo rtp) {
+        if (rtp.size == 0) {
             endcount++;
         }
 
-        if (endcount > 1)
-        {
-            if (timer != null)
-            {
+        if (endcount > 1) {
+            if (timer != null) {
                 timer.cancel();
                 timer.purge();
             }
 
-            if (endtimer != null)
-            {
+            if (endtimer != null) {
                 endtimer.cancel();
                 endtimer.purge();
             }
 
             this.MixRtp("final");
             
-            try
-			{
+            try {
 				close();
-			}
-			catch (IOException e)
-			{
+			} catch (IOException e) {
 				// e.printStackTrace();
 				Util.WriteLog(String.format(Finalvars.ErrHeader, 1004, e.getMessage()), 1);
-			}
-            finally
-            {
+			} finally {
             	EndOfCallEventHandler.raiseEvent(this, new EndOfCallEventArgs(""));
 			}
 
@@ -148,8 +130,7 @@ public class RTPRecordInfo implements Closeable
 
         if (rtp.size == 0) return;
 
-        if (rtp.isExtension == 1)
-        {
+        if (rtp.isExtension == 1) {
         	RTPInfo tmpRtp = new RTPInfo();
         	tmpRtp.seq = rtp.seq;
         	tmpRtp.size = rtp.size;
@@ -159,17 +140,12 @@ public class RTPRecordInfo implements Closeable
         	tmpRtp.voice = rtp.voice;
         	
         	w.lock();
-        	try
-        	{
+        	try {
             	listIn.add(tmpRtp);
-        	}
-        	finally
-        	{
+        	} finally {
         		w.unlock();
         	}
-        }
-        else
-        {
+        } else {
         	RTPInfo tmpRtp = new RTPInfo();
         	tmpRtp.seq = rtp.seq;
         	tmpRtp.size = rtp.size;
@@ -179,49 +155,37 @@ public class RTPRecordInfo implements Closeable
         	tmpRtp.voice = rtp.voice;
         	
         	w.lock();
-        	try
-        	{
+        	try {
             	listOut.add(tmpRtp);        		
-        	}
-        	finally
-        	{
+        	} finally {
         		w.unlock();
         	}
         }
     }
 
-	private void MixRtp(String check)
-	{
+	private void MixRtp(String check) {
 		if (listIn == null || listOut == null) return;
 
 		List<RTPInfo> linin = new ArrayList<RTPInfo>();
 		List<RTPInfo> linout = new ArrayList<RTPInfo>();
 
 		r.lock();
-		try
-		{
+		try {
 			linin = listIn.stream().collect(Collectors.toList());			
-		}
-		finally
-		{
+		} finally {
 			r.unlock();
 		}
 
 		r.lock();
-		try
-		{
+		try {
 			linout = listOut.stream().collect(Collectors.toList());			
-		}
-		finally
-		{
+		} finally {
 			r.unlock();
 		}
 
-		Collections.sort(linin, new Comparator<RTPInfo>()
-		{
+		Collections.sort(linin, new Comparator<RTPInfo>() {
 			@Override
-			public int compare(RTPInfo o1, RTPInfo o2)
-			{
+			public int compare(RTPInfo o1, RTPInfo o2) {
 				if (o1.seq > o2.seq)
 					return 1;
 				else if (o1.seq < o2.seq)
@@ -231,11 +195,9 @@ public class RTPRecordInfo implements Closeable
 			}
 		});
 
-		Collections.sort(linout, new Comparator<RTPInfo>()
-		{
+		Collections.sort(linout, new Comparator<RTPInfo>() {
 			@Override
-			public int compare(RTPInfo o1, RTPInfo o2)
-			{
+			public int compare(RTPInfo o1, RTPInfo o2) {
 				if (o1.seq > o2.seq)
 					return 1;
 				else if (o1.seq < o2.seq)
@@ -248,22 +210,16 @@ public class RTPRecordInfo implements Closeable
 		RTPInfo itemIn = null;
 		RTPInfo itemOut = null;
 		
-		try
-		{
+		try {
 			itemIn = linin.stream().findFirst().get();
-		}
-		catch (NoSuchElementException | NullPointerException e)
-		{
+		} catch (NoSuchElementException | NullPointerException e) {
 			Util.WriteLog(String.format(Finalvars.ErrHeader, 1005, e.getMessage()), 1);
 			return;
 		}
 		
-		try
-		{
+		try {
 			itemOut = linout.stream().findFirst().get();
-		}
-		catch (NoSuchElementException | NullPointerException e)
-		{
+		} catch (NoSuchElementException | NullPointerException e) {
 			Util.WriteLog(String.format(Finalvars.ErrHeader, 1006, e.getMessage()), 1);
 			return;
 		}
@@ -276,64 +232,44 @@ public class RTPRecordInfo implements Closeable
 //		else
 //		{
 			byte[] mixedbytes = null;
-			if ((itemIn.size - headersize) == 80 && (itemOut.size - headersize) == 160)
-			{
+			if ((itemIn.size - headersize) == 80 && (itemOut.size - headersize) == 160) {
 				delayedMsec = DelayedMsec.i80o160;
 
-				if (check.equals("final"))
-				{
-					for (RTPInfo item : linout)
-					{
+				if (check.equals("final")) {
+					for (RTPInfo item : linout) {
 						mixedbytes = this.Mixing(linin, linout, item, delayedMsec);
 						this.WaveFileWriting(mixedbytes);
 					}
-				}
-				else
-				{
-					for (int i = 0; i < linout.size() * 0.8; i++)
-					{
+				} else {
+					for (int i = 0; i < linout.size() * 0.8; i++) {
 						mixedbytes = this.Mixing(linin, linout, linout.get(i), delayedMsec);
 						this.WaveFileWriting(mixedbytes);
 					}
 				}
-			}
-			else if ((itemIn.size - headersize) == 160 && (itemOut.size - headersize) == 80)
-			{
+			} else if ((itemIn.size - headersize) == 160 && (itemOut.size - headersize) == 80) {
 				delayedMsec = DelayedMsec.i160o80;
 
-				if (check.equals("final"))
-				{
-					for (RTPInfo item : linin)
-					{
+				if (check.equals("final")) {
+					for (RTPInfo item : linin) {
 						mixedbytes = this.Mixing(linin, linout, item, delayedMsec);
 						this.WaveFileWriting(mixedbytes);
 					}
-				}
-				else
-				{
-					for (int i = 0; i < linin.size() * 0.8; i++)
-					{
+				} else {
+					for (int i = 0; i < linin.size() * 0.8; i++) {
 						mixedbytes = this.Mixing(linin, linout, linin.get(i), delayedMsec);
 						this.WaveFileWriting(mixedbytes);
 					}
 				}
-			}
-			else
-			{
+			} else {
 				delayedMsec = DelayedMsec.same;
 
-				if (check.equals("final"))
-				{
-					for (RTPInfo item : linin)
-					{
+				if (check.equals("final")) {
+					for (RTPInfo item : linin) {
 						mixedbytes = this.Mixing(linin, linout, item, delayedMsec);
 						this.WaveFileWriting(mixedbytes);
 					}
-				}
-				else
-				{
-					for (int i = 0; i < linin.size() * 0.8; i++)
-					{
+				} else {
+					for (int i = 0; i < linin.size() * 0.8; i++) {
 						mixedbytes = this.Mixing(linin, linout, linin.get(i), delayedMsec);
 						this.WaveFileWriting(mixedbytes);
 					}
@@ -343,24 +279,19 @@ public class RTPRecordInfo implements Closeable
 	}
 
 	private int headersize = 12;
-	private byte[] Mixing(List<RTPInfo> linin, List<RTPInfo> linout, RTPInfo item, DelayedMsec delayedMsec)
-	{
+	private byte[] Mixing(List<RTPInfo> linin, List<RTPInfo> linout, RTPInfo item, DelayedMsec delayedMsec) {
 		byte[] mixedbytes = null;
 		
 		RTPInfo _item0 = null;
 		RTPInfo _item1 = null;
 
-		if (delayedMsec == DelayedMsec.i80o160)
-		{
+		if (delayedMsec == DelayedMsec.i80o160) {
 			int seq = item.seq * 2;
 			
 			r.lock();
-			try
-			{
+			try {
 				_item0 = linin.stream().filter(x -> x.seq == seq).findFirst().get();					
-			}
-			catch (NoSuchElementException | NullPointerException e)
-			{
+			} catch (NoSuchElementException | NullPointerException e) {
 				Util.WriteLog(String.format(Finalvars.ErrHeader, 1007, e.getMessage()), 1);
 				
 				_item0 = new RTPInfo();
@@ -369,19 +300,14 @@ public class RTPRecordInfo implements Closeable
 				_item0.size = 92;
 				_item0.extension = item.extension;
 				_item0.peer_number = item.peer_number;
-			}
-			finally
-			{
+			} finally {
 				r.unlock();
 			}
 			
 			r.lock();
-			try
-			{
+			try {
 				_item1 = linin.stream().filter(x -> x.seq == (seq + 1)).findFirst().get();					
-			}
-			catch (NoSuchElementException | NullPointerException e)
-			{
+			} catch (NoSuchElementException | NullPointerException e) {
 				Util.WriteLog(String.format(Finalvars.ErrHeader, 1008, e.getMessage()), 1);
 				
 				_item1 = new RTPInfo();
@@ -390,9 +316,7 @@ public class RTPRecordInfo implements Closeable
 				_item1.size = 92;
 				_item1.extension = item.extension;
 				_item1.peer_number = item.peer_number;
-			}
-			finally
-			{
+			} finally {
 				r.unlock();
 			}
 			
@@ -408,57 +332,40 @@ public class RTPRecordInfo implements Closeable
 			_itm.voice = tmpbuff;
 			_itm.size = (_item0.size + _item1.size - headersize);
 
-			try
-			{
+			try {
 				mixedbytes = this.RealMix(_itm, item);
-			}
-			catch (IOException e)
-			{
+			} catch (IOException e) {
 				// e.printStackTrace();
 				Util.WriteLog(String.format(Finalvars.ErrHeader, 1009, e.getMessage()), 1);
 			}
 
 			w.lock();
-			try
-			{
+			try {
 				listIn.removeIf(x -> (x.seq == __item0.seq));
-			}
-			finally
-			{
+			} finally {
 				w.unlock();
 			}
 			
 			w.lock();
-			try
-			{
+			try {
 				listIn.removeIf(x -> x.seq == __item1.seq);				
-			}
-			finally
-			{
+			} finally {
 				w.unlock();
 			}
 
 			w.lock();
-			try
-			{
+			try {
 				listOut.removeIf(x -> x.seq == item.seq);				
-			}
-			finally
-			{
+			} finally {
 				w.unlock();
 			}
-		}
-		else if (delayedMsec == DelayedMsec.i160o80)
-		{
+		} else if (delayedMsec == DelayedMsec.i160o80) {
 			int seq = item.seq * 2;
 			
 			r.lock();
-			try
-			{
+			try {
 				_item0 = linout.stream().filter(x -> x.seq == seq).findFirst().get();					
-			}
-			catch (NoSuchElementException | NullPointerException e)
-			{
+			} catch (NoSuchElementException | NullPointerException e) {
 				Util.WriteLog(String.format(Finalvars.ErrHeader, 1010, e.getMessage()), 1);
 				
 				_item0 = new RTPInfo();
@@ -467,20 +374,15 @@ public class RTPRecordInfo implements Closeable
 				_item0.size = 92;
 				_item0.extension = item.extension;
 				_item0.peer_number = item.peer_number;
-			}
-			finally
-			{
+			} finally {
 				r.unlock();
 			}
 
 
 			r.lock();
-			try
-			{
+			try {
 				_item1 = linout.stream().filter(x -> x.seq == seq + 1).findFirst().get();					
-			}
-			catch (NoSuchElementException | NullPointerException e)
-			{
+			} catch (NoSuchElementException | NullPointerException e) {
 				Util.WriteLog(String.format(Finalvars.ErrHeader, 1011, e.getMessage()), 1);
 				
 				_item1 = new RTPInfo();
@@ -489,9 +391,7 @@ public class RTPRecordInfo implements Closeable
 				_item1.size = 92;
 				_item1.extension = item.extension;
 				_item1.peer_number = item.peer_number;
-			}
-			finally
-			{
+			} finally {
 				r.unlock();
 			}
 			
@@ -506,60 +406,43 @@ public class RTPRecordInfo implements Closeable
 			_itm.voice = tmpbuff;
 			_itm.size = (__item0.size + __item1.size - headersize);
 
-			try
-			{
+			try {
 				mixedbytes = this.RealMix(_itm, item);
-			}
-			catch (IOException e)
-			{
+			} catch (IOException e) {
 				// e.printStackTrace();
 				Util.WriteLog(String.format(Finalvars.ErrHeader, 1012, e.getMessage()), 1);
 			}
 
 			w.lock();
-			try
-			{
+			try {
 				listIn.removeIf(x -> x.seq == item.seq);				
-			}
-			finally
-			{
+			} finally {
 				w.unlock();
 			}
 
 			w.lock();
-			try
-			{
+			try {
 				listOut.removeIf(x -> x.seq == __item0.seq);				
-			}
-			finally
-			{
+			} finally {
 				w.unlock();
 			}
 
 			w.lock();
-			try
-			{
+			try {
 				listOut.removeIf(x -> x.seq == __item1.seq);				
-			}
-			finally
-			{
+			} finally {
 				w.unlock();
 			}
-		}
-		else
-		{
+		} else {
 			// item > in
 			// same
 			// item1 mix with item2 and write
 			RTPInfo _item = null;
 			
 			r.lock();
-			try
-			{
+			try {
 				_item = linout.stream().filter(x -> x.seq == item.seq).findFirst().get();					
-			}
-			catch (NoSuchElementException | NullPointerException e)
-			{
+			} catch (NoSuchElementException | NullPointerException e) {
 				Util.WriteLog(String.format(Finalvars.ErrHeader, 1013, e.getMessage()), 1);
 				
 				_item = new RTPInfo();
@@ -568,40 +451,29 @@ public class RTPRecordInfo implements Closeable
 				_item.size = item.size;
 				_item.extension = item.extension;
 				_item.peer_number = item.peer_number;
-			}
-			finally
-			{
+			} finally {
 				r.unlock();
 			}
 			
 			final RTPInfo __item = _item;
 
-			try
-			{
+			try {
 				mixedbytes = this.RealMix(item, __item);
-			}
-			catch (IOException e)
-			{
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 
 			w.lock();
-			try
-			{
+			try {
 				listIn.removeIf(x -> x.seq == item.seq);
-			}
-			finally
-			{
+			} finally {
 				w.unlock();
 			}
 			
 			w.lock();
-			try
-			{
+			try {
 				listOut.removeIf(x -> x.seq == __item.seq);				
-			}
-			finally
-			{
+			} finally {
 				w.unlock();
 			}
 		}
@@ -609,8 +481,7 @@ public class RTPRecordInfo implements Closeable
 		return mixedbytes;
 	}
 
-	private byte[] RealMix(RTPInfo item1, RTPInfo item2) throws IOException
-	{
+	private byte[] RealMix(RTPInfo item1, RTPInfo item2) throws IOException {
 		if (item1 == null || item2 == null) return null;
 
 		if (item1.size == 0 || item2.size == 0) return null;
@@ -628,8 +499,7 @@ public class RTPRecordInfo implements Closeable
 		
 		AudioFormat aformat;
 		
-		switch (codec.waveFormatTag)
-		{
+		switch (codec.waveFormatTag) {
 		case ALaw:
 			aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, true);
 			break;
@@ -661,12 +531,9 @@ public class RTPRecordInfo implements Closeable
 		
 		byte[] mixedbytes = new byte[wavSrc1.length];
 		
-		try
-		{
+		try {
 			audioInputStream.read(mixedbytes, 0, mixedbytes.length);
-		}
-		catch (IOException e)
-		{
+		} catch (IOException e) {
 			// e.printStackTrace();
 			Util.WriteLog(String.format(Finalvars.ErrHeader, 1014, e.getMessage()), 1);
 		}
@@ -678,47 +545,37 @@ public class RTPRecordInfo implements Closeable
 		return mixedbytes;
 	}
 	
-    private void WaveFileWriting(byte[] buff)
-    {
+    private void WaveFileWriting(byte[] buff) {
         if (buff == null) return;
 
         if (buff.length == 0) return;
 
-        try
-		{
+        try {
 			this.writer.Write(buff, 0, buff.length);
-		}
-		catch (IOException e)
-		{
+		} catch (IOException e) {
 			// e.printStackTrace();
 			Util.WriteLog(String.format(Finalvars.ErrHeader, 1015, e.getMessage()), 1);
 		}
         
-        try
-		{
+        try {
 			this.writer.flush();
 			dataSize += buff.length;
-		}
-		catch (IOException e)
-		{
+		} catch (IOException e) {
 			// e.printStackTrace();
 			Util.WriteLog(String.format(Finalvars.ErrHeader, 1016, e.getMessage()), 1);
 		}
     }
     
 	@Override
-	public void close() throws IOException
-	{
+	public void close() throws IOException {
 		this.writer.close();
 
-		if (timer != null)
-		{
+		if (timer != null) {
 			timer.cancel();
 			timer = null;
 		}
 		
-		if (endtimer != null)
-		{
+		if (endtimer != null) {
 			endtimer.cancel();
 			endtimer = null;
 		}
@@ -727,55 +584,43 @@ public class RTPRecordInfo implements Closeable
 		listOut.clear();
 	}
 
-	enum DelayedMsec
-	{
+	enum DelayedMsec {
 		i80o160, i160o80, same
 	}
 
-	class Timer_Elapsed extends TimerTask
-	{
+	class Timer_Elapsed extends TimerTask {
 		@Override
-		public void run()
-		{
+		public void run() {
 			MixRtp("");
 		}
 	}
 
-	class Endtimer_Elapsed extends TimerTask
-	{
+	class Endtimer_Elapsed extends TimerTask {
 		public RTPRecordInfo parent = null;
-		public Endtimer_Elapsed(RTPRecordInfo obj)
-		{
+		public Endtimer_Elapsed(RTPRecordInfo obj) {
 			this.parent = obj;
 		}
 		
 		@Override
-		public void run()
-		{
+		public void run() {
 			// System.out.println(String.format("previousDataSize : %d, dataSize : %d", previousDataSize, dataSize));
-			if (previousDataSize < dataSize)
-			{
+			if (previousDataSize < dataSize) {
 				previousDataSize = dataSize;
 				return;
 			}
 			
 			MixRtp("final");
 			
-			try
-			{
+			try {
 				close();
 				if (endtimer != null) {
 					endtimer.cancel();
 					endtimer.purge();
 				}
-			}
-			catch (IOException e)
-			{
+			} catch (IOException e) {
 				// e.printStackTrace();
 				Util.WriteLog(String.format(Finalvars.ErrHeader, 1017, e.getMessage()), 1);
-			}
-			finally
-			{
+			} finally {
 				System.out.println("Finished finally");
 				EndOfCallEventHandler.raiseEvent(parent, new EndOfCallEventArgs(""));
 			}
