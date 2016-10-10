@@ -20,6 +20,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.coretree.consts.ErrorMessages;
+import com.coretree.crypto.Crypto;
 import com.coretree.crypto.CryptoAES;
 import com.coretree.event.EndOfCallEventArgs;
 import com.coretree.event.IEventHandler;
@@ -221,7 +222,9 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 	        File encryptedFile = new File(item.savepath + _delimiter + encryptedfn);
 	        // File decryptedFile = new File("d:\\document.wav");
 
-	        CryptoAES.encrypt(k, inputFile, encryptedFile);
+	        Crypto.setAlgorithm("HmacSHA1");
+	        Crypto.setTransformation("HmacSHA1");
+	        Crypto.encrypt(k, inputFile, encryptedFile);
 	        // CryptoAES.decrypt(key, encryptedFile, decryptedFile);
 	        
 	        Files.delete(Paths.get(item.savepath + _delimiter + item.filename));

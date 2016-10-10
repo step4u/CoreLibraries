@@ -11,14 +11,21 @@ import java.security.NoSuchAlgorithmException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.Mac;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.coretree.exceptions.CryptoException;
 
-public class CryptoAES {
-	private static final String ALGORITHM = "AES";
-    private static final String TRANSFORMATION = "AES";
+public class Crypto {
+	private static String ALGORITHM = "AES";
+    private static String TRANSFORMATION = "AES";
+    
+    public static void setAlgorithm (String algorithm) { ALGORITHM = algorithm; }
+    public static String getAlgorithm () { return ALGORITHM; }
+    
+    public static void setTransformation (String transformation) { TRANSFORMATION = transformation; }
+    public static String getTransformation () { return TRANSFORMATION; }
  
     public static void encrypt(String key, File inputFile, File outputFile) throws CryptoException {
         doCrypto(Cipher.ENCRYPT_MODE, key, inputFile, outputFile);
@@ -34,16 +41,27 @@ public class CryptoAES {
  
     private static void doCrypto(int cipherMode, String key, File inputFile, File outputFile) throws CryptoException {
         try {
-            Key secretKey = new SecretKeySpec(key.getBytes(), ALGORITHM);
-            Cipher cipher = Cipher.getInstance(TRANSFORMATION);
-            cipher.init(cipherMode, secretKey);
-             
             FileInputStream inputStream = new FileInputStream(inputFile);
             byte[] inputBytes = new byte[(int) inputFile.length()];
             inputStream.read(inputBytes);
-             
-            byte[] outputBytes = cipher.doFinal(inputBytes);
-             
+            byte[] outputBytes = null;
+        	
+            Key secretKey = new SecretKeySpec(key.getBytes(), getAlgorithm());
+            
+            switch (getAlgorithm()) {
+	            case "HmacSHA1":
+        			Mac mac = Mac.getInstance(getTransformation());
+        			mac.init(secretKey);
+        			outputBytes = mac.doFinal(inputBytes);
+	            	break;
+            	case "AES":
+        		default:
+                    Cipher cipher = Cipher.getInstance(getTransformation());
+                    cipher.init(cipherMode, secretKey);
+                    outputBytes = cipher.doFinal(inputBytes);
+        			break;
+            }
+            
             FileOutputStream outputStream = new FileOutputStream(outputFile);
             outputStream.write(outputBytes);
              
@@ -61,8 +79,8 @@ public class CryptoAES {
     	byte[] outputBytes = null;
     	
         try {
-            Key secretKey = new SecretKeySpec(key.getBytes(), ALGORITHM);
-            Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+            Key secretKey = new SecretKeySpec(key.getBytes(), getAlgorithm());
+            Cipher cipher = Cipher.getInstance(getTransformation());
             cipher.init(cipherMode, secretKey);
              
             FileInputStream inputStream = new FileInputStream(inputFile);
