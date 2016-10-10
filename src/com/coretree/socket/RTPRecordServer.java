@@ -222,9 +222,11 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 	        File encryptedFile = new File(item.savepath + _delimiter + encryptedfn);
 	        // File decryptedFile = new File("d:\\document.wav");
 
-	        Crypto.setAlgorithm("HmacSHA1");
-	        Crypto.setTransformation("HmacSHA1");
-	        Crypto.encrypt(k, inputFile, encryptedFile);
+	        // Crypto.setAlgorithm("HmacSHA1");
+	        // Crypto.setTransformation("HmacSHA1");
+	        // Crypto.encrypt(k, inputFile, encryptedFile);
+	        
+	        CryptoAES.encrypt(k, inputFile, encryptedFile);
 	        // CryptoAES.decrypt(key, encryptedFile, decryptedFile);
 	        
 	        Files.delete(Paths.get(item.savepath + _delimiter + item.filename));
