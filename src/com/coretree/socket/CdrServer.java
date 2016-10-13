@@ -140,8 +140,8 @@ public class CdrServer {
 							} catch (SQLException ex) {
 								// ex.printStackTrace();
 								try {
-									con.rollback();
 									Util.WriteLog(String.format(Finalvars.ErrHeader, ErrorMessages.ERR_CDR_SQL, ex.getMessage()), 1);
+									con.rollback();
 								} catch (SQLException e) {
 									Util.WriteLog(String.format(Finalvars.ErrHeader, ErrorMessages.ERR_CDR_SQL, e.getMessage()), 1);
 								}
@@ -149,6 +149,7 @@ public class CdrServer {
 								Util.WriteLog(String.format(Finalvars.ErrHeader, ErrorMessages.ERR_CDR_PARSING, iee.getMessage()), 1);
 							} finally {
 								try {
+									// Util.WriteLog(String.format(Finalvars.ErrHeader, ErrorMessages.ERR_CDR_SQL, e.getMessage()), 1);
 									con.close();
 								} catch (SQLException e) {
 									Util.WriteLog(String.format(Finalvars.ErrHeader, ErrorMessages.ERR_CDR_SQL, e.getMessage()), 1);
