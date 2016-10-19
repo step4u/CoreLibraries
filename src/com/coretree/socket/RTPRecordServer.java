@@ -143,8 +143,8 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 
 			switch (rtp.codec) {
 				case 0:
-					wavformat = WaveFormat.CreateALawFormat(8000, 1);
-					// wavformat = WaveFormat.CreateMuLawFormat(8000, 1);
+					// wavformat = WaveFormat.CreateALawFormat(8000, 1);
+					wavformat = WaveFormat.CreateMuLawFormat(8000, 1);
 					// wavformat = WaveFormat.CreateCustomFormat(WaveFormatEncoding.MuLaw, 8000, 1, 16000, 1, 16);
 					break;
 				case 8:

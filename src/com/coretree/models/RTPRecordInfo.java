@@ -443,7 +443,7 @@ public class RTPRecordInfo implements Closeable
 			try {
 				_item = linout.stream().filter(x -> x.seq == item.seq).findFirst().get();					
 			} catch (NoSuchElementException | NullPointerException e) {
-				Util.WriteLog(String.format(Finalvars.ErrHeader, 1013, e.getMessage()), 1);
+				// Util.WriteLog(String.format(Finalvars.ErrHeader, 1013, e.getMessage()), 1);
 				
 				_item = new RTPInfo();
 				_item.voice = new byte[332];
