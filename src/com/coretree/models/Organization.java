@@ -13,18 +13,19 @@ import com.coretree.util.Const4pbx;
 public class Organization {
 	public Event<LogedoutEventArgs> LogedoutEventHandler = new Event<LogedoutEventArgs>();
 	
-	private Timer timer;
-	private int timerInterval = 1000 * 60 * 2;
-	private int limited_time = 1000 * 60 * 30;
+//	private Timer timer;
+//	private int timerInterval = 1000 * 60 * 2;
+//	private int limited_time = 1000 * 60 * 30;
 	
 	public Organization() {
-		Timer_Elapsed timer_elapsed = new Timer_Elapsed();
-		timer = new Timer();
-		timer.schedule(timer_elapsed, timerInterval, timerInterval);
+//		Timer_Elapsed timer_elapsed = new Timer_Elapsed();
+//		timer = new Timer();
+//		timer.schedule(timer_elapsed, timerInterval, timerInterval);
 		
 		this.setStartdate(LocalDateTime.now());
 	}
-	
+
+/*
 	class Timer_Elapsed extends TimerTask
 	{
 		@Override
@@ -47,7 +48,7 @@ public class Organization {
 			}
 		}
 	}
-	
+*/
 	private String empNo;
 	private String empNm;
 	private String password;
