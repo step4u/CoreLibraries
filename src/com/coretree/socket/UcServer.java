@@ -249,7 +249,7 @@ public class UcServer implements Runnable {
 						data.setCmd(Const4pbx.UC_SET_SRV_REQ);
 						data.setExtension(msg.extension);
 						data.setResponseCode(msg.responseCode);
-						data.setUnconditional(msg.unconditional);
+						// data.setUnconditional(msg.unconditional);
 						break;
 					case Const4pbx.WS_VALUE_EXTENSION_STATE_READY:
 					default:
