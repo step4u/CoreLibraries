@@ -50,6 +50,9 @@ public class CdrService {
 								return;
 							}
 							break;
+						case "-h":
+							System.out.println("ex. [-bo ex] [-pbxip 127.0.0.1]");
+							break;
 						default:
 							System.out.println(String.format("[%s] is invalid parameter. CdrServer is starting in BIG_ENDIAN mode.", args[i]));
 							byteorder = ByteOrder.BIG_ENDIAN;
