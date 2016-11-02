@@ -243,6 +243,7 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 		sb.append(", extension_no");
 		sb.append(", emp_no");
 		sb.append(", tel_no");
+		sb.append(", call_typ_cd");
 		sb.append(", rec_start_date");
 		sb.append(", rec_start_hms");
 		sb.append(", rec_end_date");
@@ -255,6 +256,7 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 		sb.append(", ?");
 		sb.append(", (select emp_no from torganization where extension_no=?)");
 		sb.append(", ?");
+		sb.append(", (select first 1 call_typ_cd from tcall_stat where callid=?)");
 		sb.append(", ?");
 		sb.append(", ?");
 		sb.append(", replace(cast(current_date as varchar(10)), '-', '')");
@@ -274,10 +276,11 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 			stmt.setString(2, item.ext);
 			stmt.setString(3, item.ext);
 			stmt.setString(4, item.peer);
-			stmt.setString(5, item.StartDate);
-			stmt.setString(6, item.StartHms);
-			stmt.setString(7, item.filename);
-			stmt.setInt(8, size);
+			stmt.setString(5, item.callid);
+			stmt.setString(6, item.StartDate);
+			stmt.setString(7, item.StartHms);
+			stmt.setString(8, item.filename);
+			stmt.setInt(9, size);
 			
 			stmt.executeUpdate();
 			stmt.close();
