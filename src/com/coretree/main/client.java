@@ -19,7 +19,7 @@ public class client {
 		System.out.println(String.format("number : %d", (byte)Const4pbx.UC_SMS_TRANSFER_CANCEL_RES));
 		
 		UcServer uc = new UcServer("14.63.166.98", 31001, 1, ByteOrder.BIG_ENDIAN);
-		uc.start();
+		// uc.start();
 		// uc.Send(Const4pbx.UC_REGISTER_REQ);
 		
 //		ReqUserInfo obj = new ReqUserInfo();

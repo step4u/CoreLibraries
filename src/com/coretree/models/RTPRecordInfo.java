@@ -4,7 +4,13 @@ import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
@@ -171,7 +177,7 @@ public class RTPRecordInfo implements Closeable
 
 		r.lock();
 		try {
-			linin = listIn.stream().collect(Collectors.toList());			
+			linin = listIn.stream().collect(Collectors.toList());
 		} finally {
 			r.unlock();
 		}
@@ -500,24 +506,24 @@ public class RTPRecordInfo implements Closeable
 		AudioFormat aformat;
 		
 		switch (codec.waveFormatTag) {
-		case ALaw:
-			aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, true);
-			break;
-		case MuLaw:
-			aformat = new AudioFormat(AudioFormat.Encoding.ULAW, 8000, 8, 1, 1, 8000 * 1, true);
-			break;
-		case G723:
-			aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, true);
-			break;
-		case G729:
-			aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, true);
-			break;
-		case Pcm:
-			aformat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 8000, 8, 1, 1, 8000 * 1, true);
-			break;
-		default:
-			aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, true);
-			break;
+			case ALaw:
+				aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, true);
+				break;
+			case MuLaw:
+				aformat = new AudioFormat(AudioFormat.Encoding.ULAW, 8000, 8, 1, 1, 8000 * 1, true);
+				break;
+			case G723:
+				aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, true);
+				break;
+			case G729:
+				aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, true);
+				break;
+			case Pcm:
+				aformat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 8000, 8, 1, 1, 8000 * 1, true);
+				break;
+			default:
+				aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, true);
+				break;
 		}
 
 		AudioInputStream audioInputStream1 = new AudioInputStream(inputstream1, aformat, wavSrc1.length);

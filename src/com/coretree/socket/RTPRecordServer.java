@@ -39,7 +39,7 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 {
 	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
     private final Lock r = rwl.readLock();
-    private final Lock w = rwl.writeLock();
+    // private final Lock w = rwl.writeLock();
 	
 	private DatagramSocket serverSocket;
 	private List<RTPRecordInfo> recordIngList;
@@ -140,6 +140,8 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 			ingInstance.Add(rtp);
 		} catch (NoSuchElementException | NullPointerException e) {
 			WaveFormat wavformat;
+			
+			Util.WriteLog("EXT: " + rtp.extension + ", CODEC: " + rtp.codec, 1);
 
 			switch (rtp.codec) {
 				case 0:

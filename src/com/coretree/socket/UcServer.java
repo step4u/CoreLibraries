@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
+import java.net.PortUnreachableException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.ByteOrder;
@@ -61,18 +62,17 @@ public class UcServer implements Runnable {
 			timer.schedule(timer_elapsed, timerInterval, timerInterval);
 			
 			this.regist();
-		} catch (SocketException e) {
-			System.err.println("an error has broken out.");
-			e.printStackTrace();
+		} catch (Exception e) {
+			System.err.println("An error has broken out in constructor.\n--->>" + e.getMessage());
 		}
 	}
 	
-	public void start() {
-        for (int i = 0; i < threads.length; i++) {
-        	threads[i] = new Thread(this);
-        	threads[i].start();
-        }
-    }
+//	public void start() {
+//        for (int i = 0; i < threads.length; i++) {
+//        	threads[i] = new Thread(this);
+//        	threads[i].start();
+//        }
+//    }
 	
 	@Override
 	public void run() {
@@ -81,71 +81,90 @@ public class UcServer implements Runnable {
 	
 	private void InitiateSocket() {
 		try {
-			byte[] receiveData = new byte[1024];
 			// byte[] sendData = null;
+			// byte[] receiveData = new byte[1024];
+			// DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+			
+			byte[] receiveData = null;
+			DatagramPacket receivePacket = null;
 
 			while (true) {
-				DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+				receiveData = new byte[1024];
+				receivePacket = new DatagramPacket(receiveData, receiveData.length);
+				
 				serverSocket.receive(receivePacket);
 				
 				// byte[] rcvbytes = receivePacket.getData();
 				this.DataHasRecievedHandle(serverSocket, receivePacket.getData());
+				
+				receiveData = null;
+				receivePacket = null;
 			}
-		} catch (SocketException e) {
-			// e.printStackTrace();
-			System.err.println("an error has broken out.");
-		} catch (IOException e) {
-			// e.printStackTrace();
-			System.err.println("an error has broken out.");
+		} catch (PortUnreachableException e) {
+			System.err.println("An error has broken out in InitiateSocket method2 .\n--->>" + e.getMessage());
+			this.InitiateSocket();
+			return;
+		} catch (Exception e) {
+			System.err.println("An error has broken out in InitiateSocket method.\n--->>" + e.getMessage());
 		}
 	}
 	
-	public void Send(UcMessage msg) throws UnknownHostException {
-		GroupWareData data = this.GetData(msg);
-		byte[] sendData = data.toBytes();
-		
-		DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length);
-		
+	public void Send(UcMessage msg) {
 		try {
+			GroupWareData data = this.GetData(msg);
+			byte[] sendData = data.toBytes();
+
+			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length);
+			// DatagramPacket sendPacket = new DatagramPacket(sendData, 0, sendData.length, remoteep);
+			
 			serverSocket.send(sendPacket);
 			System.out.println("");
 			System.err.println(String.format("Has sent %s", data.toString()));
 		} catch (IOException e) {
-			System.err.println("an error has broken out.");
-			// e.printStackTrace();
+			System.err.println("An error has broken out in Send method UcMessage.\n--->>" + e.getMessage());
 		}
 	}
 	
-	public void Send(SmsData msg) throws UnknownHostException {
-		byte[] sendData = msg.toBytes();
-		
-		DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length);
-		
+	public void Send(SmsData msg) {
 		try {
+			byte[] sendData = msg.toBytes();
+			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length);
+			// DatagramPacket sendPacket = new DatagramPacket(sendData, 0, sendData.length, remoteep);
+			
 			serverSocket.send(sendPacket);
 			System.out.println("");
 			System.err.println(String.format("SMS Has sent %s", msg.toString()));
-		} catch (IOException e) {
-			System.err.println("an error has broken out.");
-			// e.printStackTrace();
+		} catch (Exception e) {
+			System.err.println("An error has broken out in Send method SmsData.\n--->>" + e.getMessage());
 		}
 	}
 	
-	public void Send(GroupWareData msg) throws IOException {
-		byte[] sendData = msg.toBytes();
-		
-		DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length);
-		
-		serverSocket.send(sendPacket);
-		System.out.println("");
-		System.err.println(String.format("Has sent %s", msg.toString()));
+	public void Send(GroupWareData msg) {
+		try {
+			byte[] sendData = msg.toBytes();
+			
+			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length);
+			// DatagramPacket sendPacket = new DatagramPacket(sendData, 0, sendData.length, remoteep);
+			
+			serverSocket.send(sendPacket);
+			System.out.println("");
+			System.err.println(String.format("GroupWare has sent %s", msg.toString()));
+		} catch (Exception e) {
+			System.err.println("An error has broken out in Send method GroupWareData.\n--->>" + e.getMessage());
+		}
 	}
 	
-	public void Send(DatagramSocket sock, DatagramPacket packet, GroupWareData data) throws IOException {
-		byte[] sendData = data.toBytes();
-		DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length);
-		sock.send(sendPacket);
-		System.err.println("has sent.");
+	public void Send(DatagramSocket sock, DatagramPacket packet, GroupWareData data) {
+		try {
+			byte[] sendData = data.toBytes();
+			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length);
+			// DatagramPacket sendPacket = new DatagramPacket(sendData, 0, sendData.length, remoteep);
+			
+			sock.send(sendPacket);
+			System.err.println("Normal has sent.");
+		} catch (Exception e) {
+			System.err.println("An error has broken out in Send method normal.\n--->>" + e.getMessage());
+		}
 	}
 	
 	private void DataHasRecievedHandle(DatagramSocket sock, byte[] bytes) {
@@ -158,14 +177,10 @@ public class UcServer implements Runnable {
 	public void regist() {
 		UcMessage msg = new UcMessage();
 		msg.cmd = Const4pbx.UC_REGISTER_REQ;
-		try {
-			this.Send(msg);
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
+		this.Send(msg);
 	}
 	
-	private GroupWareData GetData(UcMessage msg) throws UnknownHostException {
+	private GroupWareData GetData(UcMessage msg) {
 		GroupWareData data = new GroupWareData(byteorder);
 		data.setCmd((byte)msg.cmd);
 		
@@ -267,7 +282,6 @@ public class UcServer implements Runnable {
 	class Timer_Elapsed extends TimerTask {
 		@Override
 		public void run() {
-			// TODO Auto-generated method stub
 			regist();
 		}
 	}
