@@ -162,6 +162,8 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 					wavformat = WaveFormat.CreateMuLawFormat(8000, 1);
 					break;
 			}
+			
+			// wavformat = WaveFormat.CreateCustomFormat(WaveFormatEncoding.Pcm, 8000, 1, 8000, 1, 8);
 
 			LocalDateTime localdatetime = LocalDateTime.now();
 			// TimeSpan ts = now - new DateTime(1970, 1, 1, 0, 0, 0, 0,
@@ -210,6 +212,7 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 
 	@Override
 	public void eventReceived(Object sender, EndOfCallEventArgs e) {
+		/*
 		RTPRecordInfo item = (RTPRecordInfo)sender;
 		
 		int size = 0;
@@ -314,5 +317,6 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 			System.out.println(String.format("stream end event insert db : sql: %s", sb.toString()));
 			System.out.println(String.format("stream end event : callid: %s, ext: %s, peer: %s, filename: %s", item.callid, item.ext, item.peer, item.filename));
 		}
+		*/
 	}
 }

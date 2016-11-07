@@ -17,12 +17,13 @@ import java.util.stream.Collectors;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
-
 import com.coretree.event.EndOfCallEventArgs;
 import com.coretree.event.Event;
 import com.coretree.io.WaveFileWriter;
 import com.coretree.media.MixingAudioInputStream;
 import com.coretree.media.WaveFormat;
+import com.coretree.media.WaveFormatEncoding;
+import com.coretree.media.mmsc.DecompressInputStream;
 import com.coretree.util.Finalvars;
 import com.coretree.util.Util;
 
@@ -75,7 +76,8 @@ public class RTPRecordInfo implements Closeable
 				_strformat = "%s/%s";
 			}
 			
-			writer = new WaveFileWriter(String.format(_strformat, savepath, filename), _codec);
+			WaveFormat waveformat = WaveFormat.CreateCustomFormat(WaveFormatEncoding.Pcm, 8000, 1, 8000*2, 1, 8*2);
+			writer = new WaveFileWriter(String.format(_strformat, savepath, filename), waveformat);
 		} catch (IOException e) {
 			// e.printStackTrace();
 			Util.WriteLog(String.format(Finalvars.ErrHeader, 1003, e.getMessage()), 1);
@@ -572,10 +574,16 @@ public class RTPRecordInfo implements Closeable
 		//AudioInputStream audioInputStream = new MixingFloatAudioInputStream(aformat, audioInputStreamList);
 		AudioInputStream audioInputStream = new MixingAudioInputStream(aformat, audioInputStreamList);
 		
-		byte[] mixedbytes = new byte[wavSrc1.length];
+		
+		// AudioFormat aaformat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 8000, 16, 1, 2, 8000 * 1, true);
+		AudioFormat aaformat = new AudioFormat(8000, 16, 1, true, false);
+		// AudioFormat aaformat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, aformat.getSampleRate(), aformat.getSampleSizeInBits()*2, aformat.getChannels(), aformat.getFrameSize()*2, aformat.getFrameRate(), true);
+		DecompressInputStream audioInputStream0 = new DecompressInputStream(audioInputStream, true);
+		
+		byte[] mixedbytes = new byte[wavSrc1.length * 2];
 		
 		try {
-			audioInputStream.read(mixedbytes, 0, mixedbytes.length);
+			audioInputStream0.read(mixedbytes, 0, mixedbytes.length);
 		} catch (IOException e) {
 			// e.printStackTrace();
 			Util.WriteLog(String.format(Finalvars.ErrHeader, 1014, e.getMessage()), 1);
@@ -584,6 +592,7 @@ public class RTPRecordInfo implements Closeable
 		audioInputStream1.close();
 		audioInputStream2.close();
 		audioInputStream.close();
+		audioInputStream0.close();
 		
 		return mixedbytes;
 	}
