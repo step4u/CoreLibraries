@@ -141,8 +141,6 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 		} catch (NoSuchElementException | NullPointerException e) {
 			WaveFormat wavformat;
 			
-			Util.WriteLog("EXT: " + rtp.extension + ", CODEC: " + rtp.codec, 1);
-
 			switch (rtp.codec) {
 				case 0:
 					// wavformat = WaveFormat.CreateALawFormat(8000, 1);

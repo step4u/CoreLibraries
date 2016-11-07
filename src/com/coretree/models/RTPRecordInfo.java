@@ -94,7 +94,44 @@ public class RTPRecordInfo implements Closeable
 		endtimer.schedule(endtimer_Elapsed, endtimerInterval, endtimerInterval);
 	}
 
+	private int chk = 0;
+	private int first = -1;
 	public void Add(RTPInfo rtp) {
+		if (chk == 0) {
+			byte[] rtpbuff = new byte[rtp.size];
+			System.arraycopy(rtp.voice, 0, rtpbuff, 0, rtp.size);
+			RTPHeader rtpheader = null;
+			
+			try {
+				rtpheader = new RTPHeader(rtpbuff, 0, rtpbuff.length);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			Util.WriteLog("EXT: " + rtp.extension + ", CODEC: " + rtp.codec + ", isExt: " + rtp.isExtension + ", SIZE: " + rtp.size + ", realCodec: " + rtpheader.getPacketType(), 1);
+			
+			chk++;
+			first = rtp.isExtension;
+		} else if (chk == 1) {
+			if (first != rtp.isExtension) {
+				byte[] rtpbuff = new byte[rtp.size];
+				System.arraycopy(rtp.voice, 0, rtpbuff, 0, rtp.size);
+				RTPHeader rtpheader = null;
+				
+				try {
+					rtpheader = new RTPHeader(rtpbuff, 0, rtpbuff.length);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+				Util.WriteLog("EXT: " + rtp.extension + ", CODEC: " + rtp.codec + ", isExt: " + rtp.isExtension + ", SIZE: " + rtp.size + ", realCodec: " + rtpheader.getPacketType(), 1);
+				
+				chk++;
+			}
+		} else {
+			
+		}
+		
         if (rtp.size == 0) {
             endcount++;
         }
