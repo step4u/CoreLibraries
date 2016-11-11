@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,6 +24,7 @@ import com.coretree.io.WaveFileWriter;
 import com.coretree.media.MixingAudioInputStream;
 import com.coretree.media.WaveFormat;
 import com.coretree.media.WaveFormatEncoding;
+import com.coretree.media.mmsc.ConvertInputStream;
 import com.coretree.media.mmsc.DecompressInputStream;
 import com.coretree.util.Finalvars;
 import com.coretree.util.Util;
@@ -53,16 +55,63 @@ public class RTPRecordInfo implements Closeable
 	private List<RTPInfo> listIn;
 	private List<RTPInfo> listOut;
 	private WaveFileWriter writer = null;
-	// private WaveFormat pcmFormat = new WaveFormat(8000, 16, 1);
+	private WaveFormat format = new WaveFormat(8000, 16, 1);
+	private AudioFormat targetformat = null;
+	private boolean isBigendian = true;
 
 	private final int timerInterval = 1000;
 	private final int endtimerInterval = 1500;
 	
 	private String OS = System.getProperty("os.name");
-
-	public RTPRecordInfo(WaveFormat _codec, String savepath, String filename) {
+	
+	public int getCodec() {
+		int out = -1;
+		switch (this.codec.waveFormatTag) {
+			case ALaw:
+				out = 8;
+				break;
+			case MuLaw:
+				out = 0;
+				break;
+			default:
+				out = 8;
+				break;
+		}
+		
+		return out;
+	}
+	public void setCodec(int codec) {
+		switch (codec) {
+			case 0:
+				this.codec = WaveFormat.CreateMuLawFormat(8000, 1);
+				break;
+			case 8:
+				this.codec = WaveFormat.CreateALawFormat(8000, 1);
+				break;
+			/*case 4:
+				this.codec = WaveFormat.CreateCustomFormat(WaveFormatEncoding.G723, 8000, 1, 8000, 1, 8);
+				break;
+			case 18:
+				this.codec = WaveFormat.CreateCustomFormat(WaveFormatEncoding.G729, 8000, 1, 8000, 1, 8);
+				break;*/
+			default:
+				this.codec = WaveFormat.CreateMuLawFormat(8000, 1);
+				break;
+		}
+	}
+	
+	public RTPRecordInfo(WaveFormat _codec, String savepath, String filename, ByteOrder byteorder) {
 		this.savepath = savepath;
 		this.filename = filename;
+		if (byteorder == ByteOrder.BIG_ENDIAN)
+			isBigendian = true;
+		else
+			isBigendian = false;
+		
+		// this.format = WaveFormat.CreateCustomFormat(WaveFormatEncoding.Pcm, 8000, 1, 8000*2, 1, 8*2);
+		// this.format = WaveFormat.CreateALawFormat(8000, 1);
+		this.format = WaveFormat.CreateMuLawFormat(8000, 1);
+		this.targetformat = new AudioFormat(AudioFormat.Encoding.ULAW, 8000, 8, 1, 1, 8000 * 1, isBigendian);
 		
 		codec = _codec;
 		listIn = new ArrayList<RTPInfo>();
@@ -76,10 +125,8 @@ public class RTPRecordInfo implements Closeable
 				_strformat = "%s/%s";
 			}
 			
-			WaveFormat waveformat = WaveFormat.CreateCustomFormat(WaveFormatEncoding.Pcm, 8000, 1, 8000*2, 1, 8*2);
-			writer = new WaveFileWriter(String.format(_strformat, savepath, filename), waveformat);
+			writer = new WaveFileWriter(String.format(_strformat, savepath, filename), format);
 		} catch (IOException e) {
-			// e.printStackTrace();
 			Util.WriteLog(String.format(Finalvars.ErrHeader, 1003, e.getMessage()), 1);
 		}
 
@@ -99,6 +146,10 @@ public class RTPRecordInfo implements Closeable
 	private int chk = 0;
 	private int first = -1;
 	public void Add(RTPInfo rtp) {
+		if (getCodec() != rtp.codec) {
+			setCodec(rtp.codec);
+		}
+		
 		if (chk == 0) {
 			byte[] rtpbuff = new byte[rtp.size];
 			System.arraycopy(rtp.voice, 0, rtpbuff, 0, rtp.size);
@@ -110,7 +161,7 @@ public class RTPRecordInfo implements Closeable
 				e.printStackTrace();
 			}
 
-			Util.WriteLog("EXT: " + rtp.extension + ", CODEC: " + rtp.codec + ", isExt: " + rtp.isExtension + ", SIZE: " + rtp.size + ", realCodec: " + rtpheader.getPacketType(), 1);
+			// Util.WriteLog("EXT: " + rtp.extension + ", CODEC: " + rtp.codec + ", isExt: " + rtp.isExtension + ", SIZE: " + rtp.size + ", realCodec: " + rtpheader.getPacketType(), 1);
 			
 			chk++;
 			first = rtp.isExtension;
@@ -126,7 +177,7 @@ public class RTPRecordInfo implements Closeable
 					e.printStackTrace();
 				}
 
-				Util.WriteLog("EXT: " + rtp.extension + ", CODEC: " + rtp.codec + ", isExt: " + rtp.isExtension + ", SIZE: " + rtp.size + ", realCodec: " + rtpheader.getPacketType(), 1);
+				// Util.WriteLog("EXT: " + rtp.extension + ", CODEC: " + rtp.codec + ", isExt: " + rtp.isExtension + ", SIZE: " + rtp.size + ", realCodec: " + rtpheader.getPacketType(), 1);
 				
 				chk++;
 			}
@@ -134,29 +185,21 @@ public class RTPRecordInfo implements Closeable
 			
 		}
 		
-        if (rtp.size == 0) {
-            endcount++;
-        }
+        if (rtp.size == 0) endcount++;
 
         if (endcount > 1) {
-            if (timer != null) {
-                timer.cancel();
-                timer.purge();
-            }
+            if (timer != null) timer.cancel();
 
-            if (endtimer != null) {
-                endtimer.cancel();
-                endtimer.purge();
-            }
+            if (endtimer != null) endtimer.cancel();
 
             this.MixRtp("final");
             
             try {
 				close();
 			} catch (IOException e) {
-				// e.printStackTrace();
 				Util.WriteLog(String.format(Finalvars.ErrHeader, 1004, e.getMessage()), 1);
 			} finally {
+				Util.WriteLog("endded EXT: " + rtp.extension, 1);
             	EndOfCallEventHandler.raiseEvent(this, new EndOfCallEventArgs(""));
 			}
 
@@ -537,55 +580,69 @@ public class RTPRecordInfo implements Closeable
 		System.arraycopy(item1.voice, headersize, wavSrc1, 0, wavSrc1.length);
 		System.arraycopy(item2.voice, headersize, wavSrc2, 0, wavSrc2.length);
 		
-		List<AudioInputStream> audioInputStreamList = new ArrayList();
+		List<AudioInputStream> audioInputStreamList = new ArrayList<AudioInputStream>();
 		
 		InputStream inputstream1 = new ByteArrayInputStream(wavSrc1, 0, wavSrc1.length);
 		InputStream inputstream2 = new ByteArrayInputStream(wavSrc2, 0, wavSrc2.length);
 		
 		AudioFormat aformat;
+		AudioInputStream audioInputStream1 = null;
+		AudioInputStream audioInputStream2 = null;
 		
 		switch (codec.waveFormatTag) {
-			case ALaw:
-				aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, true);
-				break;
 			case MuLaw:
-				aformat = new AudioFormat(AudioFormat.Encoding.ULAW, 8000, 8, 1, 1, 8000 * 1, true);
+				// aformat = new AudioFormat(AudioFormat.Encoding.ULAW, 8000, 8, 1, 1, 8000 * 1, isBigendian);
+				audioInputStream1 = new AudioInputStream(inputstream1, targetformat, wavSrc1.length);
+				audioInputStream2 = new AudioInputStream(inputstream2, targetformat, wavSrc2.length);
+				
+				audioInputStreamList.add(audioInputStream1);
+				audioInputStreamList.add(audioInputStream2);
 				break;
-			case G723:
-				aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, true);
+			case ALaw:
+				// aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, isBigendian);
+				ConvertInputStream convertInputStream1 = new ConvertInputStream(inputstream1, true);
+				ConvertInputStream convertInputStream2 = new ConvertInputStream(inputstream2, true);
+				
+				audioInputStream1 = new AudioInputStream(convertInputStream1, targetformat, wavSrc1.length);
+				audioInputStream2 = new AudioInputStream(convertInputStream2, targetformat, wavSrc2.length);
+				
+				audioInputStreamList.add(audioInputStream1);
+				audioInputStreamList.add(audioInputStream2);
+				break;
+/*			case G723:
+				aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, isBigendian);
 				break;
 			case G729:
-				aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, true);
+				aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, isBigendian);
 				break;
 			case Pcm:
-				aformat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 8000, 8, 1, 1, 8000 * 1, true);
-				break;
+				aformat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 8000, 8, 1, 1, 8000 * 1, isBigendian);
+				break;*/
 			default:
-				aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, true);
+				// aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, isBigendian);
+				audioInputStream1 = new AudioInputStream(inputstream1, targetformat, wavSrc1.length);
+				audioInputStream2 = new AudioInputStream(inputstream2, targetformat, wavSrc2.length);
+				
+				audioInputStreamList.add(audioInputStream1);
+				audioInputStreamList.add(audioInputStream2);
 				break;
 		}
-
-		AudioInputStream audioInputStream1 = new AudioInputStream(inputstream1, aformat, wavSrc1.length);
-		AudioInputStream audioInputStream2 = new AudioInputStream(inputstream2, aformat, wavSrc2.length);
 		
-		audioInputStreamList.add(audioInputStream1);
-		audioInputStreamList.add(audioInputStream2);
-		
-		//AudioInputStream audioInputStream = new MixingFloatAudioInputStream(aformat, audioInputStreamList);
-		AudioInputStream audioInputStream = new MixingAudioInputStream(aformat, audioInputStreamList);
+		// AudioInputStream audioInputStream = new MixingFloatAudioInputStream(aformat, audioInputStreamList);
+		AudioInputStream audioInputStream = new MixingAudioInputStream(targetformat, audioInputStreamList);
 		
 		
-		// AudioFormat aaformat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 8000, 16, 1, 2, 8000 * 1, true);
+		// to PCM
+		/*
 		AudioFormat aaformat = new AudioFormat(8000, 16, 1, true, false);
-		// AudioFormat aaformat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, aformat.getSampleRate(), aformat.getSampleSizeInBits()*2, aformat.getChannels(), aformat.getFrameSize()*2, aformat.getFrameRate(), true);
 		DecompressInputStream audioInputStream0 = new DecompressInputStream(audioInputStream, true);
 		
 		byte[] mixedbytes = new byte[wavSrc1.length * 2];
 		
 		try {
+			
 			audioInputStream0.read(mixedbytes, 0, mixedbytes.length);
 		} catch (IOException e) {
-			// e.printStackTrace();
 			Util.WriteLog(String.format(Finalvars.ErrHeader, 1014, e.getMessage()), 1);
 		}
 		
@@ -593,19 +650,34 @@ public class RTPRecordInfo implements Closeable
 		audioInputStream2.close();
 		audioInputStream.close();
 		audioInputStream0.close();
+		*/
+		
+		// to ALAW or ULAW
+		byte[] mixedbytes = new byte[wavSrc1.length];
+		
+		try
+		{
+			audioInputStream.read(mixedbytes, 0, mixedbytes.length);
+		}
+		catch (IOException e)
+		{
+			Util.WriteLog(String.format(Finalvars.ErrHeader, 1014, e.getMessage()), 1);
+		}
+		
+		audioInputStream1.close();
+		audioInputStream2.close();
+		audioInputStream.close();
 		
 		return mixedbytes;
 	}
 	
     private void WaveFileWriting(byte[] buff) {
         if (buff == null) return;
-
         if (buff.length == 0) return;
 
         try {
 			this.writer.Write(buff, 0, buff.length);
 		} catch (IOException e) {
-			// e.printStackTrace();
 			Util.WriteLog(String.format(Finalvars.ErrHeader, 1015, e.getMessage()), 1);
 		}
         
@@ -613,7 +685,6 @@ public class RTPRecordInfo implements Closeable
 			this.writer.flush();
 			dataSize += buff.length;
 		} catch (IOException e) {
-			// e.printStackTrace();
 			Util.WriteLog(String.format(Finalvars.ErrHeader, 1016, e.getMessage()), 1);
 		}
     }
@@ -655,7 +726,6 @@ public class RTPRecordInfo implements Closeable
 		
 		@Override
 		public void run() {
-			// System.out.println(String.format("previousDataSize : %d, dataSize : %d", previousDataSize, dataSize));
 			if (previousDataSize < dataSize) {
 				previousDataSize = dataSize;
 				return;
@@ -665,12 +735,8 @@ public class RTPRecordInfo implements Closeable
 			
 			try {
 				close();
-				if (endtimer != null) {
-					endtimer.cancel();
-					endtimer.purge();
-				}
+				if (endtimer != null) endtimer.cancel();
 			} catch (IOException e) {
-				// e.printStackTrace();
 				Util.WriteLog(String.format(Finalvars.ErrHeader, 1017, e.getMessage()), 1);
 			} finally {
 				System.out.println("Finished finally");

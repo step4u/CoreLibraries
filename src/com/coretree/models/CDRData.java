@@ -35,6 +35,8 @@ public class CDRData extends SetGetBytes<Object>
 	private byte[] callee_human_name = new byte[20];
 	private int result;
 	private int next;
+    private int StartCallSec;
+    private int StartCallUSec;
     
     public int getSeq(){ return this.seq; }
     public void setSeq(int seq) { this.seq = seq; }
@@ -139,9 +141,14 @@ public class CDRData extends SetGetBytes<Object>
     	return Timestamp.valueOf(String.format("%d-%d-%d %d:%d:%d", getEnd_yyyy(), getEnd_month(), getEnd_day(), getEnd_hour(), getEnd_min(), getEnd_sec()));
     }
     
-    // private int len = 300;
+	public void setStartCallSec(byte StartCallSec) { this.StartCallSec = StartCallSec; }
+	public int getStartCallSec() { return this.StartCallSec; }
+	
+	public void setStartCallUSec(byte StartCallUSec) { this.StartCallUSec = StartCallUSec; }
+	public int getStartCallUSec() { return this.StartCallUSec; }
     
-    public CDRData(){}
+
+	public CDRData(){}
     
     public CDRData(ByteOrder byteorder)
     {
@@ -221,6 +228,10 @@ public class CDRData extends SetGetBytes<Object>
 		tlength += 4;
 		this.next = (int)bytes2Object(this.next, rcv, tlength, 4);
 		tlength += 4;
+		this.StartCallSec = (int)bytes2Object(this.StartCallSec, rcv, tlength, 4);
+		tlength += 4;
+		this.StartCallUSec = (int)bytes2Object(this.StartCallUSec, rcv, tlength, 4);
+		tlength += 4;
 	}
 	
 	@Override
@@ -233,6 +244,6 @@ public class CDRData extends SetGetBytes<Object>
 				+ ", caller=" + getCaller() + ", callee=" + getCallee() + ", caller_ipn_number=" + getCaller_ipn_number() + ", caller_group_code=" + getCaller_group_code()
 				+ ", caller_group_name=" + getCaller_group_name() + ", caller_human_name=" + getCaller_human_name() + ", callee_ipn_number=" + getCallee_ipn_number()
 				+ ", callee_group_code=" + getCallee_group_code() + ", callee_group_name=" + getCallee_group_name() + ", callee_human_name=" + getCallee_human_name()
-				+ ", result=" + getResult() + ", next=" + getNext() + "]";
+				+ ", result=" + getResult() + ", next=" + getNext() + ", StartCallSec=" + getStartCallSec() + ", StartCallUSec=" + getStartCallUSec() + "]";
 	}
 }

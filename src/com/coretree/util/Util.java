@@ -15,27 +15,21 @@ public class Util
 		OS = System.getProperty("os.name");
 		String strDir = "./log";
 		if (OS.contains("Windows"))
-		{
 			strDir = ".\\log\\";
-		}
 		else
-		{
 			strDir = "./log/";
-		}
 		
 		File _dir = new File(strDir);
 		if (!_dir.exists())
-		{
 			_dir.mkdir();
-		}
 
 		LocalDateTime localdatetime = LocalDateTime.now();
 		DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyyMMdd");
 		String logfilename = localdatetime.format(df);
 		if (delim == 1)
-		{
 			logfilename += "_err";
-		}
+		else if (delim == 2)
+			logfilename += "_print";
 		
         String strFilename = String.format("%s%s.log", strDir, logfilename);
         StringBuffer sb = new StringBuffer();

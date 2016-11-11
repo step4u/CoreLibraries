@@ -91,9 +91,9 @@ public class CdrServer {
 									+ " ( idx, office_name, startdate, enddate"
 									+ ", caller_type, caller, caller_ipn_number, caller_group_code, caller_group_name, caller_human_name"
 									+ ", callee_type, callee, callee_ipn_number, callee_group_code, callee_group_name, callee_human_name"
-									+ ", result, seq )"
+									+ ", result, seq, callid )"
 									+ " values "
-									+ " ( gen_id(GEN_CDR_IDX, 1), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+									+ " ( gen_id(GEN_CDR_IDX, 1), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 							
 							Connection con = null;
 
@@ -120,6 +120,7 @@ public class CdrServer {
 								stmt.setString(15, rcvData.getCallee_human_name());
 								stmt.setInt(16, rcvData.getResult());
 								stmt.setInt(17, rcvData.getSeq());
+								stmt.setString(18, String.valueOf(rcvData.getStartCallSec()) + String.valueOf(rcvData.getStartCallUSec()));
 								
 								stmt.executeUpdate();
 								con.commit();

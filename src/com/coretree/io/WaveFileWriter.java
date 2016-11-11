@@ -1,6 +1,5 @@
 package com.coretree.io;
 
-import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -8,15 +7,15 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
 import com.coretree.media.WaveFormat;
-import com.coretree.media.WaveFormatEncoding;
+// import com.coretree.media.WaveFormatEncoding;
 import com.coretree.util.BitConverter;
 
 public class WaveFileWriter {
-	private int headSize = 36;
+	// private int headSize = 36;
 	private int headSizePos = 4;
 	private FileOutputStream outStream;
-    private long dataSizePos;
-    private long factSampleCountPos;
+    // private long dataSizePos;
+    // private long factSampleCountPos;
     public int dataChunkSize = 0;
     private int dataChunkSizePos = 40;
     private WaveFormat format;
@@ -27,18 +26,18 @@ public class WaveFileWriter {
         this.outStream = outstream;
         this.format = format;
         
-        this.outStream.write("RIFF".getBytes(), 0, 4);	// Chunk ID
-        this.outStream.write(BitConverter.GetBytes(0), 0, 4);	// Chunk Size
-        this.outStream.write("WAVE".getBytes(), 0, 4);	// Format
+        this.outStream.write("RIFF".getBytes(), 0, 4);														// Chunk ID
+        this.outStream.write(BitConverter.GetBytes(0), 0, 4);												// Chunk Size
+        this.outStream.write("WAVE".getBytes(), 0, 4);														// Format
 
-        this.outStream.write("fmt ".getBytes(), 0, 4);	// Chunk ID
-        this.outStream.write(BitConverter.GetBytes((int)16), 0, 4);	// Chunk Size
-        this.outStream.write(BitConverter.GetBytes((short)format.waveFormatTag.GetValue()), 0, 2);	// Audio Format
-        this.outStream.write(BitConverter.GetBytes((short)format.channel), 0, 2);	// Number Of Channel
-        this.outStream.write(BitConverter.GetBytes((int)format.sampleRate), 0, 4);	// Sample Rate
-        this.outStream.write(BitConverter.GetBytes((int)format.averageBytesPerSecond), 0, 4);	// Byte Rate
-        this.outStream.write(BitConverter.GetBytes((short)format.blockAlign), 0, 2);	// Block Align
-        this.outStream.write(BitConverter.GetBytes((short)format.bitsPerSample), 0, 2);	// Bit Per Sample
+        this.outStream.write("fmt ".getBytes(), 0, 4);														// Chunk ID
+        this.outStream.write(BitConverter.GetBytes((int)16), 0, 4);											// Chunk Size
+        this.outStream.write(BitConverter.GetBytes((short)format.waveFormatTag.GetValue()), 0, 2);			// Audio Format
+        this.outStream.write(BitConverter.GetBytes((short)format.channel), 0, 2);							// Number Of Channel
+        this.outStream.write(BitConverter.GetBytes((int)format.sampleRate), 0, 4);							// Sample Rate
+        this.outStream.write(BitConverter.GetBytes((int)format.averageBytesPerSecond), 0, 4);				// Byte Rate
+        this.outStream.write(BitConverter.GetBytes((short)format.blockAlign), 0, 2);						// Block Align
+        this.outStream.write(BitConverter.GetBytes((short)format.bitsPerSample), 0, 2);						// Bit Per Sample
         
         //this.writer.write(BitConverter.GetBytes((short)format.extraSize));
         //this.writer = format.Serialize(this.writer);
@@ -56,22 +55,12 @@ public class WaveFileWriter {
     }
 
     
-	private void WriteDataChunkHeader() {
-        try {
-			this.outStream.write("data".getBytes(), 0, 4);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-        
-        try {
-			this.outStream.write(BitConverter.GetBytes((int)0), 0, 4);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	private void WriteDataChunkHeader() throws IOException {
+		this.outStream.write("data".getBytes(), 0, 4);
+		this.outStream.write(BitConverter.GetBytes((int)0), 0, 4);
     }
 
+	/*
 	private void CreateFactChunk() throws IOException {
         if (HasFactChunk()) {
             this.outStream.write("fact".getBytes(), 0, 4);
@@ -80,10 +69,13 @@ public class WaveFileWriter {
             this.outStream.write((int)0);
         }
     }
+    */
 
+	/*
     private boolean HasFactChunk() {
         return format.waveFormatTag != WaveFormatEncoding.Pcm && format.bitsPerSample != 0;
     }
+    */
     
     public void flush() throws IOException {
     	//this.outStream.flush();
@@ -115,6 +107,7 @@ public class WaveFileWriter {
     	ch.position(position);
     }
 
+    /*
     private void UpdateFactChunk(DataOutputStream writer) throws IOException {
         if (HasFactChunk()) {
             int bitsPerSample = (format.bitsPerSample * format.channel);
@@ -125,6 +118,7 @@ public class WaveFileWriter {
             }
         }
     }
+    */
     
     public void Write(byte[] data, int offset, int count) throws IOException {
     	this.outStream.write(data, offset, count);
