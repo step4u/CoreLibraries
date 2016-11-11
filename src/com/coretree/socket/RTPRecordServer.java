@@ -289,8 +289,8 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 						Util.WriteLog(String.format(Finalvars.ErrHeader, ErrorMessages.ERR_SQL_EXCEPTION, e2.getMessage()), 1);
 					}
 				} finally {
-					System.out.println(String.format("stream end event update db : sql: %s", sb.toString()));
-					System.out.println(String.format("stream end event : callid: %s, ext: %s, peer: %s, filename: %s, filesize= %s", item.callid, item.ext, item.peer, item.filename, size));
+					System.out.println(String.format("stream end event update db: sql: %s", sb.toString()));
+					System.out.println(String.format("stream end event: callid: %s, ext: %s, peer: %s, filename: %s, filesize: %d", item.callid, item.ext, item.peer, item.filename, size));
 				}
 			} else {
 				String k = "Mary has one cat";
@@ -385,8 +385,8 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 					}
 					// Util.WriteLog(String.format(Finalvars.ErrHeader, 1002, e2.getMessage()), 1);
 				} finally {
-					System.out.println(String.format("stream end event insert db : sql: %s", sb.toString()));
-					System.out.println(String.format("stream end event : callid: %s, ext: %s, peer: %s, filename: %s", item.callid, item.ext, item.peer, item.filename));
+					System.out.println(String.format("stream end event insert db: sql: %s", sb.toString()));
+					System.out.println(String.format("stream end event: callid: %s, ext: %s, peer: %s, filename: %s", item.callid, item.ext, item.peer, item.filename));
 				}
 			}
 		} catch (IOException ex) {
