@@ -219,7 +219,7 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 	            byte[] newfilebuff = new byte[prevfilebuff.length + inputfilebuff.length - 44];
 	            
 	            System.arraycopy(prevfilebuff, 0, newfilebuff, 0, prevfilebuff.length);
-	            System.arraycopy(inputfilebuff, 0, newfilebuff, prevfilebuff.length, inputfilebuff.length - 44);
+	            System.arraycopy(inputfilebuff, 44, newfilebuff, prevfilebuff.length, inputfilebuff.length - 44);
 	            
 	            File outputfile = new File(filepath + ".tmp");
 	            FileOutputStream outputstream = new FileOutputStream(outputfile);
@@ -227,6 +227,11 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 	            
 	        	FileChannel ch = outputstream.getChannel();
 	        	long position = ch.position();
+	        	ch.position(4);
+	        	ch.write(ByteBuffer.wrap(BitConverter.GetBytes((int)(ch.size() - 8)), 0, 4));
+	        	// ch.position(position);
+	            
+	        	// position = ch.position();
 	        	ch.position(40);
 	        	ch.write(ByteBuffer.wrap(BitConverter.GetBytes(newfilebuff.length), 0, 4));
 	        	ch.position(position);
