@@ -20,7 +20,9 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -46,7 +48,7 @@ import com.coretree.util.BitConverter;
 import com.coretree.util.Finalvars;
 import com.coretree.util.Util;
 
-public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEventArgs>
+public class RTPRecordServer implements IEventHandler<EndOfCallEventArgs>
 {
 	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
     private final Lock r = rwl.readLock();
@@ -63,28 +65,55 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 	
 	private ByteOrder bo = ByteOrder.BIG_ENDIAN;
 	private String filetype = "wav";
-
+	
+	private Thread[] threads;
+	
+	public void setIsHold (String ext, boolean ishold) {
+		RTPRecordInfo ingInstance = null;
+		
+		try {
+			ingInstance = recordIngList.stream().filter(x -> x.ext.equals(ext)).findFirst().get();
+			ingInstance.setIsHold(ishold);
+		} catch (NoSuchElementException | NullPointerException e) {
+			return;
+		}
+	}
+	
 	public RTPRecordServer() {
 		this(ByteOrder.BIG_ENDIAN, "wav");
 	}
 	
 	public RTPRecordServer(ByteOrder byteorder, String filetype) {
+		_option = new Options();
+		
 		if (OS.contains("Windows")) {
 			_delimiter = "\\";
 			_strformat = "%s\\%s";
+			_option.saveDirectory = "D:\\temp\\RecFile\\";
 		} else {
 			_delimiter = "/";
 			_strformat = "%s/%s";
+			_option.saveDirectory = "/opt/webcrm/media/";
 		}
 		
 		recordIngList = new ArrayList<RTPRecordInfo>();
-		_option = new Options();
-		_option.saveDirectory = "./";
 		
 		this.bo = byteorder;
 		this.filetype = filetype;
 
-		InitiateSocket();
+		Runnable runnable = new Runnable() {
+			@Override
+			public void run() {
+				InitiateSocket();
+			}
+		};
+		
+		threads = new Thread[1];
+		
+        for (int i = 0; i < threads.length; i++) {
+        	threads[i] = new Thread(runnable);
+        	threads[i].start();
+        }
 	}
 
 	public void InitiateSocket() {
@@ -179,7 +208,7 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 			File _dir = new File(_path);
 			if (!_dir.exists()) _dir.mkdir();
 			 
-			ingInstance = new RTPRecordInfo(wavformat, String.format(_strformat, _option.saveDirectory, _datepath), _fileName, this.bo);
+			ingInstance = new RTPRecordInfo(wavformat, _path, _fileName, this.bo);
 			ingInstance.callid = _callid;
 			ingInstance.ext = rtp.extension;
 			ingInstance.peer = rtp.peer_number;
@@ -204,100 +233,101 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 		int size = 0;
 		try {
 			String filepath = item.savepath + _delimiter + item.filename;
-			
-			if (Files.exists(Paths.get(filepath + ".encrypted"))) {
-				File prevfile = new File(filepath + ".encrypted");
-				String key = "Mary has one cat";
-				byte[] prevfilebuff = CryptoAES.decrypt(key, prevfile);
-				
-				File inputfile = new File(filepath);
-				FileInputStream inputfilestream = new FileInputStream(inputfile);
-	            byte[] inputfilebuff = new byte[(int)inputfile.length()];
-	            inputfilestream.read(inputfilebuff, 0, inputfilebuff.length);
-	            inputfilestream.close();
-	            
-	            byte[] newfilebuff = new byte[prevfilebuff.length + inputfilebuff.length - 44];
-	            
-	            System.arraycopy(prevfilebuff, 0, newfilebuff, 0, prevfilebuff.length);
-	            System.arraycopy(inputfilebuff, 44, newfilebuff, prevfilebuff.length, inputfilebuff.length - 44);
-	            
-	            File outputfile = new File(filepath + ".tmp");
-	            FileOutputStream outputstream = new FileOutputStream(outputfile);
-	            outputstream.write(newfilebuff);
-	            
-	        	FileChannel ch = outputstream.getChannel();
-	        	long position = ch.position();
-	        	ch.position(4);
-	        	ch.write(ByteBuffer.wrap(BitConverter.GetBytes((int)(ch.size() - 8)), 0, 4));
-	        	// ch.position(position);
-	            
-	        	// position = ch.position();
-	        	ch.position(40);
-	        	ch.write(ByteBuffer.wrap(BitConverter.GetBytes(newfilebuff.length), 0, 4));
-	        	ch.position(position);
-	        	outputstream.close();
-	        	
-	        	if (Files.exists(Paths.get(filepath + ".tmp"))) {
-	        		Files.delete(Paths.get(filepath + ".encrypted"));
-	        		Files.delete(Paths.get(filepath));
-	        	}
-	        	
-				String k = "Mary has one cat";
-		        File inputFile = new File(filepath + ".tmp");
-		        String encryptedfn = item.filename + ".encrypted";
-		        File encryptedFile = new File(item.savepath + _delimiter + encryptedfn);
-		        
-		        CryptoAES.encrypt(k, inputFile, encryptedFile);
-		        
-		        Files.delete(Paths.get(filepath + ".tmp"));
-		        size = (int)Files.size(Paths.get(filepath + ".encrypted"));
-		        recordIngList.removeIf(x -> x.ext.equals(item.ext) && x.peer.equals(item.peer));
-		        
-		        // update database
-				StringBuilder sb = new StringBuilder();
-				sb.append("update trecord_mgt set");
-				sb.append(" file_size=?");
-				sb.append(" where callid=?");
-				sb.append(" and extension_no=?");
 
-				
-				Connection con = null;
-				
-				try {
-					con = DBConnection.getConnection();
-					PreparedStatement stmt = con.prepareStatement(sb.toString());
-					con.setAutoCommit(false);
-					
-					stmt.setInt(1, size);
-					stmt.setString(2, item.callid);
-					stmt.setString(3, item.ext);
-					
-					stmt.executeUpdate();
-					stmt.close();
-					
-					con.commit();
-					con.close();
-				} catch (SQLException e1) {
-					Util.WriteLog(String.format(Finalvars.ErrHeader, ErrorMessages.ERR_SQL_EXCEPTION, e1.getMessage()), 1);
-					
-					try {
-						con.rollback();
-					} catch (SQLException e2) {
-						Util.WriteLog(String.format(Finalvars.ErrHeader, ErrorMessages.ERR_SQL_EXCEPTION, e2.getMessage()), 1);
-					}
-				} catch (RuntimeException e2) {
-					Util.WriteLog(String.format(Finalvars.ErrHeader, ErrorMessages.ERR_SQL_EXCEPTION, e2.getMessage()), 1);
-					
-					try {
-						con.rollback();
-					} catch (SQLException e1) {
-						Util.WriteLog(String.format(Finalvars.ErrHeader, ErrorMessages.ERR_SQL_EXCEPTION, e2.getMessage()), 1);
-					}
-				} finally {
-					System.out.println(String.format("stream end event update db: sql: %s", sb.toString()));
-					System.out.println(String.format("stream end event: callid: %s, ext: %s, peer: %s, filename: %s, filesize: %d", item.callid, item.ext, item.peer, item.filename, size));
-				}
-			} else {
+//			if (Files.exists(Paths.get(filepath + ".encrypted"))) {
+//				File prevfile = new File(filepath + ".encrypted");
+//				String key = "Mary has one cat";
+//				byte[] prevfilebuff = CryptoAES.decrypt(key, prevfile);
+//				
+//				File inputfile = new File(filepath);
+//				FileInputStream inputfilestream = new FileInputStream(inputfile);
+//	            byte[] inputfilebuff = new byte[(int)inputfile.length()];
+//	            inputfilestream.read(inputfilebuff, 0, inputfilebuff.length);
+//	            inputfilestream.close();
+//	            
+//	            byte[] newfilebuff = new byte[prevfilebuff.length + inputfilebuff.length - 44];
+//	            
+//	            System.arraycopy(prevfilebuff, 0, newfilebuff, 0, prevfilebuff.length);
+//	            System.arraycopy(inputfilebuff, 44, newfilebuff, prevfilebuff.length, inputfilebuff.length - 44);
+//	            
+//	            File outputfile = new File(filepath + ".tmp");
+//	            FileOutputStream outputstream = new FileOutputStream(outputfile);
+//	            outputstream.write(newfilebuff);
+//	            
+//	        	FileChannel ch = outputstream.getChannel();
+//	        	long position = ch.position();
+//	        	ch.position(4);
+//	        	ch.write(ByteBuffer.wrap(BitConverter.GetBytes((int)(ch.size() - 8)), 0, 4));
+//	        	// ch.position(position);
+//	            
+//	        	// position = ch.position();
+//	        	ch.position(40);
+//	        	ch.write(ByteBuffer.wrap(BitConverter.GetBytes(newfilebuff.length), 0, 4));
+//	        	ch.position(position);
+//	        	outputstream.close();
+//	        	
+//	        	if (Files.exists(Paths.get(filepath + ".tmp"))) {
+//	        		Files.delete(Paths.get(filepath + ".encrypted"));
+//	        		Files.delete(Paths.get(filepath));
+//	        	}
+//	        	
+//				String k = "Mary has one cat";
+//		        File inputFile = new File(filepath + ".tmp");
+//		        String encryptedfn = item.filename + ".encrypted";
+//		        File encryptedFile = new File(item.savepath + _delimiter + encryptedfn);
+//		        
+//		        CryptoAES.encrypt(k, inputFile, encryptedFile);
+//		        
+//		        Files.delete(Paths.get(filepath + ".tmp"));
+//		        size = (int)Files.size(Paths.get(filepath + ".encrypted"));
+//		        recordIngList.removeIf(x -> x.ext.equals(item.ext) && x.peer.equals(item.peer));
+//		        
+//		        // update database
+//				StringBuilder sb = new StringBuilder();
+//				sb.append("update trecord_mgt set");
+//				sb.append(" file_size=?");
+//				sb.append(" where callid=?");
+//				sb.append(" and extension_no=?");
+//
+//				
+//				Connection con = null;
+//				
+//				try {
+//					con = DBConnection.getConnection();
+//					PreparedStatement stmt = con.prepareStatement(sb.toString());
+//					con.setAutoCommit(false);
+//					
+//					stmt.setInt(1, size);
+//					stmt.setString(2, item.callid);
+//					stmt.setString(3, item.ext);
+//					
+//					stmt.executeUpdate();
+//					stmt.close();
+//					
+//					con.commit();
+//					con.close();
+//				} catch (SQLException e1) {
+//					Util.WriteLog(String.format(Finalvars.ErrHeader, ErrorMessages.ERR_SQL_EXCEPTION, e1.getMessage()), 1);
+//					
+//					try {
+//						con.rollback();
+//					} catch (SQLException e2) {
+//						Util.WriteLog(String.format(Finalvars.ErrHeader, ErrorMessages.ERR_SQL_EXCEPTION, e2.getMessage()), 1);
+//					}
+//				} catch (RuntimeException e2) {
+//					Util.WriteLog(String.format(Finalvars.ErrHeader, ErrorMessages.ERR_SQL_EXCEPTION, e2.getMessage()), 1);
+//					
+//					try {
+//						con.rollback();
+//					} catch (SQLException e1) {
+//						Util.WriteLog(String.format(Finalvars.ErrHeader, ErrorMessages.ERR_SQL_EXCEPTION, e2.getMessage()), 1);
+//					}
+//				} finally {
+//					System.out.println(String.format("stream end event update db: sql: %s", sb.toString()));
+//					System.out.println(String.format("stream end event: callid: %s, ext: %s, peer: %s, filename: %s, filesize: %d", item.callid, item.ext, item.peer, item.filename, size));
+//				}
+//			} else {
+
 				String k = "Mary has one cat";
 		        File inputFile = new File(filepath);
 		        String encryptedfn = item.filename + ".encrypted";
@@ -393,7 +423,7 @@ public class RTPRecordServer extends Thread implements IEventHandler<EndOfCallEv
 					System.out.println(String.format("stream end event insert db: sql: %s", sb.toString()));
 					System.out.println(String.format("stream end event: callid: %s, ext: %s, peer: %s, filename: %s", item.callid, item.ext, item.peer, item.filename));
 				}
-			}
+//			}
 		} catch (IOException ex) {
 			Util.WriteLog(String.format(Finalvars.ErrHeader, ErrorMessages.ERR_FILE_DOES_NOT_EXIST, ex.getMessage()), 1);
         } catch (CryptoException ex) {

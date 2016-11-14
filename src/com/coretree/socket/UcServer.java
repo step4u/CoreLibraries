@@ -18,7 +18,7 @@ import com.coretree.models.SmsData;
 import com.coretree.models.UcMessage;
 import com.coretree.util.Const4pbx;
 
-public class UcServer implements Runnable {
+public class UcServer {
 	public Event<HaveGotUcMessageEventArgs> HaveGotUcMessageEventHandler = new Event<HaveGotUcMessageEventArgs>();
 	
 	private ByteOrder byteorder = ByteOrder.BIG_ENDIAN;
@@ -50,10 +50,17 @@ public class UcServer implements Runnable {
 			serverSocket = new DatagramSocket(localport);
 			serverSocket.connect(remoteep);
 			
+			Runnable runnable = new Runnable() {
+				@Override
+				public void run() {
+					InitiateSocket();
+				}
+			};
+			
 			threads = new Thread[threadcount];
 			
 	        for (int i = 0; i < threads.length; i++) {
-	        	threads[i] = new Thread(this);
+	        	threads[i] = new Thread(runnable);
 	        	threads[i].start();
 	        }
 	        
@@ -73,11 +80,6 @@ public class UcServer implements Runnable {
 //        	threads[i].start();
 //        }
 //    }
-	
-	@Override
-	public void run() {
-		this.InitiateSocket();
-	}
 	
 	private void InitiateSocket() {
 		try {

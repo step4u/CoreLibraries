@@ -57,7 +57,8 @@ public class RTPRecordInfo implements Closeable
 	private WaveFileWriter writer = null;
 	private WaveFormat format = new WaveFormat(8000, 16, 1);
 	private AudioFormat targetformat = null;
-	private boolean isBigendian = true;
+	private boolean IsBigendian = true;
+	private boolean IsHold = false;
 
 	private final int timerInterval = 1000;
 	private final int endtimerInterval = 1500;
@@ -100,18 +101,25 @@ public class RTPRecordInfo implements Closeable
 		}
 	}
 	
+	public void setIsHold(boolean hold) {
+		this.IsHold = hold;
+	}
+	public boolean getIsHold() {
+		return this.IsHold;
+	}
+	
 	public RTPRecordInfo(WaveFormat _codec, String savepath, String filename, ByteOrder byteorder) {
 		this.savepath = savepath;
 		this.filename = filename;
 		if (byteorder == ByteOrder.BIG_ENDIAN)
-			isBigendian = true;
+			IsBigendian = true;
 		else
-			isBigendian = false;
+			IsBigendian = false;
 		
 		// this.format = WaveFormat.CreateCustomFormat(WaveFormatEncoding.Pcm, 8000, 1, 8000*2, 1, 8*2);
 		// this.format = WaveFormat.CreateALawFormat(8000, 1);
 		this.format = WaveFormat.CreateMuLawFormat(8000, 1);
-		this.targetformat = new AudioFormat(AudioFormat.Encoding.ULAW, 8000, 8, 1, 1, 8000 * 1, isBigendian);
+		this.targetformat = new AudioFormat(AudioFormat.Encoding.ULAW, 8000, 8, 1, 1, 8000 * 1, IsBigendian);
 		
 		codec = _codec;
 		listIn = new ArrayList<RTPInfo>();
@@ -119,13 +127,17 @@ public class RTPRecordInfo implements Closeable
 		
 		try {
 			String _strformat = "%s/%s";
+			String filepath = "";
 			if (OS.contains("Windows")) {
 				_strformat = "%s\\%s";
+				filepath = String.format(_strformat, savepath, filename);
 			} else {
 				_strformat = "%s/%s";
+				filepath = String.format(_strformat, savepath, filename);
 			}
 			
-			writer = new WaveFileWriter(String.format(_strformat, savepath, filename), format);
+			// writer = new WaveFileWriter(String.format(_strformat, savepath, filename), format);
+			writer = new WaveFileWriter(String.format(filepath), format);
 		} catch (IOException e) {
 			Util.WriteLog(String.format(Finalvars.ErrHeader, 1003, e.getMessage()), 1);
 		}
@@ -188,6 +200,11 @@ public class RTPRecordInfo implements Closeable
         if (rtp.size == 0) endcount++;
 
         if (endcount > 1) {
+        	if (this.getIsHold()) {
+        		endcount = 0;
+        		return;
+        	}
+        	
             if (timer != null) timer.cancel();
 
             if (endtimer != null) endtimer.cancel();
@@ -591,7 +608,7 @@ public class RTPRecordInfo implements Closeable
 		
 		switch (codec.waveFormatTag) {
 			case MuLaw:
-				// aformat = new AudioFormat(AudioFormat.Encoding.ULAW, 8000, 8, 1, 1, 8000 * 1, isBigendian);
+				// aformat = new AudioFormat(AudioFormat.Encoding.ULAW, 8000, 8, 1, 1, 8000 * 1, IsBigendian);
 				audioInputStream1 = new AudioInputStream(inputstream1, targetformat, wavSrc1.length);
 				audioInputStream2 = new AudioInputStream(inputstream2, targetformat, wavSrc2.length);
 				
@@ -599,7 +616,7 @@ public class RTPRecordInfo implements Closeable
 				audioInputStreamList.add(audioInputStream2);
 				break;
 			case ALaw:
-				// aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, isBigendian);
+				// aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, IsBigendian);
 				ConvertInputStream convertInputStream1 = new ConvertInputStream(inputstream1, true);
 				ConvertInputStream convertInputStream2 = new ConvertInputStream(inputstream2, true);
 				
@@ -610,16 +627,16 @@ public class RTPRecordInfo implements Closeable
 				audioInputStreamList.add(audioInputStream2);
 				break;
 /*			case G723:
-				aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, isBigendian);
+				aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, IsBigendian);
 				break;
 			case G729:
-				aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, isBigendian);
+				aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, IsBigendian);
 				break;
 			case Pcm:
-				aformat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 8000, 8, 1, 1, 8000 * 1, isBigendian);
+				aformat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 8000, 8, 1, 1, 8000 * 1, IsBigendian);
 				break;*/
 			default:
-				// aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, isBigendian);
+				// aformat = new AudioFormat(AudioFormat.Encoding.ALAW, 8000, 8, 1, 1, 8000 * 1, IsBigendian);
 				audioInputStream1 = new AudioInputStream(inputstream1, targetformat, wavSrc1.length);
 				audioInputStream2 = new AudioInputStream(inputstream2, targetformat, wavSrc2.length);
 				
@@ -726,6 +743,11 @@ public class RTPRecordInfo implements Closeable
 		
 		@Override
 		public void run() {
+        	if (getIsHold()) {
+        		endcount = 0;
+        		return;
+        	}
+			
 			if (previousDataSize < dataSize) {
 				previousDataSize = dataSize;
 				return;
