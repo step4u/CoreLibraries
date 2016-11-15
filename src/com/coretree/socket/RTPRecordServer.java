@@ -162,7 +162,7 @@ public class RTPRecordServer implements IEventHandler<EndOfCallEventArgs>
 	private void StackRtp2Instance(RTPInfo rtp) {
 		RTPRecordInfo ingInstance = null;
 
-		String _callid = String.valueOf(rtp.StartCallSec) + String.valueOf(rtp.StartCallSec);
+		String _callid = String.valueOf(rtp.StartCallSec) + String.valueOf(rtp.StartCallUSec);
 		
 		r.lock();
 		try {

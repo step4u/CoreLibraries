@@ -105,9 +105,10 @@ public class UcServer {
 		} catch (PortUnreachableException e) {
 			System.err.println("An error has broken out in InitiateSocket method2 .\n--->>" + e.getMessage());
 			this.InitiateSocket();
-			return;
+			// return;
 		} catch (Exception e) {
 			System.err.println("An error has broken out in InitiateSocket method.\n--->>" + e.getMessage());
+			// e.printStackTrace();
 		}
 	}
 	
