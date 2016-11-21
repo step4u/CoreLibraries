@@ -91,6 +91,7 @@ public class Const4pbx
 	public static final byte UC_CALL_STATE_CALLER_BUSY = 116;
 	public static final byte UC_CALL_STATE_CALLER_NOANSWER = 117;
 	public static final byte UC_CALL_STATE_CALLER_MOVE = 118;
+	public static final byte UC_CALL_STATE_RINGBACK = 119;
 	public static final byte UC_CALL_STATE_CALLEE_BUSY = 120;
 	public static final byte UC_CALL_STATE_CALLEE_NOANSER = 121;
 	public static final byte UC_CALL_STATE_CALLEE_MOVE = 122;

@@ -254,6 +254,7 @@ public class UcServer {
 				data.setResponseCode(msg.responseCode);
 				break;
 			case Const4pbx.UC_ANSWER_CALL_REQ:
+				data.setType(Const4pbx.UC_TYPE_GROUPWARE);
 				data.setExtension(msg.extension);
 				break;
 			case Const4pbx.WS_REQ_CHANGE_EXTENSION_STATE:
