@@ -46,7 +46,7 @@ public class GroupWareData extends SetGetBytes<Object>
 	public void setType(byte type) { this.type = type; }
 	public byte getType() { return this.type; }
 
-	public void setStatus(byte status) { this.type = status; }
+	public void setStatus(byte status) { this.status = status; }
 	public byte getStatus() { return this.status; }
 
 	public void setCaller(String caller) {
