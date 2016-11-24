@@ -197,11 +197,11 @@ public class RTPRecordServer implements IEventHandler<EndOfCallEventArgs>
 			
 			LocalDateTime localdatetime = LocalDateTime.now();
 
-			// DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
-			// String _header = localdatetime.format(df);
-			String _fileName = String.format("%s_%s_%s", _callid, rtp.extension.trim(), rtp.peer_number.trim());
+			DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
+			String _header = localdatetime.format(df);
+			String _fileName = String.format("%s_%s_%s", _header, rtp.extension.trim(), rtp.peer_number.trim());
 			
-			DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			df = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 			String _datepath = localdatetime.format(df);
 			String _path = String.format(_strformat, _option.saveDirectory, _datepath);
 			 
