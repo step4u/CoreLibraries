@@ -108,7 +108,7 @@ public class UcServer {
 			// return;
 		} catch (Exception e) {
 			System.err.println("An error has broken out in InitiateSocket method.\n--->>" + e.getMessage());
-			// e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 	

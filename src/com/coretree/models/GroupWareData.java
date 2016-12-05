@@ -60,8 +60,11 @@ public class GroupWareData extends SetGetBytes<Object>
 				lcount = this.caller.length;
 			}
 			
-			for (int i = 0 ; i < lcount ; i++) {
-				this.caller[i] = strbuff[i];
+			for (int i = 0 ; i < this.caller.length ; i++) {
+				if (i < lcount)
+					this.caller[i] = strbuff[i];
+				else
+					this.caller[i] = 0;
 			}
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
@@ -86,8 +89,11 @@ public class GroupWareData extends SetGetBytes<Object>
 				lcount = this.callee.length;
 			}
 			
-			for (int i = 0 ; i < lcount ; i++) {
-				this.callee[i] = strbuff[i];
+			for (int i = 0 ; i < this.callee.length ; i++) {
+				if (i < lcount)
+					this.callee[i] = strbuff[i];
+				else
+					this.callee[i] = 0;
 			}
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
@@ -112,8 +118,11 @@ public class GroupWareData extends SetGetBytes<Object>
 				lcount = this.extension.length;
 			}
 			
-			for (int i = 0 ; i < lcount ; i++) {
-				this.extension[i] = strbuff[i];
+			for (int i = 0 ; i < this.extension.length ; i++) {
+				if (i < lcount)
+					this.extension[i] = strbuff[i];
+				else
+					this.extension[i] = 0;
 			}
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
@@ -532,6 +541,12 @@ public class GroupWareData extends SetGetBytes<Object>
 
 		System.arraycopy(rcv, tlength, this.dummy, 0, this.dummy.length);
 		tlength += this.dummy.length;
+	}
+	
+	public void SwapCallerCallee() {
+		byte[] tempbuff = this.callee;
+		this.callee = this.caller;
+		this.caller = tempbuff;
 	}
 	
 	@Override

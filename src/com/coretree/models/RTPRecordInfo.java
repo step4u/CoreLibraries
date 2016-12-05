@@ -283,7 +283,7 @@ public class RTPRecordInfo implements Closeable
 
 		r.lock();
 		try {
-			linout = listOut.stream().collect(Collectors.toList());			
+			linout = listOut.stream().collect(Collectors.toList());
 		} finally {
 			r.unlock();
 		}
