@@ -6,33 +6,39 @@
   <name>CoreLibraries</name>
   <description>Coretree core libraries</description>
   
-  <dependencies>
-  
-	<dependency>
-		<groupId>org.firebirdsql.jdbc</groupId>
-		<artifactId>jaybird-jdk18</artifactId>
-		<version>2.2.10</version>
-	</dependency>
-	
-	<dependency>
-		<groupId>com.googlecode.soundlibs</groupId>
-		<artifactId>tritonus-share</artifactId>
-		<version>0.3.7-2</version>
-	</dependency>
-	
-	<dependency>
-		<groupId>urbanophile</groupId>
-		<artifactId>java-getopt</artifactId>
-		<version>1.0.9</version>
-	</dependency>
+	<dependencies>
 
-<dependency>
-	<groupId>org.apache.logging.log4j</groupId>
-	<artifactId>log4j-core</artifactId>
-	<version>2.5</version>
-</dependency>
-  
-  </dependencies>
+		<dependency>
+			<groupId>org.firebirdsql.jdbc</groupId>
+			<artifactId>jaybird-jdk18</artifactId>
+			<version>2.2.10</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.googlecode.soundlibs</groupId>
+			<artifactId>tritonus-share</artifactId>
+			<version>0.3.7-2</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>urbanophile</groupId>
+			<artifactId>java-getopt</artifactId>
+			<version>1.0.9</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.5</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.google.code.gson</groupId>
+		    <artifactId>gson</artifactId>
+		    <version>2.8.0</version>
+		</dependency>
+
+	</dependencies>
   
   <build>
     <sourceDirectory>src</sourceDirectory>
