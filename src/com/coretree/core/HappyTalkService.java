@@ -10,8 +10,12 @@ import java.nio.ByteOrder;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.net.ssl.HttpsURLConnection;
+
 import com.coretree.event.HaveGotUcMessageEventArgs;
 import com.coretree.event.IEventHandler;
 import com.coretree.models.GroupWareData;
@@ -23,11 +27,25 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 public class HappyTalkService implements IEventHandler<HaveGotUcMessageEventArgs> {
-	UcServer uc = null;
-	ByteOrder byteorder = ByteOrder.BIG_ENDIAN;
-	String pbxip = "127.0.0.1";
+	private UcServer uc = null;
+	private ByteOrder byteorder = ByteOrder.BIG_ENDIAN;
+	private String pbxip = "127.0.0.1";
 	
-	HappyTalkService happytalk = null;
+	// private HappyTalkService happytalk = null;
+	private String profile_key = "";
+	private String tmp_code = "";
+
+	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+    private final Lock r = rwl.readLock();
+    private final Lock w = rwl.writeLock();
+	private List<HappyTalkRequest> happytalklist = new ArrayList<HappyTalkRequest>();
+	
+	private final String helpMsg = "ex. [-bo ex] [-pbxip 127.0.0.1] [-pk a1234677888...] [-tc ars123]";
+	private final String invalidParameterMsg = "Invalid parameter. HappyTalkService has been terminated.";
+	private final String invalidParameterMsg2 = "[%s] [%s] HappyTalkService is starting in BIG_ENDIAN mode.";
+	private final String invalidParameterMsg3 = "[%s] is invalid parameter. HappyTalkService is starting in BIG_ENDIAN mode.";
+	private final String noParameterMsg = "No parameters. HappyTalkService is starting in BIG_ENDIAN mode.";
+	private final String startLittleEndianMsg = "[%s] [%s] HappyTalkService is starting in LITTLE_ENDIAN mode.";
 	
 	public HappyTalkService() {
 		this(null);
@@ -35,14 +53,24 @@ public class HappyTalkService implements IEventHandler<HaveGotUcMessageEventArgs
 	
 	public HappyTalkService(String[] args) {
 		if (args == null) {
-			System.out.println("No parameters. HappyTalkService is starting in BIG_ENDIAN mode.");
+			System.out.println(noParameterMsg);
 			uc = new UcServer(pbxip, byteorder);
 			uc.HaveGotUcMessageEventHandler.addEventHandler(this);
 			return;
 		}
-
+		
 		if (args.length == 0) {
-			System.out.println("No parameters. HappyTalkService is starting in BIG_ENDIAN mode.");
+			if (profile_key.equals("")) {
+				System.out.println(helpMsg);
+				return;
+			}
+			
+			if (tmp_code.equals("")) {
+				System.out.println(helpMsg);
+				return;
+			}
+			
+			System.out.println(noParameterMsg);
 			uc = new UcServer(pbxip, byteorder);
 			uc.HaveGotUcMessageEventHandler.addEventHandler(this);
 		} else {
@@ -50,45 +78,93 @@ public class HappyTalkService implements IEventHandler<HaveGotUcMessageEventArgs
 				if (args[i].contains("-")) {
 					switch (args[i]) {
 						case "-bo":
+							if (args[i+1].toString().contains("-")) {
+								System.out.println(invalidParameterMsg);
+								return;
+							}
+							
 							try {
 								switch (args[i+1].toLowerCase()) {
 									case "bigendian":
 									case "big":
-										System.out.println(String.format("[%s] [%s] HappyTalkService is starting in BIG_ENDIAN mode.", args[i], args[i+1]));
+										System.out.println(String.format(invalidParameterMsg2, args[i], args[i+1]));
 										break;
 									case "littleendian":
 									case "little":
-										System.out.println(String.format("[%s] [%s] HappyTalkService is starting in LITTLE_ENDIAN mode.", args[i], args[i+1]));
+										System.out.println(String.format(startLittleEndianMsg, args[i], args[i+1]));
 										byteorder = ByteOrder.LITTLE_ENDIAN;
 										break;
 									default:
-										System.out.println(String.format("[%s] [%s] is invalid parameter. HappyTalkService is starting in BIG_ENDIAN mode.", args[i], args[i+1]));
+										System.out.println(String.format(invalidParameterMsg2, args[i], args[i+1]));
 										byteorder = ByteOrder.BIG_ENDIAN;
 										break;
 								}
 							} catch (IndexOutOfBoundsException e) {
-								System.out.println("Invalid parameter. HappyTalkService is starting in BIG_ENDIAN mode.");
+								System.out.println(invalidParameterMsg);
 								byteorder = ByteOrder.BIG_ENDIAN;
 							}
 							break;
 						case "-pbxip":
+							if (args[i+1].toString().contains("-")) {
+								System.out.println(invalidParameterMsg);
+								return;
+							}
+							
 							try {
 								pbxip = args[i+1].toString();
 							} catch (IndexOutOfBoundsException e) {
-								System.out.println("Invalid parameter. HappyTalkService has been terminated.");
+								System.out.println(invalidParameterMsg);
+								return;
+							}
+							break;
+						case "-pk":
+							if (args[i+1].toString().contains("-")) {
+								System.out.println(invalidParameterMsg);
+								return;
+							}
+							
+							try {
+								profile_key = args[i+1].toString();
+							} catch (IndexOutOfBoundsException e) {
+								System.out.println(invalidParameterMsg);
+								return;
+							}
+							break;
+						case "-tc":
+							if (args[i+1].toString().contains("-")) {
+								System.out.println(invalidParameterMsg);
+								return;
+							}
+							
+							try {
+								tmp_code = args[i+1].toString();
+							} catch (IndexOutOfBoundsException e) {
+								System.out.println(invalidParameterMsg);
 								return;
 							}
 							break;
 						case "-h":
-							System.out.println("ex. [-bo ex] [-pbxip 127.0.0.1]");
-							break;
+							System.out.println(helpMsg);
+							return;
+							// break;
 						default:
-							System.out.println(String.format("[%s] is invalid parameter. HappyTalkService is starting in BIG_ENDIAN mode.", args[i]));
+							System.out.println(String.format(invalidParameterMsg3, args[i]));
 							byteorder = ByteOrder.BIG_ENDIAN;
 							break;
 					}
 				}
 			}
+			
+			if (profile_key.equals("")) {
+				System.out.println(helpMsg);
+				return;
+			}
+			
+			if (tmp_code.equals("")) {
+				System.out.println(helpMsg);
+				return;
+			}
+			
 			uc = new UcServer(pbxip, byteorder);
 			uc.HaveGotUcMessageEventHandler.addEventHandler(this);
 		}
@@ -111,51 +187,12 @@ public class HappyTalkService implements IEventHandler<HaveGotUcMessageEventArgs
 		data.setStatus(Const4pbx.UC_STATUS_SUCCESS);
 		
 		try {
+			
 			this.uc.Send(data);
+			this.stackMessage2Kako(data);
+			// this.sendMessage2Kakao();
 			
-			String profile_key = "e21359de916c49970fbfd99ba7c93f138f7d2201";
-			// String https_url = String.format("https://dev-alimtalk-api.sweettracker.net/v1/%s/sendMessage",  profile_key);
-			String https_url = String.format("https://alimtalk-api.sweettracker.net/v1/%s/sendMessage",  profile_key);
-						
-			Gson gson = new Gson();
-			HappyTalkRequest request = new HappyTalkRequest();
-			request.msgid = "CT" + String.valueOf(java.time.ZonedDateTime.now().toInstant().toEpochMilli());
-			request.message_type = "at";
-			request.profile_key = profile_key;
-			request.template_code = "ars002";
-			request.receiver_num = "82" + data.getInputData();
-			request.message = "ì¹´ì¹´ì˜¤ ìƒë‹´í†¡ ì‹¤ì‹œê°„ 1:1 ì±„íŒ…ì„ ì‹œìž‘í•©ë‹ˆë‹¤. ë¬¸ì˜ê¸€ì„ ì±„íŒ… ìž…ë ¥ëž€ì— ìž‘ì„±í•˜ì‹œì–´ ìƒë‹´ì›ê³¼ ë°”ë¡œ ì±„íŒ…ì„ ì§„í–‰í•˜ì„¸ìš”.";
-			request.reserved_time = "00000000000000";
-			// request.sms_message = "ì¹´ì¹´ì˜¤ì•Œë¦¼í†¡ ì‹¤íŒ¨ ì‹œ ì „ì†¡ë¨";
-			// request.sms_title = "ì½”ì•„íŠ¸ë¦¬ì¹´ì¹´ì˜¤";
-			// request.sms_kind = "S";
-			// request.sender_num = "025080648";
-			request.btn_name = "ìƒë‹´ì‹ ì²­";
-			request.btn_url = "https://api.happytalk.io/api/kakao/chat_open?yid=%40%ED%95%B4%ED%94%BC%ED%86%A1io&site_id=4000000015&category_id=61504&division_id=61505";
-			
-			List<HappyTalkRequest> happytalklist = new ArrayList<HappyTalkRequest>();
-			happytalklist.add(request);
-			
-			URL url = new URL(https_url);
-			HttpsURLConnection con = (HttpsURLConnection)url.openConnection();
-			con.setRequestMethod("POST");
-			con.setRequestProperty("Content-type", "Application/json");
-			con.setDoOutput(true);
-			
-			DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-			wr.writeBytes(gson.toJson(happytalklist));
-			wr.flush();
-			wr.close();
-			
-			for(HappyTalkRequest req : happytalklist) {
-				System.out.println(req.toString());
-			}
-			
-			System.out.println("json Array: " + gson.toJson(happytalklist));
-
-			// print_https_cert(con);
-			print_content(con);
-    	} catch (IllegalStateException ex) {
+		} catch (IllegalStateException ex) {
 			ex.printStackTrace();
 		} catch (JsonSyntaxException ex) {
 			ex.printStackTrace();
@@ -166,6 +203,7 @@ public class HappyTalkService implements IEventHandler<HaveGotUcMessageEventArgs
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
+		
 		System.err.println("\n<<<---------" + data.toString() + "\n");
 	}
 	
@@ -188,7 +226,7 @@ public class HappyTalkService implements IEventHandler<HaveGotUcMessageEventArgs
 	    }
 	}
 	
-	@SuppressWarnings({ "unchecked" })
+	@SuppressWarnings("unchecked")
 	private void print_content(HttpsURLConnection con) throws Exception {
 		if(con != null) {
 			System.out.println("****** Content of the URL ********");
@@ -202,11 +240,109 @@ public class HappyTalkService implements IEventHandler<HaveGotUcMessageEventArgs
 				ArrayList<HappyTalkResponse> responselist = gson.fromJson(input, new ArrayList<HappyTalkResponse>().getClass());
 				
 				for(Object res : responselist) {
-					System.out.println(gson.toJson(res));
+					// System.out.println(gson.toJson(res));
+					HappyTalkResponse response = gson.fromJson(gson.toJson(res), HappyTalkResponse.class);
+					System.out.println(response.toString());
+					if (response.result.equals("Y") && response.code.equals("K000")) {
+						w.lock();
+						try {
+							happytalklist.removeIf(x -> x.msgid.equals(response.msgid));
+						} finally {
+							w.unlock();
+						}
+					} else {
+						HappyTalkRequest request = null;
+						try {
+							request = happytalklist.stream().filter(x -> x.msgid.equals(response.msgid)).findFirst().get();
+							
+							if (request.count > 2) {
+								return;
+							}
+							
+							request.msgid = "CT" + String.valueOf(java.time.ZonedDateTime.now().toInstant().toEpochMilli());
+							request.count++;
+							
+							w.lock();
+							try {
+								happytalklist.add(request);
+							} finally {
+								w.unlock();
+							}
+							
+							this.sendMessage2Kakao();
+						} catch (NoSuchElementException ex) {
+							return;
+						}
+					}
 				}
 			}
 			br.close();
 		}
+	}
+	
+	private void stackMessage2Kako(GroupWareData data) throws Exception {
+		HappyTalkRequest request = new HappyTalkRequest();
+		
+		request.msgid = "CT" + String.valueOf(java.time.ZonedDateTime.now().toInstant().toEpochMilli());
+		// request.message_type = "at";
+		request.profile_key = profile_key;
+		request.template_code = tmp_code;
+		request.receiver_num = "82" + (data.getInputData().substring(0,1).equals("0") == true ? data.getInputData().substring(1, data.getInputData().length()) : data.getInputData());
+		request.message = "Ä«Ä«¿À »ó´ãÅå ½Ç½Ã°£ 1:1 Ã¤ÆÃÀ» ½ÃÀÛÇÕ´Ï´Ù.\n¹®ÀÇ±ÛÀ» Ã¤ÆÃ ÀÔ·Â¶õ¿¡ ÀÛ¼ºÇÏ½Ã¾î\n»ó´ã¿ø°ú ¹Ù·Î Ã¤ÆÃÀ» ÁøÇàÇÏ¼¼¿ä.";
+		request.reserved_time = "00000000000000";
+		request.sms_message = "Ä«Ä«¿À¾Ë¸²Åå ½ÇÆÐ ½Ã Àü¼ÛµÊ";
+		request.sms_title = "";
+		request.sms_kind = "S";
+		request.sender_num = "07079973220";
+		request.btn_name = "»ó´ã½ÅÃ»";
+		request.btn_url = "https://api.happytalk.io/api/kakao/chat_open?yid=%40%ED%95%B4%ED%94%BC%ED%86%A1io&site_id=4000000015&category_id=61504&division_id=61505";
+		
+		w.lock();
+		try {
+			happytalklist.add(request);
+		} finally {
+			w.unlock();
+		}
+		
+		this.sendMessage2Kakao();
+	}
+	
+	private void sendMessage2Kakao() throws Exception {
+		ArrayList<HappyTalkRequest> tmplist = null;
+		w.lock();
+		try {
+			tmplist = new ArrayList<HappyTalkRequest>(happytalklist);
+			// if (tmplist == null) return;
+			if (happytalklist.size() < 1) return;
+		} finally {
+			w.unlock();
+		}
+		
+
+		// String https_url = String.format("https://dev-alimtalk-api.sweettracker.net/v1/%s/sendMessage",  profile_key);
+		String https_url = String.format("https://alimtalk-api.sweettracker.net/v1/%s/sendMessage", profile_key);
+		
+		URL url = new URL(https_url);
+		HttpsURLConnection con = (HttpsURLConnection)url.openConnection();
+		con.setRequestMethod("POST");
+		con.setRequestProperty("Content-Type", "Application/json");
+		con.setDoOutput(true);
+		
+		DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+		Gson gson = new Gson();
+		// wr.writeBytes(gson.toJson(tmplist));
+		wr.write(gson.toJson(tmplist).getBytes("UTF-8"));
+		wr.flush();
+		wr.close();
+		
+		//for(HappyTalkRequest req : happytalklist) {
+		// System.out.println(req.toString());
+		//}
+		
+		System.out.println("json Array: " + gson.toJson(happytalklist));
+
+		// print_https_cert(con);
+		print_content(con);
 	}
 	
 }

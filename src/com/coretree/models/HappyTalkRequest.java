@@ -22,6 +22,8 @@ public class HappyTalkRequest {
 	public String image_url;
 	public String image_link;
 	
+	public transient int count = 1;
+	
 	/*
 	public String getMsgid() { return this.msgid; }
 	public void setMsgid(String msgid) { this.msgid = msgid; }
