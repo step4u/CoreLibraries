@@ -256,6 +256,12 @@ public class HappyTalkService implements IEventHandler<HaveGotUcMessageEventArgs
 							request = happytalklist.stream().filter(x -> x.msgid.equals(response.msgid)).findFirst().get();
 							
 							if (request.count > 2) {
+								w.lock();
+								try {
+									happytalklist.removeIf(x -> x.msgid.equals(response.msgid));
+								} finally {
+									w.unlock();
+								}
 								return;
 							}
 							
@@ -311,9 +317,9 @@ public class HappyTalkService implements IEventHandler<HaveGotUcMessageEventArgs
 		ArrayList<HappyTalkRequest> tmplist = null;
 		w.lock();
 		try {
-			tmplist = new ArrayList<HappyTalkRequest>(happytalklist);
-			// if (tmplist == null) return;
 			if (happytalklist.size() < 1) return;
+			
+			tmplist = new ArrayList<HappyTalkRequest>(happytalklist);
 		} finally {
 			w.unlock();
 		}
