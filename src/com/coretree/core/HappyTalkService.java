@@ -265,15 +265,17 @@ public class HappyTalkService implements IEventHandler<HaveGotUcMessageEventArgs
 								return;
 							}
 							
+							Thread.sleep(10);
+							
 							request.msgid = "CT" + String.valueOf(java.time.ZonedDateTime.now().toInstant().toEpochMilli());
 							request.count++;
 							
-							w.lock();
-							try {
-								happytalklist.add(request);
-							} finally {
-								w.unlock();
-							}
+//							w.lock();
+//							try {
+//								happytalklist.add(request);
+//							} finally {
+//								w.unlock();
+//							}
 							
 							this.sendMessage2Kakao();
 						} catch (NoSuchElementException ex) {
@@ -293,7 +295,11 @@ public class HappyTalkService implements IEventHandler<HaveGotUcMessageEventArgs
 		// request.message_type = "at";
 		request.profile_key = profile_key;
 		request.template_code = tmp_code;
-		request.receiver_num = "82" + (data.getInputData().substring(0,1).equals("0") == true ? data.getInputData().substring(1, data.getInputData().length()) : data.getInputData());
+		if (data.getInputData().length() < 1) {
+			request.receiver_num = "82" + (data.getCaller().substring(0,1).equals("0") == true ? data.getCaller().substring(1, data.getCaller().length()) : data.getCaller());
+		} else {
+			request.receiver_num = "82" + (data.getInputData().substring(0,1).equals("0") == true ? data.getInputData().substring(1, data.getInputData().length()) : data.getInputData());
+		}
 		request.message = "카카오 상담톡 실시간 1:1 채팅을 시작합니다.\n문의글을 채팅 입력란에 작성하시어\n상담원과 바로 채팅을 진행하세요.";
 		request.reserved_time = "00000000000000";
 		request.sms_message = "카카오알림톡 실패 시 전송됨";
