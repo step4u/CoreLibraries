@@ -307,7 +307,8 @@ public class HappyTalkService implements IEventHandler<HaveGotUcMessageEventArgs
 		request.sms_kind = "S";
 		request.sender_num = "07079973220";
 		request.btn_name = "상담신청";
-		request.btn_url = "https://api.happytalk.io/api/kakao/chat_open?yid=%40%ED%95%B4%ED%94%BC%ED%86%A1io&site_id=4000000015&category_id=61504&division_id=61505";
+		// request.btn_url = "https://api.happytalk.io/api/kakao/chat_open?yid=%40%ED%95%B4%ED%94%BC%ED%86%A1io&site_id=4000000015&category_id=61504&division_id=61505";
+		request.btn_url = "https://api.happytalk.io/api/kakao/chat_open?yid=%40%EC%BD%94%EC%95%84%ED%8A%B8%EB%A6%AC&site_id=3000000064&category_id=64321&division_id=64322";
 		
 		w.lock();
 		try {
