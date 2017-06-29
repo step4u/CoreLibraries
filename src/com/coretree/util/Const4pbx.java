@@ -137,6 +137,7 @@ public class Const4pbx
 	public static final int WS_VALUE_EXTENSION_STATE_LOGEDON = 1018;			// 로그온
 	public static final int WS_VALUE_EXTENSION_STATE_SAMEASNOW = 1019;			// 같은 상태 요청함
 	public static final int WS_VALUE_EXTENSION_STATE_WRONGREQ = 1020;			// 잘못 된 요청
+	public static final int WS_VALUE_EXTENSION_STATE_RESET = 1021;				// 자기 상태 후처리로 리셋 및 다른 EXT 값 전송
 	
 	// uc websocket message
 	public static final int WS_STATUS_ING_NOTFOUND = 210001;

@@ -10,6 +10,8 @@ public class RTPRecordService {
 		RTPRecordServer recordserver = null;
 		ByteOrder bo = ByteOrder.BIG_ENDIAN;
 		String filetype = "wav";
+		boolean encryptEnabled = false;
+		int [] chkOptions = {0,0,0};
 		
 		if (args.length == 0) {
 			System.out.println("No parameters. RTP Recroder is starting in BIG_ENDIAN mode");
@@ -36,9 +38,10 @@ public class RTPRecordService {
 										bo = ByteOrder.BIG_ENDIAN;
 										break;
 								}
+								
+								chkOptions[0] = 1;
 							} catch (IndexOutOfBoundsException e) {
-								System.out.println("Invalid parameter. RTP Recroder is starting in BIG_ENDIAN mode");
-								bo = ByteOrder.BIG_ENDIAN;
+								chkOptions[0] = 0;
 							}
 							break;
 						case "-ft":
@@ -57,20 +60,49 @@ public class RTPRecordService {
 										filetype = "wav";
 										break;
 								}
+								
+								chkOptions[1] = 1;
 							} catch (IndexOutOfBoundsException e) {
-								System.out.println("Invalid parameter. The file will be saved as wave.");
-								bo = ByteOrder.BIG_ENDIAN;
+								chkOptions[1] = 0;
+							}
+							
+							break;
+						case "-enc":
+							/* Encrypt option yes or no */
+							try {
+								switch (args[i+1].toLowerCase()) {
+									case "n":
+									case "no":
+										encryptEnabled = false;
+										break;
+									case "y":
+									case "yes":
+										encryptEnabled = true;
+										break;
+									default:
+										System.out.println(String.format("[%s] [%s] is invalid parameter. The audio file will save as normal (not encrypted).", args[i], args[i+1]));
+										encryptEnabled = false;
+										break;
+								}
+								
+								chkOptions[2] = 1;
+							} catch (IndexOutOfBoundsException e) {
+								chkOptions[2] = 0;
 							}
 							break;
 						default:
-							System.out.println(String.format("[%s] is invalid parameter. RTP Recroder is starting in BIG_ENDIAN mode", args[i]));
-							bo = ByteOrder.BIG_ENDIAN;
-							filetype = "wav";
-							break;
+							System.out.println(String.format("[%s] is invalid parameter. RTP Recroder will be terminated.", args[i]));
+							return;
 					}
 				}
 			}
 			
+			int chkoptionscount = 0;
+			for (int i=0; i<chkOptions.length; i++) {
+				if (chkOptions[i] == 0) {
+					break;
+				}
+			}
 			recordserver = new RTPRecordServer(bo, filetype);
 		}
 	}

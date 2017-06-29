@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +53,7 @@ public class RTPRecordServer implements IEventHandler<EndOfCallEventArgs>
 {
 	private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
     private final Lock r = rwl.readLock();
-    // private final Lock w = rwl.writeLock();
+    private final Lock w = rwl.writeLock();
 	
 	private DatagramSocket serverSocket;
 	private List<RTPRecordInfo> recordIngList;
@@ -89,11 +90,13 @@ public class RTPRecordServer implements IEventHandler<EndOfCallEventArgs>
 		if (OS.contains("Windows")) {
 			_delimiter = "\\";
 			_strformat = "%s\\%s";
-			_option.saveDirectory = "D:\\temp\\RecFile\\";
+			// _option.saveDirectory = "D:\\temp\\RecFile\\";
+			_option.saveDirectory = ".\\";
 		} else {
 			_delimiter = "/";
 			_strformat = "%s/%s";
-			_option.saveDirectory = "/opt/webcrm/media/";
+			// _option.saveDirectory = "/opt/webcrm/media/";
+			_option.saveDirectory = "./";
 		}
 		
 		recordIngList = new ArrayList<RTPRecordInfo>();
@@ -142,7 +145,7 @@ public class RTPRecordServer implements IEventHandler<EndOfCallEventArgs>
 				}
 				
 				// System.out.println("CALLID: " + String.valueOf(rtpObj.StartCallSec) + String.valueOf(rtpObj.StartCallUSec) + ", EXT: " + rtpObj.extension + ", rtpObj.peer_number: " + rtpObj.peer_number + ", rtpObj.codec: " + rtpObj.codec + ", rtpObj.isExtension: " + rtpObj.isExtension + ", rtpObj.size: " + rtpObj.size);
-				Util.WriteLog("rtpObj.seq: " + rtpObj.seq + ", CALLID: " + String.valueOf(rtpObj.StartCallSec) + String.valueOf(rtpObj.StartCallUSec) + ", EXT: " + rtpObj.extension + ", rtpObj.peer_number: " + rtpObj.peer_number + ", rtpObj.codec: " + rtpObj.codec + ", rtpObj.isExtension: " + rtpObj.isExtension + ", rtpObj.size: " + rtpObj.size, 2);
+				// Util.WriteLog("rtpObj.seq: " + rtpObj.seq + ", CALLID: " + String.valueOf(rtpObj.StartCallSec) + String.valueOf(rtpObj.StartCallUSec) + ", EXT: " + rtpObj.extension + ", rtpObj.peer_number: " + rtpObj.peer_number + ", rtpObj.codec: " + rtpObj.codec + ", rtpObj.isExtension: " + rtpObj.isExtension + ", rtpObj.size: " + rtpObj.size, 2);
 
 				int nDataSize = rtpObj.size - 12;
 
@@ -164,7 +167,7 @@ public class RTPRecordServer implements IEventHandler<EndOfCallEventArgs>
 
 		String _callid = String.valueOf(rtp.StartCallSec) + String.valueOf(rtp.StartCallUSec);
 		
-		r.lock();
+		w.lock();
 		try {
 			// ingInstance = recordIngList.stream().filter(x -> x.callid.equals(_callid) && x.ext.equals(rtp.extension.trim())).findFirst().get();
 			ingInstance = recordIngList.stream().filter(x -> x.ext.equals(rtp.extension.trim())).findFirst().get();
@@ -221,8 +224,11 @@ public class RTPRecordServer implements IEventHandler<EndOfCallEventArgs>
 			ingInstance.EndOfCallEventHandler.addEventHandler(this);
 			
 			recordIngList.add(ingInstance);
+		} catch (ConcurrentModificationException e) {
+			Util.WriteLog(String.format(Finalvars.ErrHeader, 1018, e.getMessage()), 1);
+			 return;
 		} finally {
-			r.unlock();
+			w.unlock();
 		}
 	}
 

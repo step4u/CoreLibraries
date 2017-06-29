@@ -8,6 +8,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Timer;
@@ -274,18 +275,24 @@ public class RTPRecordInfo implements Closeable
 		List<RTPInfo> linin = new ArrayList<RTPInfo>();
 		List<RTPInfo> linout = new ArrayList<RTPInfo>();
 
-		r.lock();
+		w.lock();
 		try {
 			linin = listIn.stream().collect(Collectors.toList());
+		} catch (ConcurrentModificationException e) {
+			Util.WriteLog(String.format(Finalvars.ErrHeader, 1019, e.getMessage()), 1);
+			 return;
 		} finally {
-			r.unlock();
+		 	w.unlock();
 		}
 
-		r.lock();
+		w.lock();
 		try {
-			linout = listOut.stream().collect(Collectors.toList());
+		 	linout = listOut.stream().collect(Collectors.toList());
+		} catch (ConcurrentModificationException e) {
+			Util.WriteLog(String.format(Finalvars.ErrHeader, 1020, e.getMessage()), 1);
+			 return;
 		} finally {
-			r.unlock();
+			w.unlock();
 		}
 
 		Collections.sort(linin, new Comparator<RTPInfo>() {
@@ -393,7 +400,7 @@ public class RTPRecordInfo implements Closeable
 		if (delayedMsec == DelayedMsec.i80o160) {
 			int seq = item.seq * 2;
 			
-			r.lock();
+			//r.lock();
 			try {
 				_item0 = linin.stream().filter(x -> x.seq == seq).findFirst().get();					
 			} catch (NoSuchElementException | NullPointerException e) {
@@ -405,11 +412,11 @@ public class RTPRecordInfo implements Closeable
 				_item0.size = 92;
 				_item0.extension = item.extension;
 				_item0.peer_number = item.peer_number;
-			} finally {
-				r.unlock();
-			}
+			}// finally {
+			//	r.unlock();
+			//}
 			
-			r.lock();
+			//r.lock();
 			try {
 				_item1 = linin.stream().filter(x -> x.seq == (seq + 1)).findFirst().get();					
 			} catch (NoSuchElementException | NullPointerException e) {
@@ -421,9 +428,9 @@ public class RTPRecordInfo implements Closeable
 				_item1.size = 92;
 				_item1.extension = item.extension;
 				_item1.peer_number = item.peer_number;
-			} finally {
-				r.unlock();
-			}
+			}// finally {
+			//	r.unlock();
+			//}
 			
 			final RTPInfo __item0 = _item0;
 			final RTPInfo __item1 = _item1;
@@ -467,7 +474,7 @@ public class RTPRecordInfo implements Closeable
 		} else if (delayedMsec == DelayedMsec.i160o80) {
 			int seq = item.seq * 2;
 			
-			r.lock();
+			//r.lock();
 			try {
 				_item0 = linout.stream().filter(x -> x.seq == seq).findFirst().get();					
 			} catch (NoSuchElementException | NullPointerException e) {
@@ -479,12 +486,12 @@ public class RTPRecordInfo implements Closeable
 				_item0.size = 92;
 				_item0.extension = item.extension;
 				_item0.peer_number = item.peer_number;
-			} finally {
-				r.unlock();
-			}
+			}// finally {
+			//	r.unlock();
+			//}
 
 
-			r.lock();
+			//r.lock();
 			try {
 				_item1 = linout.stream().filter(x -> x.seq == seq + 1).findFirst().get();					
 			} catch (NoSuchElementException | NullPointerException e) {
@@ -496,9 +503,9 @@ public class RTPRecordInfo implements Closeable
 				_item1.size = 92;
 				_item1.extension = item.extension;
 				_item1.peer_number = item.peer_number;
-			} finally {
-				r.unlock();
-			}
+			}// finally {
+			//	r.unlock();
+			//}
 			
 			final RTPInfo __item0 = _item0;
 			final RTPInfo __item1 = _item1;
@@ -544,7 +551,7 @@ public class RTPRecordInfo implements Closeable
 			// item1 mix with item2 and write
 			RTPInfo _item = null;
 			
-			r.lock();
+			//r.lock();
 			try {
 				_item = linout.stream().filter(x -> x.seq == item.seq).findFirst().get();					
 			} catch (NoSuchElementException | NullPointerException e) {
@@ -556,9 +563,9 @@ public class RTPRecordInfo implements Closeable
 				_item.size = item.size;
 				_item.extension = item.extension;
 				_item.peer_number = item.peer_number;
-			} finally {
-				r.unlock();
-			}
+			}// finally {
+			//	r.unlock();
+			//}
 			
 			final RTPInfo __item = _item;
 
@@ -761,7 +768,7 @@ public class RTPRecordInfo implements Closeable
 			} catch (IOException e) {
 				Util.WriteLog(String.format(Finalvars.ErrHeader, 1017, e.getMessage()), 1);
 			} finally {
-				System.out.println("Finished finally");
+				System.out.println("The time has been expired finally");
 				EndOfCallEventHandler.raiseEvent(parent, new EndOfCallEventArgs(""));
 			}
 		}
