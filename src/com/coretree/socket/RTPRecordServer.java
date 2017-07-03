@@ -426,7 +426,7 @@ public class RTPRecordServer implements IEventHandler<EndOfCallEventArgs>
 					}
 					// Util.WriteLog(String.format(Finalvars.ErrHeader, 1002, e2.getMessage()), 1);
 				} finally {
-					System.out.println(String.format("stream end event insert db: sql: %s", sb.toString()));
+					// System.out.println(String.format("stream end event insert db: sql: %s", sb.toString()));
 					System.out.println(String.format("stream end event: callid: %s, ext: %s, peer: %s, filename: %s", item.callid, item.ext, item.peer, item.filename));
 				}
 //			}

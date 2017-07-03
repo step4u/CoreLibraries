@@ -126,6 +126,8 @@ public class Const4pbx
 	
 	public static final int WS_REQ_CHANGE_EXTENSION_STATE = 1001;				// 상태 변경 명령
 	public static final int WS_RES_CHANGE_EXTENSION_STATE = 1002;				// 상태 변경 명령 결과
+	public static final int WS_REQ_RESET_EXTENSION_STATE = 1003;				// 상태 초기화 명령
+	public static final int WS_RES_RESET_EXTENSION_STATE = 1004;				// 상태 초기화 명령 결과
 	
 	public static final int WS_VALUE_EXTENSION_STATE_READY = 1011;				// 대기 (온라인)
 	public static final int WS_VALUE_EXTENSION_STATE_AFTER = 1012;				// 후처리 (자리비움)
@@ -137,7 +139,6 @@ public class Const4pbx
 	public static final int WS_VALUE_EXTENSION_STATE_LOGEDON = 1018;			// 로그온
 	public static final int WS_VALUE_EXTENSION_STATE_SAMEASNOW = 1019;			// 같은 상태 요청함
 	public static final int WS_VALUE_EXTENSION_STATE_WRONGREQ = 1020;			// 잘못 된 요청
-	public static final int WS_VALUE_EXTENSION_STATE_RESET = 1021;				// 자기 상태 후처리로 리셋 및 다른 EXT 값 전송
 	
 	// uc websocket message
 	public static final int WS_STATUS_ING_NOTFOUND = 210001;
