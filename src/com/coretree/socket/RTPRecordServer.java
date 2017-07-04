@@ -96,7 +96,7 @@ public class RTPRecordServer implements IEventHandler<EndOfCallEventArgs>
 			_delimiter = "/";
 			_strformat = "%s/%s";
 			// _option.saveDirectory = "/opt/webcrm/media/";
-			_option.saveDirectory = "./";
+			_option.saveDirectory = "./media";
 		}
 		
 		recordIngList = new ArrayList<RTPRecordInfo>();
