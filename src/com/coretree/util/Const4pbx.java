@@ -64,6 +64,8 @@ public class Const4pbx
 	public static final byte UC_SMS_TRANSFER_RES = (byte)131;
 	public static final byte UC_SMS_TRANSFER_CANCEL_REQ = (byte)132;
 	public static final byte UC_SMS_TRANSFER_CANCEL_RES = (byte)133;
+	public static final byte STATUS_SMS_SUCCESS = 0;
+	public static final byte STATUS_SMS_SYSTEM_FAULT = 2;
 	
 	
 	public static final byte UC_APP_AUTH_REQ = (byte)198;
